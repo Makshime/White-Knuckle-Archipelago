@@ -1,6 +1,0 @@
-C:\Users\maxim\AppData\Roaming\r2modmanPlus-local\WhiteKnuckle\profiles\Cosmetic\BepInEx\plugins\White-Knuckle-Archipelago\obj\Debug\netstandard2.1\White-Knuckle-Archipelago.csproj.AssemblyReference.cache
-C:\Users\maxim\AppData\Roaming\r2modmanPlus-local\WhiteKnuckle\profiles\Cosmetic\BepInEx\plugins\White-Knuckle-Archipelago\obj\Debug\netstandard2.1\MyPluginInfo.cs
-C:\Users\maxim\AppData\Roaming\r2modmanPlus-local\WhiteKnuckle\profiles\Cosmetic\BepInEx\plugins\White-Knuckle-Archipelago\obj\Debug\netstandard2.1\White-Knuckle-Archipelago.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\maxim\AppData\Roaming\r2modmanPlus-local\WhiteKnuckle\profiles\Cosmetic\BepInEx\plugins\White-Knuckle-Archipelago\obj\Debug\netstandard2.1\White-Knuckle-Archipelago.AssemblyInfoInputs.cache
-C:\Users\maxim\AppData\Roaming\r2modmanPlus-local\WhiteKnuckle\profiles\Cosmetic\BepInEx\plugins\White-Knuckle-Archipelago\obj\Debug\netstandard2.1\White-Knuckle-Archipelago.AssemblyInfo.cs
-C:\Users\maxim\AppData\Roaming\r2modmanPlus-local\WhiteKnuckle\profiles\Cosmetic\BepInEx\plugins\White-Knuckle-Archipelago\obj\Debug\netstandard2.1\White-Knuckle-Archipelago.csproj.CoreCompileInputs.cache

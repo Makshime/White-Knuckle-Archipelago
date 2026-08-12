@@ -27,8 +27,7 @@ public class Plugin : BaseUnityPlugin
         var harmony = new Harmony("com.wuckle.concsumer.name");
         HarmonyFileLog.Enabled = true;
         
-        //Creates a fresh save upon initialization for testing purposes
-        File.Create(Path.Combine(UnityEngine.Application.persistentDataPath, "modded_save.json"));
+        
         
         harmony.PatchAll(Assembly.GetExecutingAssembly());
         Logger.LogInfo($"BasicPlugin Loaded");
@@ -132,6 +131,12 @@ public class Plugin : BaseUnityPlugin
         {
             ArchipelagoClient.Connect();
         }
+
+        public static void ResetAPSaveData(string[] strings)
+        {
+            //Creates a fresh save
+            File.Create(Path.Combine(UnityEngine.Application.persistentDataPath, "modded_save.json"));
+        }
         
         //This was a successful attempt at making custom commands into the game through a transpiler, before it was realized
         //that you can just use a prefix instead.
@@ -180,7 +185,8 @@ public class Plugin : BaseUnityPlugin
         {
             CommandConsole.BuildCommand("setloan", new Action<string[]>(AddCommands.ChangeLoanCommand)).Description("Sets the starting roach loan value to the specified value");
             CommandConsole.BuildCommand("connect", new Action<string[]>(AddCommands.TryConnectCommand)).NotCheat().Description("Attempts to connect to Archipelago Server: Server, Name");
-            CommandConsole.BuildCommand("reconnect", new Action<string[]>(AddCommands.TryReconnectCommand)).NotCheat().Description("Reconnects to Archiplago server in case of disconnect");
+            CommandConsole.BuildCommand("reconnect", new Action<string[]>(AddCommands.TryReconnectCommand)).NotCheat().Description("Reconnects to Archipelago server in case of disconnect");
+            CommandConsole.BuildCommand("resetAPsave", new Action<string[]>(AddCommands.ResetAPSaveData)).NotCheat().Description("Deletes the current APSave's data for starting a new archipelago game");
         }
         
         

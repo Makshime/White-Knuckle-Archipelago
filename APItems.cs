@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace WKRando;
 
@@ -58,6 +59,17 @@ public class APItems
             ["UPG_Vendor_T2_01"] = false,
         }
     };
+
+    public static void ClearCampaignFacilities()
+    {
+        foreach (var outerKey in _facilityDict.Keys.ToList())
+        {
+            foreach (var innerKey in _facilityDict[outerKey].Keys.ToList())
+            {
+                _facilityDict[outerKey][innerKey] = false;
+            }
+        }
+    }
     
     
     //Handles AP IDs of the 

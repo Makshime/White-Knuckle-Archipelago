@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Threading;
 using Archipelago.MultiClient.Net;
 using Archipelago.MultiClient.Net.Enums;
-
+using System.Threading.Tasks;
+    
 namespace WKRando;
 
 public class ArchipelagoClient
@@ -75,13 +77,15 @@ public class ArchipelagoClient
 
 
     }
-    
+
+    //Main update loop for checking for checks
     
     
     public void OnItemReceieve(object se)
     {
         
     }
-
+    
+    
 
 }

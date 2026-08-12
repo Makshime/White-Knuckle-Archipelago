@@ -1,0 +1,903 @@
+{
+  "runtimeTarget": {
+    "name": ".NETStandard,Version=v2.1/",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETStandard,Version=v2.1": {},
+    ".NETStandard,Version=v2.1/": {
+      "MyFirstPlugin/1.0.0": {
+        "dependencies": {
+          "Archipelago.MultiClient.Net": "6.7.1",
+          "BepInEx.Core": "5.4.21",
+          "MonoMod": "22.7.31.1",
+          "MonoMod.RuntimeDetour": "25.3.5",
+          "Assembly-CSharp": "0.0.0.0"
+        },
+        "runtime": {
+          "MyFirstPlugin.dll": {}
+        }
+      },
+      "Archipelago.MultiClient.Net/6.7.1": {
+        "runtime": {
+          "lib/netstandard2.0/Archipelago.MultiClient.Net.dll": {
+            "assemblyVersion": "6.7.1.0",
+            "fileVersion": "6.7.1.0"
+          },
+          "lib/netstandard2.0/Newtonsoft.Json.dll": {
+            "assemblyVersion": "11.0.0.0",
+            "fileVersion": "11.0.1.0"
+          }
+        }
+      },
+      "BepInEx.BaseLib/5.4.20": {
+        "runtime": {
+          "lib/netstandard2.0/BepInEx.dll": {
+            "assemblyVersion": "5.4.20.0",
+            "fileVersion": "5.4.20.0"
+          }
+        }
+      },
+      "BepInEx.Core/5.4.21": {
+        "dependencies": {
+          "BepInEx.BaseLib": "5.4.20",
+          "HarmonyX": "2.7.0"
+        }
+      },
+      "HarmonyX/2.7.0": {
+        "dependencies": {
+          "MonoMod.RuntimeDetour": "25.3.5"
+        },
+        "runtime": {
+          "lib/netstandard2.0/0Harmony.dll": {
+            "assemblyVersion": "2.7.0.0",
+            "fileVersion": "2.7.0.0"
+          }
+        }
+      },
+      "Mono.Cecil/0.11.6": {
+        "runtime": {
+          "lib/netstandard2.0/Mono.Cecil.Mdb.dll": {
+            "assemblyVersion": "0.11.6.0",
+            "fileVersion": "0.11.6.0"
+          },
+          "lib/netstandard2.0/Mono.Cecil.Pdb.dll": {
+            "assemblyVersion": "0.11.6.0",
+            "fileVersion": "0.11.6.0"
+          },
+          "lib/netstandard2.0/Mono.Cecil.Rocks.dll": {
+            "assemblyVersion": "0.11.6.0",
+            "fileVersion": "0.11.6.0"
+          },
+          "lib/netstandard2.0/Mono.Cecil.dll": {
+            "assemblyVersion": "0.11.6.0",
+            "fileVersion": "0.11.6.0"
+          }
+        }
+      },
+      "MonoMod/22.7.31.1": {
+        "dependencies": {
+          "Mono.Cecil": "0.11.6",
+          "MonoMod.Utils": "25.0.13",
+          "System.Collections.NonGeneric": "4.3.0",
+          "System.ComponentModel.TypeConverter": "4.3.0",
+          "System.IO.FileSystem.Primitives": "4.3.0",
+          "System.Reflection.TypeExtensions": "4.7.0"
+        },
+        "runtime": {
+          "lib/netstandard2.0/MonoMod.dll": {
+            "assemblyVersion": "22.7.31.1",
+            "fileVersion": "22.7.31.1"
+          }
+        }
+      },
+      "MonoMod.Backports/1.1.2": {
+        "dependencies": {
+          "MonoMod.ILHelpers": "1.1.0"
+        },
+        "runtime": {
+          "lib/netstandard2.1/MonoMod.Backports.dll": {
+            "assemblyVersion": "1.1.2.0",
+            "fileVersion": "1.1.2.0"
+          }
+        }
+      },
+      "MonoMod.Core/1.3.5": {
+        "dependencies": {
+          "Mono.Cecil": "0.11.6",
+          "MonoMod.Backports": "1.1.2",
+          "MonoMod.ILHelpers": "1.1.0",
+          "MonoMod.Utils": "25.0.13"
+        },
+        "runtime": {
+          "lib/netstandard2.1/MonoMod.Core.dll": {
+            "assemblyVersion": "1.3.5.0",
+            "fileVersion": "1.3.5.0"
+          },
+          "lib/netstandard2.1/MonoMod.Iced.dll": {
+            "assemblyVersion": "1.21.0.0",
+            "fileVersion": "1.21.0.0"
+          }
+        }
+      },
+      "MonoMod.ILHelpers/1.1.0": {
+        "runtime": {
+          "lib/netstandard2.1/MonoMod.ILHelpers.dll": {
+            "assemblyVersion": "1.1.0.0",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "MonoMod.RuntimeDetour/25.3.5": {
+        "dependencies": {
+          "Mono.Cecil": "0.11.6",
+          "MonoMod.Backports": "1.1.2",
+          "MonoMod.Core": "1.3.5",
+          "MonoMod.ILHelpers": "1.1.0",
+          "MonoMod.Utils": "25.0.13"
+        },
+        "runtime": {
+          "lib/netstandard2.1/MonoMod.RuntimeDetour.dll": {
+            "assemblyVersion": "25.3.5.0",
+            "fileVersion": "25.3.5.0"
+          }
+        }
+      },
+      "MonoMod.Utils/25.0.13": {
+        "dependencies": {
+          "Mono.Cecil": "0.11.6",
+          "MonoMod.Backports": "1.1.2",
+          "MonoMod.ILHelpers": "1.1.0"
+        },
+        "runtime": {
+          "lib/netstandard2.1/MonoMod.Utils.dll": {
+            "assemblyVersion": "25.0.13.0",
+            "fileVersion": "25.0.13.0"
+          }
+        }
+      },
+      "System.Collections.NonGeneric/4.3.0": {
+        "dependencies": {
+          "System.Threading": "4.3.0"
+        },
+        "runtime": {
+          "lib/netstandard1.3/System.Collections.NonGeneric.dll": {
+            "assemblyVersion": "4.0.2.0",
+            "fileVersion": "4.6.24705.1"
+          }
+        }
+      },
+      "System.Collections.Specialized/4.3.0": {
+        "dependencies": {
+          "System.Collections.NonGeneric": "4.3.0",
+          "System.Globalization.Extensions": "4.3.0",
+          "System.Threading": "4.3.0"
+        },
+        "runtime": {
+          "lib/netstandard1.3/System.Collections.Specialized.dll": {
+            "assemblyVersion": "4.0.2.0",
+            "fileVersion": "4.6.24705.1"
+          }
+        }
+      },
+      "System.ComponentModel/4.3.0": {
+        "runtime": {
+          "lib/netstandard1.3/System.ComponentModel.dll": {
+            "assemblyVersion": "4.0.2.0",
+            "fileVersion": "4.6.24705.1"
+          }
+        }
+      },
+      "System.ComponentModel.Primitives/4.3.0": {
+        "dependencies": {
+          "System.ComponentModel": "4.3.0"
+        },
+        "runtime": {
+          "lib/netstandard1.0/System.ComponentModel.Primitives.dll": {
+            "assemblyVersion": "4.1.1.0",
+            "fileVersion": "4.6.24705.1"
+          }
+        }
+      },
+      "System.ComponentModel.TypeConverter/4.3.0": {
+        "dependencies": {
+          "System.Collections.NonGeneric": "4.3.0",
+          "System.Collections.Specialized": "4.3.0",
+          "System.ComponentModel": "4.3.0",
+          "System.ComponentModel.Primitives": "4.3.0",
+          "System.Linq": "4.3.0",
+          "System.Reflection.TypeExtensions": "4.7.0",
+          "System.Threading": "4.3.0"
+        },
+        "runtime": {
+          "lib/netstandard1.5/System.ComponentModel.TypeConverter.dll": {
+            "assemblyVersion": "4.1.1.0",
+            "fileVersion": "4.6.24705.1"
+          }
+        }
+      },
+      "System.Globalization.Extensions/4.3.0": {},
+      "System.IO.FileSystem.Primitives/4.3.0": {
+        "runtime": {
+          "lib/netstandard1.3/System.IO.FileSystem.Primitives.dll": {
+            "assemblyVersion": "4.0.2.0",
+            "fileVersion": "4.6.24705.1"
+          }
+        }
+      },
+      "System.Linq/4.3.0": {
+        "runtime": {
+          "lib/netstandard1.6/System.Linq.dll": {
+            "assemblyVersion": "4.1.1.0",
+            "fileVersion": "4.6.24705.1"
+          }
+        }
+      },
+      "System.Reflection.TypeExtensions/4.7.0": {
+        "runtime": {
+          "lib/netstandard2.0/System.Reflection.TypeExtensions.dll": {
+            "assemblyVersion": "4.1.5.0",
+            "fileVersion": "4.700.19.56404"
+          }
+        }
+      },
+      "System.Threading/4.3.0": {
+        "runtime": {
+          "lib/netstandard1.3/System.Threading.dll": {
+            "assemblyVersion": "4.0.12.0",
+            "fileVersion": "4.6.24705.1"
+          }
+        }
+      },
+      "Assembly-CSharp/0.0.0.0": {
+        "runtime": {
+          "Assembly-CSharp.dll": {
+            "assemblyVersion": "0.0.0.0",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "Unity.InputSystem/1.7.0.0": {
+        "runtime": {
+          "Unity.InputSystem.dll": {
+            "assemblyVersion": "1.7.0.0",
+            "fileVersion": "1.7.0.0"
+          }
+        }
+      },
+      "AstarPathfindingProject/0.0.0.0": {
+        "runtime": {
+          "AstarPathfindingProject.dll": {
+            "assemblyVersion": "0.0.0.0",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "ALINE/0.0.0.0": {
+        "runtime": {
+          "ALINE.dll": {
+            "assemblyVersion": "0.0.0.0",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "Unity.TextMeshPro/0.0.0.0": {
+        "runtime": {
+          "Unity.TextMeshPro.dll": {
+            "assemblyVersion": "0.0.0.0",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "Unity.Addressables/0.0.0.0": {
+        "runtime": {
+          "Unity.Addressables.dll": {
+            "assemblyVersion": "0.0.0.0",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "UnityEngine.UI/1.0.0.0": {
+        "runtime": {
+          "UnityEngine.UI.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "Febucci.TextAnimator.Runtime/0.0.0.0": {
+        "runtime": {
+          "Febucci.TextAnimator.Runtime.dll": {
+            "assemblyVersion": "0.0.0.0",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "Unity.Postprocessing.Runtime/0.0.0.0": {
+        "runtime": {
+          "Unity.Postprocessing.Runtime.dll": {
+            "assemblyVersion": "0.0.0.0",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "DOTween/1.0.0.0": {
+        "runtime": {
+          "DOTween.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "Unity.Splines/0.0.0.0": {
+        "runtime": {
+          "Unity.Splines.dll": {
+            "assemblyVersion": "0.0.0.0",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "Unity.Mathematics/0.0.0.0": {
+        "runtime": {
+          "Unity.Mathematics.dll": {
+            "assemblyVersion": "0.0.0.0",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "Facepunch.Steamworks.Win64/1.0.0.0": {
+        "runtime": {
+          "Facepunch.Steamworks.Win64.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "2.4.1.0"
+          }
+        }
+      },
+      "PrefabBaker/0.0.0.0": {
+        "runtime": {
+          "PrefabBaker.dll": {
+            "assemblyVersion": "0.0.0.0",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "BakeryRuntimeAssembly/0.0.0.0": {
+        "runtime": {
+          "BakeryRuntimeAssembly.dll": {
+            "assemblyVersion": "0.0.0.0",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "Unity.VisualScripting.Core/0.0.0.0": {
+        "runtime": {
+          "Unity.VisualScripting.Core.dll": {
+            "assemblyVersion": "0.0.0.0",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "DarkMachineUI/0.0.0.0": {
+        "runtime": {
+          "DarkMachineUI.dll": {
+            "assemblyVersion": "0.0.0.0",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "Febucci.TextAnimator.TMP.Runtime/0.0.0.0": {
+        "runtime": {
+          "Febucci.TextAnimator.TMP.Runtime.dll": {
+            "assemblyVersion": "0.0.0.0",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "Unity.Collections/0.0.0.0": {
+        "runtime": {
+          "Unity.Collections.dll": {
+            "assemblyVersion": "0.0.0.0",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "Assembly-CSharp-firstpass/0.0.0.0": {
+        "runtime": {
+          "Assembly-CSharp-firstpass.dll": {
+            "assemblyVersion": "0.0.0.0",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "Sirenix.Utilities/1.0.0.0": {
+        "runtime": {
+          "Sirenix.Utilities.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "Unity.ResourceManager/0.0.0.0": {
+        "runtime": {
+          "Unity.ResourceManager.dll": {
+            "assemblyVersion": "0.0.0.0",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "Unity.VisualScripting.Flow/0.0.0.0": {
+        "runtime": {
+          "Unity.VisualScripting.Flow.dll": {
+            "assemblyVersion": "0.0.0.0",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "PackageTools/0.0.0.0": {
+        "runtime": {
+          "PackageTools.dll": {
+            "assemblyVersion": "0.0.0.0",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "Drawing/0.0.0.0": {
+        "runtime": {
+          "Drawing.dll": {
+            "assemblyVersion": "0.0.0.0",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "Unity.Entities/0.0.0.0": {
+        "runtime": {
+          "Unity.Entities.dll": {
+            "assemblyVersion": "0.0.0.0",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "Unity.Transforms/0.0.0.0": {
+        "runtime": {
+          "Unity.Transforms.dll": {
+            "assemblyVersion": "0.0.0.0",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "Unity.Burst/0.0.0.0": {
+        "runtime": {
+          "Unity.Burst.dll": {
+            "assemblyVersion": "0.0.0.0",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "Clipper2Lib/1.0.0.0": {
+        "runtime": {
+          "Clipper2Lib.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "andywiecko.BurstTriangulator/0.0.0.0": {
+        "runtime": {
+          "andywiecko.BurstTriangulator.dll": {
+            "assemblyVersion": "0.0.0.0",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "Pathfinding.Ionic.Zip.Reduced/1.9.1.9000": {
+        "runtime": {
+          "Pathfinding.Ionic.Zip.Reduced.dll": {
+            "assemblyVersion": "1.9.1.9000",
+            "fileVersion": "1.9.1.9000"
+          }
+        }
+      },
+      "Febucci.Attributes.Runtime/0.0.0.0": {
+        "runtime": {
+          "Febucci.Attributes.Runtime.dll": {
+            "assemblyVersion": "0.0.0.0",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "Unity.Collections.LowLevel.ILSupport/0.0.0.0": {
+        "runtime": {
+          "Unity.Collections.LowLevel.ILSupport.dll": {
+            "assemblyVersion": "0.0.0.0",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "Unity.Profiling.Core/0.0.0.0": {
+        "runtime": {
+          "Unity.Profiling.Core.dll": {
+            "assemblyVersion": "0.0.0.0",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "Unity.VisualScripting.Antlr3.Runtime/3.1.3.22795": {
+        "runtime": {
+          "Unity.VisualScripting.Antlr3.Runtime.dll": {
+            "assemblyVersion": "3.1.3.22795",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "Unity.Mathematics.Extensions/0.0.0.0": {
+        "runtime": {
+          "Unity.Mathematics.Extensions.dll": {
+            "assemblyVersion": "0.0.0.0",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "Unity.Serialization/0.0.0.0": {
+        "runtime": {
+          "Unity.Serialization.dll": {
+            "assemblyVersion": "0.0.0.0",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "Unity.Burst.Unsafe/4.0.5.0": {
+        "runtime": {
+          "Unity.Burst.Unsafe.dll": {
+            "assemblyVersion": "4.0.5.0",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "MyFirstPlugin/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Archipelago.MultiClient.Net/6.7.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-wheDMl5C0e175RvuY+E3oDY13myaa7f2pRRjOg9PgcbOJApVu3QT62mQ46jYJ0sn/X7Fu4bdVVxZ2bx0vwncBQ==",
+      "path": "archipelago.multiclient.net/6.7.1",
+      "hashPath": "archipelago.multiclient.net.6.7.1.nupkg.sha512"
+    },
+    "BepInEx.BaseLib/5.4.20": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-0bXgYxbCEN2Ixp3kiFEhyw+RASeFQeg/ww+lbMt7if6XMeVS60eg6epNsMA8Jbx57dmNOzNevkKKw8mP8SUMqw==",
+      "path": "bepinex.baselib/5.4.20",
+      "hashPath": "bepinex.baselib.5.4.20.nupkg.sha512"
+    },
+    "BepInEx.Core/5.4.21": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-NMUPlbHTTfJ+qIQCI90uIvjuUQ4wnwt4cpRsK3ItBh1DhsWFzAHXNiZjBxZkPysljEKQ2iu89sxMTga4bxBXVQ==",
+      "path": "bepinex.core/5.4.21",
+      "hashPath": "bepinex.core.5.4.21.nupkg.sha512"
+    },
+    "HarmonyX/2.7.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-lec/SkduQspMa3Pi/nM/NSvA84Za8HCCWA8ybdToKiTqnBZa+JC5g6rxoFQCg/1vNuYcvjy77edePZzIEsRmvw==",
+      "path": "harmonyx/2.7.0",
+      "hashPath": "harmonyx.2.7.0.nupkg.sha512"
+    },
+    "Mono.Cecil/0.11.6": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-f33RkDtZO8VlGXCtmQIviOtxgnUdym9xx/b1p9h91CRGOsJFxCFOFK1FDbVt1OCf1aWwYejUFa2MOQyFWTFjbA==",
+      "path": "mono.cecil/0.11.6",
+      "hashPath": "mono.cecil.0.11.6.nupkg.sha512"
+    },
+    "MonoMod/22.7.31.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-NcfQBxRnQt9TkYPcyMvNRmCgfxvcqPoJbSpyZlYcG8mVtshR5CsQdwqKO5S1696gkVB50pCLSwskBWjzvsZuTg==",
+      "path": "monomod/22.7.31.1",
+      "hashPath": "monomod.22.7.31.1.nupkg.sha512"
+    },
+    "MonoMod.Backports/1.1.2": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-baYlNy8n8kmaNhNvqmZ/dIPOeO1r9//dG1i2WbunMWtWZ2EKtIgmXaS+ZzphzTsikkGnoD4Jwr5g0TVdpDjgpw==",
+      "path": "monomod.backports/1.1.2",
+      "hashPath": "monomod.backports.1.1.2.nupkg.sha512"
+    },
+    "MonoMod.Core/1.3.5": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-B0Kr/mCyVJ++YfVPw5haGtWcF1e9qO7A3lDenvS1thuiz2ll6AYFLfaAoVDvaHgkaWS1oRBC8Jmdj5nETqKCeg==",
+      "path": "monomod.core/1.3.5",
+      "hashPath": "monomod.core.1.3.5.nupkg.sha512"
+    },
+    "MonoMod.ILHelpers/1.1.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-L2FWjhTrv7tcIxshfZ+M3OcaNr4cNw0IwiVZEgwqRnZ5QAN3+RrNJ8ZwCzwXUWyPDqooJxMcjjg8PsSYUiNBjQ==",
+      "path": "monomod.ilhelpers/1.1.0",
+      "hashPath": "monomod.ilhelpers.1.1.0.nupkg.sha512"
+    },
+    "MonoMod.RuntimeDetour/25.3.5": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-knmBUTdnjEb695jIOeTPEPDn6kPSiiRDiy8h4oLTYy4hq2DzS/3tJcHbrVfazejXcQBMIETprW9I2NWhOOH7yg==",
+      "path": "monomod.runtimedetour/25.3.5",
+      "hashPath": "monomod.runtimedetour.25.3.5.nupkg.sha512"
+    },
+    "MonoMod.Utils/25.0.13": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-EGJwAHZne08mFW4OPCRN+mKPy+vDCSdFZ16IOboTE7UhnaXW+VxAyJ9ZGuNzACBpfkHTrav4JOK4MDQhuiDpMA==",
+      "path": "monomod.utils/25.0.13",
+      "hashPath": "monomod.utils.25.0.13.nupkg.sha512"
+    },
+    "System.Collections.NonGeneric/4.3.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-prtjIEMhGUnQq6RnPEYLpFt8AtLbp9yq2zxOSrY7KJJZrw25Fi97IzBqY7iqssbM61Ek5b8f3MG/sG1N2sN5KA==",
+      "path": "system.collections.nongeneric/4.3.0",
+      "hashPath": "system.collections.nongeneric.4.3.0.nupkg.sha512"
+    },
+    "System.Collections.Specialized/4.3.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-Epx8PoVZR0iuOnJJDzp7pWvdfMMOAvpUo95pC4ScH2mJuXkKA2Y4aR3cG9qt2klHgSons1WFh4kcGW7cSXvrxg==",
+      "path": "system.collections.specialized/4.3.0",
+      "hashPath": "system.collections.specialized.4.3.0.nupkg.sha512"
+    },
+    "System.ComponentModel/4.3.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-VyGn1jGRZVfxnh8EdvDCi71v3bMXrsu8aYJOwoV7SNDLVhiEqwP86pPMyRGsDsxhXAm2b3o9OIqeETfN5qfezw==",
+      "path": "system.componentmodel/4.3.0",
+      "hashPath": "system.componentmodel.4.3.0.nupkg.sha512"
+    },
+    "System.ComponentModel.Primitives/4.3.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-j8GUkCpM8V4d4vhLIIoBLGey2Z5bCkMVNjEZseyAlm4n5arcsJOeI3zkUP+zvZgzsbLTYh4lYeP/ZD/gdIAPrw==",
+      "path": "system.componentmodel.primitives/4.3.0",
+      "hashPath": "system.componentmodel.primitives.4.3.0.nupkg.sha512"
+    },
+    "System.ComponentModel.TypeConverter/4.3.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-16pQ6P+EdhcXzPiEK4kbA953Fu0MNG2ovxTZU81/qsCd1zPRsKc3uif5NgvllCY598k6bI0KUyKW8fanlfaDQg==",
+      "path": "system.componentmodel.typeconverter/4.3.0",
+      "hashPath": "system.componentmodel.typeconverter.4.3.0.nupkg.sha512"
+    },
+    "System.Globalization.Extensions/4.3.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-FhKmdR6MPG+pxow6wGtNAWdZh7noIOpdD5TwQ3CprzgIE1bBBoim0vbR1+AWsWjQmU7zXHgQo4TWSP6lCeiWcQ==",
+      "path": "system.globalization.extensions/4.3.0",
+      "hashPath": "system.globalization.extensions.4.3.0.nupkg.sha512"
+    },
+    "System.IO.FileSystem.Primitives/4.3.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-6QOb2XFLch7bEc4lIcJH49nJN2HV+OC3fHDgsLVsBVBk3Y4hFAnOBGzJ2lUu7CyDDFo9IBWkSsnbkT6IBwwiMw==",
+      "path": "system.io.filesystem.primitives/4.3.0",
+      "hashPath": "system.io.filesystem.primitives.4.3.0.nupkg.sha512"
+    },
+    "System.Linq/4.3.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-5DbqIUpsDp0dFftytzuMmc0oeMdQwjcP/EWxsksIz/w1TcFRkZ3yKKz0PqiYFMmEwPSWw+qNVqD7PJ889JzHbw==",
+      "path": "system.linq/4.3.0",
+      "hashPath": "system.linq.4.3.0.nupkg.sha512"
+    },
+    "System.Reflection.TypeExtensions/4.7.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-VybpaOQQhqE6siHppMktjfGBw1GCwvCqiufqmP8F1nj7fTUNtW35LOEt3UZTEsECfo+ELAl/9o9nJx3U91i7vA==",
+      "path": "system.reflection.typeextensions/4.7.0",
+      "hashPath": "system.reflection.typeextensions.4.7.0.nupkg.sha512"
+    },
+    "System.Threading/4.3.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-VkUS0kOBcUf3Wwm0TSbrevDDZ6BlM+b/HRiapRFWjM5O0NS0LviG0glKmFK+hhPDd1XFeSdU1GmlLhb2CoVpIw==",
+      "path": "system.threading/4.3.0",
+      "hashPath": "system.threading.4.3.0.nupkg.sha512"
+    },
+    "Assembly-CSharp/0.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Unity.InputSystem/1.7.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "AstarPathfindingProject/0.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "ALINE/0.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Unity.TextMeshPro/0.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Unity.Addressables/0.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "UnityEngine.UI/1.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Febucci.TextAnimator.Runtime/0.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Unity.Postprocessing.Runtime/0.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "DOTween/1.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Unity.Splines/0.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Unity.Mathematics/0.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Facepunch.Steamworks.Win64/1.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PrefabBaker/0.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "BakeryRuntimeAssembly/0.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Unity.VisualScripting.Core/0.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "DarkMachineUI/0.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Febucci.TextAnimator.TMP.Runtime/0.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Unity.Collections/0.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Assembly-CSharp-firstpass/0.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Sirenix.Utilities/1.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Unity.ResourceManager/0.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Unity.VisualScripting.Flow/0.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PackageTools/0.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Drawing/0.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Unity.Entities/0.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Unity.Transforms/0.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Unity.Burst/0.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Clipper2Lib/1.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "andywiecko.BurstTriangulator/0.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Pathfinding.Ionic.Zip.Reduced/1.9.1.9000": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Febucci.Attributes.Runtime/0.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Unity.Collections.LowLevel.ILSupport/0.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Unity.Profiling.Core/0.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Unity.VisualScripting.Antlr3.Runtime/3.1.3.22795": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Unity.Mathematics.Extensions/0.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Unity.Serialization/0.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Unity.Burst.Unsafe/4.0.5.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

@@ -1,0 +1,113 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\Users\\maxim\\AppData\\Roaming\\r2modmanPlus-local\\WhiteKnuckle\\profiles\\Cosmetic\\BepInEx\\plugins\\White-Knuckle-Archipelago\\White-Knuckle-Archipelago.csproj": {}
+  },
+  "projects": {
+    "C:\\Users\\maxim\\AppData\\Roaming\\r2modmanPlus-local\\WhiteKnuckle\\profiles\\Cosmetic\\BepInEx\\plugins\\White-Knuckle-Archipelago\\White-Knuckle-Archipelago.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\maxim\\AppData\\Roaming\\r2modmanPlus-local\\WhiteKnuckle\\profiles\\Cosmetic\\BepInEx\\plugins\\White-Knuckle-Archipelago\\White-Knuckle-Archipelago.csproj",
+        "projectName": "MyFirstPlugin",
+        "projectPath": "C:\\Users\\maxim\\AppData\\Roaming\\r2modmanPlus-local\\WhiteKnuckle\\profiles\\Cosmetic\\BepInEx\\plugins\\White-Knuckle-Archipelago\\White-Knuckle-Archipelago.csproj",
+        "packagesPath": "C:\\Users\\maxim\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\maxim\\AppData\\Roaming\\r2modmanPlus-local\\WhiteKnuckle\\profiles\\Cosmetic\\BepInEx\\plugins\\White-Knuckle-Archipelago\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\maxim\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "netstandard2.1"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {},
+          "https://api.nuget.org/v3/index.json": {},
+          "https://nuget.bepinex.dev/v3/index.json": {},
+          "https://nuget.bepinex.dev/v3/index.json": {},
+          "https://nuget.samboy.dev/v3/index.json": {}
+        },
+        "frameworks": {
+          "netstandard2.1": {
+            "targetAlias": "netstandard2.1",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "10.0.300"
+      },
+      "frameworks": {
+        "netstandard2.1": {
+          "targetAlias": "netstandard2.1",
+          "dependencies": {
+            "Archipelago.MultiClient.Net": {
+              "target": "Package",
+              "version": "[6.7.1, )"
+            },
+            "BepInEx.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.*, )"
+            },
+            "BepInEx.Core": {
+              "target": "Package",
+              "version": "[5.*, )"
+            },
+            "BepInEx.PluginInfoProps": {
+              "target": "Package",
+              "version": "[2.*, )"
+            },
+            "Lib.Harmony": {
+              "target": "Package",
+              "version": "[2.4.2, )"
+            },
+            "MonoMod": {
+              "target": "Package",
+              "version": "[22.7.31.1, )"
+            },
+            "MonoMod.RuntimeDetour": {
+              "target": "Package",
+              "version": "[25.3.5, )"
+            },
+            "UnityEngine.Modules": {
+              "include": "Compile",
+              "target": "Package",
+              "version": "[2022.3.62, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "NETStandard.Library.Ref",
+              "version": "[2.1.0, 2.1.0]"
+            }
+          ],
+          "frameworkReferences": {
+            "NETStandard.Library": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.301\\RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

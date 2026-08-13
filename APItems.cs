@@ -13,7 +13,7 @@ public class APItems
     {
         ["GLOBAL"] = new() 
         {
-            //All other global upgrades are either overriden or inconsequential
+            //All other global upgrades are either overridden or inconsequential
             ["UPG_Global_Bazaar_I2"] = false,
         },
         ["CAMPAIGN_INTERLUDE_01"] = new ()
@@ -76,6 +76,14 @@ public class APItems
     public static Dictionary<long, string> APtoFullFacilityUpgrade = new Dictionary<long, string>()
     {
         [0xAA10000] = "GLOBAL UPG_Global_Bazaar_I2",
+        [0xAA10001] = "GLOBAL UPG_Global_StartingRoaches_T1",
+        [0xAA10002] = "GLOBAL UPG_Global_StartingRoaches_T2",
+        [0xAA10003] = "GLOBAL UPG_Global_StartingRoaches_T3",
+        [0xAA10004] = "GLOBAL UPG_Global_Buddy_T1",
+        [0xAA10005] = "GLOBAL UPG_Global_Pouch_T1",
+        [0xAA10006] = "GLOBAL UPG_Global_OrnamentalHammer",
+        [0xAA10007] = "GLOBAL UPG_Global_Cosmetic_WorkGloves",
+        [0xAA10008] = "GLOBAL UPG_Global_Cosmetic_SpecialtyGloves"
         
         [0xAA11000] = "CAMPAIGN_INTERLUDE_01 UPG_Recycler",
         [0xAA11001] = "CAMPAIGN_INTERLUDE_01 UPG_SectorMaintenance",
@@ -115,6 +123,14 @@ public class APItems
     public static Dictionary<string, long> fullFacilityUpgradetoAP = new Dictionary<string, long>()
     {
         ["GLOBAL UPG_Global_Bazaar_I2"] = 0xAA10000,
+        ["GLOBAL UPG_Global_StartingRoaches_T1"] = 0xAA10001,
+        ["GLOBAL UPG_Global_StartingRoaches_T2"] = 0xAA10002,
+        ["GLOBAL UPG_Global_StartingRoaches_T3"] = 0xAA10003,
+        ["GLOBAL UPG_Global_Buddy_T1"] = 0xAA10004,
+        ["GLOBAL UPG_Global_Pouch_T1"] = 0xAA10005,
+        ["GLOBAL UPG_Global_OrnamentalHammer"] = 0xAA10006,
+        ["GLOBAL UPG_Global_Cosmetic_WorkGloves"] = 0xAA10007,
+        ["GLOBAL UPG_Global_Cosmetic_SpecialtyGloves"] = 0xAA10008,
 
         ["CAMPAIGN_INTERLUDE_01 UPG_Recycler"] = 0xAA11000,
         ["CAMPAIGN_INTERLUDE_01 UPG_SectorMaintenance"] = 0xAA11001,

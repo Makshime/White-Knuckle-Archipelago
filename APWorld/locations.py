@@ -91,7 +91,7 @@ def create_regular_locations(world: WKWorld) -> None:
              "Global: Ornamental Hammer Purchase",
              "Global: Work Gloves Purchase",
              "Global: New Gloves Purchase"]
-        )
+        ), WKLocation
     )
 
     interlude_1_locations = get_location_names_with_ids(
@@ -128,7 +128,7 @@ def create_regular_locations(world: WKWorld) -> None:
              "I3: ATM Install",
              "I3: Vendor Upgrade",
              "I3: Rho Altar"]
-        )
+        ), WKLocation
     )
 
     interlude_4.add_locations(
@@ -141,13 +141,9 @@ def create_regular_locations(world: WKWorld) -> None:
              "I4: Wine Vendor",
              "I4: ATM Install",
              "I4: Vendor Upgrade"]
-        )
+        ), WKLocation
     )
 
 def create_events(world : WKWorld) -> None:
-
-    core = world.get_region("Core")
-    core.add_event(
-        "Reached_Win", "Victory", location_type=WKLocation, item_type=items.WKItem
-    )
+    return
 

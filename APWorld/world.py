@@ -1,18 +1,21 @@
 from collections.abc import Mapping
 from typing import Any
 
-from World.AutoWorld import World
+from worlds.AutoWorld import World
 
 from . import items, locations, regions, rules
-from . import options as WKOptions
+from . import options as wuckle_options
 
 class WKWorld(World):
     """
-    White Knuckle is a funny and silly climbing game about escaping da facility
-    Class 7 fluid detected. Escape.
+    White Knuckle is a funny and silly climbing game about escaping a dangerous facility \n
+    Class 7 fluid detected.
     """
 
     game = "White Knuckle"
+
+    options_dataclass = wuckle_options.WKOptions
+    options: wuckle_options.WKOptions
 
     location_name_to_id = locations.LOCATION_NAME_TO_ID
     item_name_to_id = items.ITEM_NAME_TO_ID
@@ -37,6 +40,4 @@ class WKWorld(World):
         return items.get_random_filler_item_name(self)
 
     def fill_slot_data(self) -> Mapping[str, Any]:
-        return self.options.as_dict(
-            "Mode"
-        )
+        return self.options.as_dict()

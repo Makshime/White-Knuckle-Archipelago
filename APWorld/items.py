@@ -111,45 +111,45 @@ def create_all_items(world: WKWorld) -> None:
 
         world.create_item("Interlude Ascent: Bazaar Access"),
 
-        world.create_item("I1 Upgrade: Recycler"),
-        world.create_item("I1 Upgrade: Sector Maintenance"),
-        world.create_item("I1 Upgrade: Locker 1"),
-        world.create_item("I1 Upgrade: Locker 2"),
-        world.create_item("I1 Upgrade: Ration Vendor 1"),
-        world.create_item("I1 Upgrade: Ration Vendor 2"),
-        world.create_item("I1 Upgrade: ATM Install"),
-        world.create_item("I1 Upgrade: Vendor Upgrade 1"),
-        world.create_item("I1 Upgrade: Vendor Upgrade 2"),
+        world.create_item("I1: Recycler Upgrade"),
+        world.create_item("I1: Sector Maintenance"),
+        world.create_item("I1: Locker 1"),
+        world.create_item("I1: Locker 2"),
+        world.create_item("I1: Ration Vendor 1"),
+        world.create_item("I1: Ration Vendor 2"),
+        world.create_item("I1: ATM Install"),
+        world.create_item("I1: Vendor Upgrade 1"),
+        world.create_item("I1: Vendor Upgrade 2"),
 
-        world.create_item("I2 Upgrade: Recycler"),
-        world.create_item("I2 Upgrade: Locker 1"),
-        world.create_item("I2 Upgrade: Locker 2"),
-        world.create_item("I2 Upgrade: Ration Vendor 1"),
-        world.create_item("I2 Upgrade: Ration Vendor 2"),
-        world.create_item("I2 Upgrade: Vendor Upgrade 1"),
-        world.create_item("I2 Upgrade: Vendor Upgrade 2"),
+        world.create_item("I2: Recycler Upgrade"),
+        world.create_item("I2: Locker 1"),
+        world.create_item("I2: Locker 2"),
+        world.create_item("I2: Ration Vendor 1"),
+        world.create_item("I2: Ration Vendor 2"),
+        world.create_item("I2: Vendor Upgrade 1"),
+        world.create_item("I2: Vendor Upgrade 2"),
 
-        world.create_item("I3 Upgrade: Recycler"),
-        world.create_item("I3 Upgrade: Locker 1"),
-        world.create_item("I3 Upgrade: Locker 2"),
-        world.create_item("I3 Upgrade: ATM Install"),
-        world.create_item("I3 Upgrade: Vendor Upgrade"),
-        world.create_item("I3 Upgrade: Rho Altar"),
+        world.create_item("I3: Recycler Upgrade"),
+        world.create_item("I3: Locker 1"),
+        world.create_item("I3: Locker 2"),
+        world.create_item("I3: ATM Install"),
+        world.create_item("I3: Vendor Upgrade"),
+        world.create_item("I3: Rho Altar"),
 
-        world.create_item("I4 Upgrade: Recycler"),
-        world.create_item("I4 Upgrade: Locker 1"),
-        world.create_item("I4 Upgrade: Locker 2"),
-        world.create_item("I4 Upgrade: Ration Vendor 1"),
-        world.create_item("I4 Upgrade: Ration Vendor 2"),
-        world.create_item("I4 Upgrade: Wine vendor"),
-        world.create_item("I4 Upgrade: ATM Install"),
-        world.create_item("I4 Upgrade: Vendor Upgrade"),
+        world.create_item("I4: Recycler Upgrade"),
+        world.create_item("I4: Locker 1"),
+        world.create_item("I4: Locker 2"),
+        world.create_item("I4: Ration Vendor 1"),
+        world.create_item("I4: Ration Vendor 2"),
+        world.create_item("I4: Wine Vendor"),
+        world.create_item("I4: ATM Install"),
+        world.create_item("I4: Vendor Upgrade"),
     ]
 
     number_of_items = len(itempool)
     number_of_unfilled_locations = len(world.multiworld.get_unfilled_locations(world.player))
     needed_number_of_filler_items = number_of_unfilled_locations - number_of_items
 
-    itempool += [world.create_filler() for _ in range(needed_number_of_filler_items)]
+    itempool += [world.create_filler() for _ in range(needed_number_of_filler_items+1)]
 
     world.multiworld.itempool += itempool

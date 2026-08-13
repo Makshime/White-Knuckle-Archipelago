@@ -25,9 +25,9 @@ def create_all_regions(world: WKWorld) -> None:
     pipeworks_2 = Region("Pipeworks 2", world.player, world.multiworld) ## Waste Heap
     pipeworks_3 = Region("Pipeworks 3", world.player, world.multiworld) ## Organ
     interlude_2 = Region("Interlude 2", world.player, world.multiworld)
-    hab_1 = Region("Habitat 1", world.player, world.multiworld)
-    hab_2 = Region("Habitat 2", world.player, world.multiworld)
-    hab_3 = Region("Habitat 3", world.player, world.multiworld)
+    hab_1 = Region("Habitation 1", world.player, world.multiworld)
+    hab_2 = Region("Habitation 2", world.player, world.multiworld)
+    hab_3 = Region("Habitation 3", world.player, world.multiworld)
     interlude_3 = Region("Interlude 3", world.player, world.multiworld)
     abyss_1 = Region("Abyss 1", world.player, world.multiworld)
     abyss_2 = Region("Abyss 2", world.player, world.multiworld)
@@ -38,7 +38,7 @@ def create_all_regions(world: WKWorld) -> None:
     nest_3 = Region("Nest 3", world.player, world.multiworld)
     core_1 = Region("Core 1", world.player, world.multiworld)
 
-    regions = [silos_1, silos_2, silos_3, interlude_1, pipeworks_1, pipeworks_2, pipeworks_3, interlude_2, hab_1, hab_2, hab_3, interlude_3, abyss_1, abyss_2, abyss_3, interlude_4, nest_1, nest_2, nest_3, core_1]
+    regions = [global_shop, silos_1, silos_2, silos_3, interlude_1, pipeworks_1, pipeworks_2, pipeworks_3, interlude_2, hab_1, hab_2, hab_3, interlude_3, abyss_1, abyss_2, abyss_3, interlude_4, nest_1, nest_2, nest_3, core_1]
 
     world.multiworld.regions += regions
 
@@ -54,9 +54,9 @@ def connect_regions(world: WKWorld) -> None:
     pipeworks_2 = world.get_region("Pipeworks 2") ## Waste Heap
     pipeworks_3 = world.get_region("Pipeworks 3") ## Organ
     interlude_2 = world.get_region("Interlude 2")
-    hab_1 = world.get_region("Habitat 1")
-    hab_2 = world.get_region("Habitat 2")
-    hab_3 = world.get_region("Habitat 3")
+    hab_1 = world.get_region("Habitation 1")
+    hab_2 = world.get_region("Habitation 2")
+    hab_3 = world.get_region("Habitation 3")
     interlude_3 = world.get_region("Interlude 3")
     abyss_1 = world.get_region("Abyss 1")
     abyss_2 = world.get_region("Abyss 2")
@@ -80,10 +80,10 @@ def connect_regions(world: WKWorld) -> None:
     pipeworks_2.connect(pipeworks_3, "Pipeworks 2 to Pipeworks 3")
     pipeworks_3.connect(interlude_2, "Pipeworks 3 to Interlude 2")
 
-    interlude_2.connect(hab_1, "Interlude 2 to Habitat 1")
-    hab_1.connect(hab_2, "Habitat 1 to Habitat 2")
-    hab_2.connect(hab_3, "Habitat 2 to Habitat 3")
-    hab_3.connect(interlude_3, "Habitat 3 to Interlude 3")
+    interlude_2.connect(hab_1, "Interlude 2 to Habitation 1")
+    hab_1.connect(hab_2, "Habitation 1 to Habitation 2")
+    hab_2.connect(hab_3, "Habitation 2 to Habitation 3")
+    hab_3.connect(interlude_3, "Habitation 3 to Interlude 3")
 
     interlude_3.connect(abyss_1, "Interlude 3 to Abyss 1")
     abyss_1.connect(abyss_2, "Abyss 1 to Abyss 2")

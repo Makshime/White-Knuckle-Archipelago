@@ -17,7 +17,7 @@ public class Plugin : BaseUnityPlugin
 {
     internal static new ManualLogSource Logger;
 
-    private static int _loanAmount = 0;
+    public static int LoanAmount = 0;
 
     private void Awake()
     {
@@ -42,7 +42,7 @@ public class Plugin : BaseUnityPlugin
         static bool Prefix(FacilityUpgrade __instance, ref bool __result, object[] __args)
         {
             string facilityId = StatManager.saveData.GetFacility((string)__args[0]).id;
-            if (APItems._facilityDict.TryGetValue(facilityId, out Dictionary<string, bool> dict) && dict.ContainsKey(__instance.id))
+            if (APItems.FacilityDict.TryGetValue(facilityId, out Dictionary<string, bool> dict) && dict.ContainsKey(__instance.id))
             {
                  __result = dict[__instance.id];
                  return false;
@@ -107,11 +107,24 @@ public class Plugin : BaseUnityPlugin
             }
             else
             {
-                _loanAmount = int.Parse(args[0]);
+                LoanAmount = int.Parse(args[0]);
             }
         }
 
-        public static void TryConnectCommand(string[] args)
+        public static void CheatRoachesInCommand(string[] args)
+        {
+            try
+            {
+                CL_GameManager.runRoaches = int.Parse(args[0]);
+            }
+            catch 
+            {
+                CommandConsole.Log("Requires a single integer");
+            }
+
+        }
+
+        public static async void TryConnectCommand(string[] args)
         {
             if (args.Length < 2 || args[0] == "")
             {
@@ -119,23 +132,25 @@ public class Plugin : BaseUnityPlugin
             }
             else if(args.Length == 2)
             {
-                ArchipelagoClient.Connect(args[0], args[1]);
+                await ArchipelagoClient.Connect(args[0], args[1]);
             }
             else
             {
-                ArchipelagoClient.Connect(args[0],args[1], args[2]);
+                await ArchipelagoClient.Connect(args[0],args[1], args[2]);
             }
+            
         }
 
-        public static void TryReconnectCommand(string[] args)
+        public static async void TryReconnectCommand(string[] args)
         {
-            ArchipelagoClient.Connect();
+           await ArchipelagoClient.Connect();
         }
 
-        public static void ResetAPSaveData(string[] strings)
+        public static void ResetAPSaveData(string[] args)
         {
             //Creates a fresh save
-            File.Create(Path.Combine(UnityEngine.Application.persistentDataPath, "modded_save.json"));
+            CommandConsole.Log("Resetting Save...");
+            File.Create(Path.Combine(UnityEngine.Application.persistentDataPath, "rando_save.json"));
         }
         
         //This was a successful attempt at making custom commands into the game through a transpiler, before it was realized
@@ -186,15 +201,19 @@ public class Plugin : BaseUnityPlugin
             CommandConsole.BuildCommand("setloan", new Action<string[]>(AddCommands.ChangeLoanCommand)).Description("Sets the starting roach loan value to the specified value");
             CommandConsole.BuildCommand("connect", new Action<string[]>(AddCommands.TryConnectCommand)).NotCheat().Description("Attempts to connect to Archipelago Server: Server, Name");
             CommandConsole.BuildCommand("reconnect", new Action<string[]>(AddCommands.TryReconnectCommand)).NotCheat().Description("Reconnects to Archipelago server in case of disconnect");
-            CommandConsole.BuildCommand("resetAPsave", new Action<string[]>(AddCommands.ResetAPSaveData)).NotCheat().Description("Deletes the current APSave's data for starting a new archipelago game");
+            CommandConsole.BuildCommand("resetapsave", new Action<string[]>(AddCommands.ResetAPSaveData)).NotCheat().Description("Deletes the current APSave's data for starting a new archipelago game");
+            CommandConsole.BuildCommand("say", new Action<string[]>(ArchipelagoClient.Say)).NotCheat()
+                .Description("Sends a message to the archipelago client.");
+            CommandConsole.BuildCommand("cheatroaches", new Action<string[]>(AddCommands.CheatRoachesInCommand))
+                .NotCheat().Description("Cheats in roaches without activating cheat mode for debug purposes");
         }
         
         
-        //Alters the roach loan value to refer to the _loanamount value instantiated in this Plugin.cs file
+        //Alters the roach loan value to refer to the LoanAmount value instantiated in this Plugin.cs file
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
 
-            var loanInstruction = new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(Plugin), nameof(_loanAmount)));
+            var loanInstruction = new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(Plugin), nameof(LoanAmount)));
 
             return new CodeMatcher(instructions)
                 .MatchForward(false, 
@@ -205,6 +224,17 @@ public class Plugin : BaseUnityPlugin
                 .InstructionEnumeration();
             
             
+        }
+    }
+    
+    [HarmonyPatch(typeof(FacilityUpgrade), "Purchase", typeof(StatManager.SaveData.Facility))]
+    class PatchPurchase
+    {
+        //Sends the check from the facility upgrade purchase to the client
+        static void Prefix(FacilityUpgrade __instance, object[] __args)
+        {
+            long APID = APItems.FullFacilityUpgradetoAP[$"{((StatManager.SaveData.Facility)__args[0]).id} {__instance.id}"];
+            ArchipelagoClient.SendItem(APID);
         }
     }
     

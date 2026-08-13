@@ -8,7 +8,7 @@ public class APItems
     
     
     // Stores flags for facility data to override ingame 
-    public static Dictionary<string, Dictionary<string, bool>> _facilityDict { get; set; } =
+    public static Dictionary<string, Dictionary<string, bool>> FacilityDict { get; set; } =
         new Dictionary<string, Dictionary<string, bool>>()
     {
         ["GLOBAL"] = new() 
@@ -62,17 +62,36 @@ public class APItems
 
     public static void ClearCampaignFacilities()
     {
-        foreach (var outerKey in _facilityDict.Keys.ToList())
+        foreach (var outerKey in FacilityDict.Keys.ToList())
         {
-            foreach (var innerKey in _facilityDict[outerKey].Keys.ToList())
+            foreach (var innerKey in FacilityDict[outerKey].Keys.ToList())
             {
-                _facilityDict[outerKey][innerKey] = false;
+                FacilityDict[outerKey][innerKey] = false;
             }
         }
     }
+
+    public static void UpdateFromId(long id)
+    {
+
+        if (0xAAFFFFF >= id & id >= 0xAA11000 || id == 0xAA10000)
+        {
+            var vals = APtoFullFacilityUpgrade[id].Split(" ");
+            FacilityDict[vals[0]][vals[1]] = true;
+            Facility.onPurchaseUpgrade();
+        } else if (0xA900001 == id)
+        {
+            Plugin.LoanAmount += 1;
+            CL_GameManager.runRoaches += 1;
+        } else if (0xA900002 == id)
+        {
+            CL_GameManager.globalRoaches += 10;
+        }
+        
+        
+    }
     
-    
-    //Handles AP IDs of the 
+    //Handles AP IDs of facility upgrades
     public static Dictionary<long, string> APtoFullFacilityUpgrade = new Dictionary<long, string>()
     {
         [0xAA10000] = "GLOBAL UPG_Global_Bazaar_I2",
@@ -83,7 +102,7 @@ public class APItems
         [0xAA10005] = "GLOBAL UPG_Global_Pouch_T1",
         [0xAA10006] = "GLOBAL UPG_Global_OrnamentalHammer",
         [0xAA10007] = "GLOBAL UPG_Global_Cosmetic_WorkGloves",
-        [0xAA10008] = "GLOBAL UPG_Global_Cosmetic_SpecialtyGloves"
+        [0xAA10008] = "GLOBAL UPG_Global_Cosmetic_SpecialtyGloves",
         
         [0xAA11000] = "CAMPAIGN_INTERLUDE_01 UPG_Recycler",
         [0xAA11001] = "CAMPAIGN_INTERLUDE_01 UPG_SectorMaintenance",
@@ -120,7 +139,7 @@ public class APItems
         [0xAA14007] = "UPG_Vendor_T2_01"
     };
     
-    public static Dictionary<string, long> fullFacilityUpgradetoAP = new Dictionary<string, long>()
+    public static Dictionary<string, long> FullFacilityUpgradetoAP = new Dictionary<string, long>()
     {
         ["GLOBAL UPG_Global_Bazaar_I2"] = 0xAA10000,
         ["GLOBAL UPG_Global_StartingRoaches_T1"] = 0xAA10001,

@@ -109,44 +109,9 @@ def create_item_with_correct_classification(world: WKWorld, name: str) -> WKItem
 
 def create_all_items(world: WKWorld) -> None:
 
-    itempool: list[Item] = [
+    itempool: list[Item] = []
 
-        world.create_item("Interlude Ascent: Bazaar Access"),
-
-        world.create_item("I1: Recycler Upgrade"),
-        world.create_item("I1: Sector Maintenance"),
-        world.create_item("I1: Locker 1"),
-        world.create_item("I1: Locker 2"),
-        world.create_item("I1: Ration Vendor 1"),
-        world.create_item("I1: Ration Vendor 2"),
-        world.create_item("I1: ATM Install"),
-        world.create_item("I1: Vendor Upgrade 1"),
-        world.create_item("I1: Vendor Upgrade 2"),
-
-        world.create_item("I2: Recycler Upgrade"),
-        world.create_item("I2: Locker 1"),
-        world.create_item("I2: Locker 2"),
-        world.create_item("I2: Ration Vendor 1"),
-        world.create_item("I2: Ration Vendor 2"),
-        world.create_item("I2: Vendor Upgrade 1"),
-        world.create_item("I2: Vendor Upgrade 2"),
-
-        world.create_item("I3: Recycler Upgrade"),
-        world.create_item("I3: Locker 1"),
-        world.create_item("I3: Locker 2"),
-        world.create_item("I3: ATM Install"),
-        world.create_item("I3: Vendor Upgrade"),
-        world.create_item("I3: Rho Altar"),
-
-        world.create_item("I4: Recycler Upgrade"),
-        world.create_item("I4: Locker 1"),
-        world.create_item("I4: Locker 2"),
-        world.create_item("I4: Ration Vendor 1"),
-        world.create_item("I4: Ration Vendor 2"),
-        world.create_item("I4: Wine Vendor"),
-        world.create_item("I4: ATM Install"),
-        world.create_item("I4: Vendor Upgrade"),
-    ]
+    itempool += create_interlude_items(world)
 
     number_of_items = len(itempool)
     number_of_unfilled_locations = len(world.multiworld.get_unfilled_locations(world.player))
@@ -155,3 +120,62 @@ def create_all_items(world: WKWorld) -> None:
     itempool += [world.create_filler() for _ in range(needed_number_of_filler_items+1)]
 
     world.multiworld.itempool += itempool
+
+
+def create_interlude_items(world:WKWorld) -> list[Item]:
+    interludes: list[Item] = []
+    interludes += create_bazaar_access(world)
+    interludes += create_i1_upgrades(world)
+    interludes += create_i2_upgrades(world)
+    interludes += create_i3_upgrades(world)
+    interludes += create_i4_upgrades(world)
+    return interludes
+
+def create_bazaar_access(world:WKWorld) -> Item:
+    return world.create_item("Interlude Ascent: Bazaar Access")
+
+def create_i1_upgrades(world:WKWorld) -> list[Item]:
+    return [
+        world.create_item("I1: Recycler Upgrade"),
+        world.create_item("I1: Sector Maintenance"),
+        world.create_item("I1: Locker 1"),
+        world.create_item("I1: Locker 2"),
+        world.create_item("I1: Ration Vendor 1"),
+        world.create_item("I1: Ration Vendor 2"),
+        world.create_item("I1: ATM Install"),
+        world.create_item("I1: Vendor Upgrade 1"),
+        world.create_item("I1: Vendor Upgrade 2")
+    ]
+
+def create_i2_upgrades(world:WKWorld) -> list[Item]:
+    return [
+        world.create_item("I2: Recycler Upgrade"),
+        world.create_item("I2: Locker 1"),
+        world.create_item("I2: Locker 2"),
+        world.create_item("I2: Ration Vendor 1"),
+        world.create_item("I2: Ration Vendor 2"),
+        world.create_item("I2: Vendor Upgrade 1"),
+        world.create_item("I2: Vendor Upgrade 2")
+    ]
+
+def create_i3_upgrades(world:WKWorld) -> list[Item]:
+    return [
+        world.create_item("I3: Recycler Upgrade"),
+        world.create_item("I3: Locker 1"),
+        world.create_item("I3: Locker 2"),
+        world.create_item("I3: ATM Install"),
+        world.create_item("I3: Vendor Upgrade"),
+        world.create_item("I3: Rho Altar")
+    ]
+
+def create_i4_upgrades(world:WKWorld) -> list[Item]:
+    return [
+        world.create_item("I4: Recycler Upgrade"),
+        world.create_item("I4: Locker 1"),
+        world.create_item("I4: Locker 2"),
+        world.create_item("I4: Ration Vendor 1"),
+        world.create_item("I4: Ration Vendor 2"),
+        world.create_item("I4: Wine Vendor"),
+        world.create_item("I4: ATM Install"),
+        world.create_item("I4: Vendor Upgrade")
+    ]

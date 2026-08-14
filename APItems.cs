@@ -150,6 +150,7 @@ public class APItems
         ["GLOBAL UPG_Global_OrnamentalHammer"] = 0xAA10006,
         ["GLOBAL UPG_Global_Cosmetic_WorkGloves"] = 0xAA10007,
         ["GLOBAL UPG_Global_Cosmetic_SpecialtyGloves"] = 0xAA10008,
+        ["GLOBAL UPG_Global_PerkRefresh"]  = 0xAA10009,
 
         ["CAMPAIGN_INTERLUDE_01 UPG_Recycler"] = 0xAA11000,
         ["CAMPAIGN_INTERLUDE_01 UPG_SectorMaintenance"] = 0xAA11001,
@@ -160,7 +161,7 @@ public class APItems
         ["CAMPAIGN_INTERLUDE_01 UPG_ATM"] = 0xAA11006,
         ["UPG_Vendor_T1_01"] = 0xAA11007,
         ["UPG_Vendor_T1_02"] = 0xAA11008,
-
+        
         ["CAMPAIGN_INTERLUDE_02 UPG_Recycler"] = 0xAA12000,
         ["CAMPAIGN_INTERLUDE_02 UPG_ItemLocker_01"] = 0xAA12001,
         ["CAMPAIGN_INTERLUDE_02 UPG_ItemLocker_02"] = 0xAA12002,
@@ -184,6 +185,63 @@ public class APItems
         ["UPG_Wine_T1"] = 0xAA14005,
         ["UPG_ATM"] = 0xAA14006,
         ["UPG_Vendor_T2_01"] = 0xAA14007
+    };
+
+    public static Dictionary<string, long> RoomNameToAP = new Dictionary<string, long>()
+    {
+        //Default Silos rooms
+        ["M1_Silos_Storage_01"] = 0xAB10000,
+        ["M1_Silos_Storage_03"] = 0xAB10001,
+        ["M1_Silos_Storage_06"] = 0xAB10002,
+        ["M1_Silos_Storage_09"] = 0xAB10003,
+        ["M1_Silos_Storage_10"] = 0xAB10004,
+        ["M1_Silos_Storage_15"] = 0xAB10005,
+
+        ["M1_Silos_Air_02"] = 0xAB10006,
+        ["M1_Silos_Air_03"] = 0xAB10007,
+        ["M1_Silos_Air_04"] = 0xAB10008,
+        ["M1_Silos_Air_08"] = 0xAB10009,
+        
+        ["M1_Silos_Broken_01"] = 0xAB1000A,
+        ["M1_Silos_Broken_04"] = 0xAB1000B,
+        ["M1_Silos_Broken_08"] = 0xAB1000C,
+        ["M1_Silos_Broken_09"] = 0xAB1000D,
+        ["M1_Silos_Broken_10"] = 0xAB1000E,
+        
+        //Deep Storage Tier 1 Unlocks
+        ["M1_Silos_Storage_04"] = 0xAB10100,
+        ["M1_Silos_Storage_11"] = 0xAB10101,
+        ["M1_Silos_Storage_12"] = 0xAB10102,
+        
+        //Silos Tier 1 Unlocks
+        ["M1_Silos_Storage_02"] = 0xAB10200,
+        ["M1_Silos_Storage_08"] = 0xAB10201,
+        ["M1_Silos_Storage_16"] = 0xAB10202,
+        ["M1_Silos_Air_05"] = 0xAB10203,
+        ["M1_Silos_Air_06"] = 0xAB10204,
+        ["M1_Silos_Broken_03"] = 0xAB10205,
+        ["M1_Silos_Broken_05"] = 0xAB10206,
+        
+        //Silos Tier 2 Unlocks
+        ["M1_Silos_Storage_05"] = 0xAB10300,
+        ["M1_Silos_Storage_07"] = 0xAB10301,
+        ["M1_Silos_Air_01"] = 0xAB10302,
+        ["M1_Silos_Air_09"] = 0xAB10303,
+        ["M1_Silos_Broken_02"] = 0xAB10304,
+        ["M1_Silos_Broken_06"] = 0xAB10305,
+        
+        //Silos Tier 3 Unlocks
+        ["M1_Silos_Storage_13"] = 0xAB10400,
+        ["M1_Silos_Storage_14"] = 0xAB10401,
+        ["M1_Silos_Air_07"] = 0xAB10402,
+        ["M1_Silos_Air_10"] = 0xAB10403,
+        ["M1_Silos_Broken_07"] = 0xAB10404,
+        
+        //Silos Tier 4 Unlocks
+        ["M1_Silos_Storage_17"] = 0xAB10500,
+        ["M1_Silos_Air_11"] = 0xAB10501,
+        ["M1_Silos_Broken_11"] = 0xAB10502,
+        
     };
 
 }

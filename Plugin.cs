@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
 using HarmonyLib.Tools;
+using UnityEngine;
 
 namespace WKRando;
 
@@ -31,6 +33,12 @@ public class Plugin : BaseUnityPlugin
         
         harmony.PatchAll(Assembly.GetExecutingAssembly());
         Logger.LogInfo($"BasicPlugin Loaded");
+    }
+    
+    //testing...
+    private void Update()
+    {
+        CL_GameManager.globalRoaches += 1;
     }
 
 
@@ -190,6 +198,54 @@ public class Plugin : BaseUnityPlugin
                 .InstructionEnumeration();
         }*/
     }
+
+    
+    //
+    [HarmonyPatch(typeof(App_PerkPage), "CheckIronKnuckle")]
+    class PatchPerksPage
+    {
+
+        static bool Prefix(App_PerkPage __instance)
+        {
+            switch (WorldLoader.instance.GetCurrentLevel().GetLevel().levelName)
+            {
+                case "Campaign_Interlude_Silo_To_Pipeworks_01": 
+                case "M3_Habitation_Shaft_Intro": 
+                case "Campaign_Interlude_Habitation_To_Abyss_01": 
+                case "Campaign_Interlude_Abyss_To_Nest_01_SafeArea":
+                    __instance.window.os.messageManager.CreateMessage(new Message_Manager.Message_Packet()
+                    {
+                        type = "default",
+                        closeText = "Quit",
+                        closeFunction = new Action(__instance.window.CloseApp),
+                        message = "Perks for this sector are disabled by Archipelago!",
+                        screenPos = new Vector2(0.0f, 0.0f)
+                    });
+                    return false;
+            }
+
+            return true;
+        }
+    }
+    
+    [HarmonyPatch(typeof(CL_Button), "Interact", [])]
+    class PatchFacilityButtons
+    {
+        
+
+        static bool Prefix()
+        {
+            switch (WorldLoader.instance.GetCurrentLevel().GetLevel().levelName)
+            {
+                case "M3_Habitation_Shaft_Intro":
+                case "Campaign_Interlude_Habitation_To_Abyss_01":
+                case "Campaign_Interlude_Abyss_To_Nest_01_SafeArea": return false;
+            }
+            return true;
+        }
+        
+        
+    }
     
     
     [HarmonyPatch(typeof(CL_GameManager), "LoadIn", MethodType.Enumerator)]
@@ -238,8 +294,38 @@ public class Plugin : BaseUnityPlugin
         }
     }
     
+    //Initializes the custom perks
+    [HarmonyPatch(typeof(CL_AssetManager), "Initialize")]
+    class PatchPerks
+    {
+        static void Postfix()
+        {
+            CL_AssetManager.baseDatabase.perkAssets.AddRange([CustomPerks.ApBuff(), CustomPerks.ApDebuff()]);
+        }
+    }
     
-
+    
+    [HarmonyPatch(typeof(App_Facility_Card), "CheckLock")]
+    class PatchPerkRefresh
+    {
+        static bool Prefix(App_Facility_Card __instance)
+        {
+            if (!ArchipelagoClient.Connected)
+            {
+                __instance.lockedObject.SetActive(true);
+                __instance.tooltip.tip = $"<color=red>LOCKED\nDisconnected from Archipelago!</color>\nConnect to purchase upgrades!";
+                __instance.locked = true;
+            }
+            else
+            {
+                __instance.lockedObject.SetActive(false);
+                __instance.tooltip.tip = __instance.upgrade.description;
+                __instance.locked = false;
+            }
+            return false;
+        }
+    }
+    
 
         
 }

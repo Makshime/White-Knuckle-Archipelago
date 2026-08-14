@@ -17,6 +17,7 @@ LOCATION_NAME_TO_ID = {
     "Global: Ornamental Hammer Purchase": 0xAA10006,
     "Global: Work Gloves Purchase": 0xAA10007,
     "Global: New Gloves Purchase": 0xAA10008,
+    "Global: Biomod Oversupply": 0xAA10009,
 
     "I1: Recycler Upgrade": 0xAA11000,
     "I1: Sector Maintenance": 0xAA11001,
@@ -90,7 +91,8 @@ def create_regular_locations(world: WKWorld) -> None:
              "Global: Pouch Purchase",
              "Global: Ornamental Hammer Purchase",
              "Global: Work Gloves Purchase",
-             "Global: New Gloves Purchase"]
+             "Global: New Gloves Purchase",
+             "Global: Biomod Oversupply"]
         ), WKLocation
     )
 

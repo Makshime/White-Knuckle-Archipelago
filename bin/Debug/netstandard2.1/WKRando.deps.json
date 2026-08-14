@@ -10,6 +10,7 @@
       "WKRando/1.0.0": {
         "dependencies": {
           "Archipelago.MultiClient.Net": "6.7.1",
+          "BepInEx.AssemblyPublicizer.MSBuild": "0.5.0-beta.2",
           "BepInEx.Core": "5.4.21",
           "MonoMod": "22.7.31.1",
           "MonoMod.RuntimeDetour": "25.3.5",
@@ -28,6 +29,34 @@
           "lib/netstandard2.0/Newtonsoft.Json.dll": {
             "assemblyVersion": "11.0.0.0",
             "fileVersion": "11.0.1.0"
+          }
+        }
+      },
+      "BepInEx.AssemblyPublicizer.MSBuild/0.5.0-beta.2": {
+        "runtime": {
+          "lib/netstandard2.1/AsmResolver.DotNet.dll": {
+            "assemblyVersion": "6.0.0.0",
+            "fileVersion": "6.0.0.0"
+          },
+          "lib/netstandard2.1/AsmResolver.PE.File.dll": {
+            "assemblyVersion": "6.0.0.0",
+            "fileVersion": "6.0.0.0"
+          },
+          "lib/netstandard2.1/AsmResolver.PE.dll": {
+            "assemblyVersion": "6.0.0.0",
+            "fileVersion": "6.0.0.0"
+          },
+          "lib/netstandard2.1/AsmResolver.dll": {
+            "assemblyVersion": "6.0.0.0",
+            "fileVersion": "6.0.0.0"
+          },
+          "lib/netstandard2.1/BepInEx.AssemblyPublicizer.MSBuild.dll": {
+            "assemblyVersion": "0.5.0.0",
+            "fileVersion": "0.5.0.0"
+          },
+          "lib/netstandard2.1/BepInEx.AssemblyPublicizer.dll": {
+            "assemblyVersion": "0.5.0.0",
+            "fileVersion": "0.5.0.0"
           }
         }
       },
@@ -568,6 +597,13 @@
       "sha512": "sha512-wheDMl5C0e175RvuY+E3oDY13myaa7f2pRRjOg9PgcbOJApVu3QT62mQ46jYJ0sn/X7Fu4bdVVxZ2bx0vwncBQ==",
       "path": "archipelago.multiclient.net/6.7.1",
       "hashPath": "archipelago.multiclient.net.6.7.1.nupkg.sha512"
+    },
+    "BepInEx.AssemblyPublicizer.MSBuild/0.5.0-beta.2": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-iq7JY2fiJRX7YExsadvMdog9vPSGdbPm3SLRi4/6jzN09d6nIfAm0VpCK2At80OiofYzn2IhbV9ETrQ36EGWNQ==",
+      "path": "bepinex.assemblypublicizer.msbuild/0.5.0-beta.2",
+      "hashPath": "bepinex.assemblypublicizer.msbuild.0.5.0-beta.2.nupkg.sha512"
     },
     "BepInEx.BaseLib/5.4.20": {
       "type": "package",

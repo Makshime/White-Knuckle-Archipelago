@@ -11,6 +11,7 @@ if TYPE_CHECKING:
 
 ITEM_NAME_TO_ID = {
     "Interlude Ascent: Bazaar Access": 0xAA10000,
+    "Global: Biomod Oversupply": 0xAA10009
 
     "I1: Recycler Upgrade": 0xAA11000,
     "I1: Sector Maintenance": 0xAA11001,
@@ -52,6 +53,7 @@ ITEM_NAME_TO_ID = {
 
 DEFAULT_ITEM_CLASSIFICATIONS = {
     "Interlude Ascent: Bazaar Access": ItemClassification.useful,
+    "Global: Biomod Oversupply": ItemClassifaction.progression,
 
     "I1: Recycler Upgrade": ItemClassification.progression,
     "I1: Sector Maintenance": ItemClassification.useful,

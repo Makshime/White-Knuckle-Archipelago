@@ -21,7 +21,7 @@ public class ArchipelagoClient
 
     private static bool _connecting;
     private static bool _connectedBefore;
-    private static bool _connected;
+    public static bool Connected;
     private static int _reconnectAttempts = 0;
 
     private static void NewSession(string host, int port)
@@ -35,7 +35,7 @@ public class ArchipelagoClient
         _servername = server;
     }
     
-    //Standard connection procedure for Archipelago.MultiClient.Net
+    //Archipelago connection procedure using Multiclient.net (WHY DOES IT CALL MULTIPLE TIMES????)
     public static async Task<object> Connect(string server = null, string user = null, string pass = null)
     {
 
@@ -46,7 +46,7 @@ public class ArchipelagoClient
         
         _connecting = true;
         
-        if (_connected)
+        if (Connected)
         {
             CommandConsole.Log($"Already connected to server {_servername} as {user}");
         }
@@ -101,7 +101,7 @@ public class ArchipelagoClient
         CommandConsole.Log($"Successfully connected to {_servername} as {user}!");
         CommandConsole.Log($"   Slot Number: {loginSuccess.Slot}");
 
-        _connected = true;
+        Connected = true;
         _connectedBefore = true;
         _connecting = false;
         
@@ -110,7 +110,7 @@ public class ArchipelagoClient
 
     public static async Task<object> Disconnect()
     {
-        _connected = false;
+        Connected = false;
 
 
         if (_session != null)
@@ -118,7 +118,7 @@ public class ArchipelagoClient
             _session.Items.ItemReceived -= OnItemReceive;
         }
 
-        if (false)
+        if (_connectedBefore)
         {
             _reconnectAttempts++;
             if (_reconnectAttempts >= 5)
@@ -136,7 +136,7 @@ public class ArchipelagoClient
     //Main update loop for checking for checks
     public void Update()
     {
-        if (_connected)
+        if (Connected)
         {
             try
             {
@@ -168,7 +168,7 @@ public class ArchipelagoClient
     {
         if (_saying) { return;}
         _saying = true;
-        if(_connected) {_session.Say(args[0]);}
+        if(Connected) {_session.Say(args[0]);}
         else {CommandConsole.Log("Not currently connected to server");}
         _saying = false;
     }
@@ -184,5 +184,6 @@ public class ArchipelagoClient
             Disconnect();
         }
     }
+    
 
 }

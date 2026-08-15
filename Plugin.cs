@@ -89,16 +89,23 @@ public class Plugin : BaseUnityPlugin
     }*/
     
     
-    //This class replaces the directory that the game saves the game to with its own one, currently it is reset in the Awake function upon game start, however this may be changed later.
+    //This class replaces the directory that the game saves the game to with its own one
     [HarmonyPatch(typeof(StatManager), "Awake")]
     class AlterStats
     {
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            return new CodeMatcher(instructions).MatchForward(true,
-                new CodeMatch(OpCodes.Ldstr, "wk_save.json")
-            ).SetInstruction(new CodeInstruction(OpCodes.Ldstr, "rando_save.json")
-            ).InstructionEnumeration();
+            return new CodeMatcher(instructions).MatchForward(true, new CodeMatch(OpCodes.Ldstr, "wk_save.json"))
+                    .Repeat(matcher => matcher.SetInstruction(new CodeInstruction(OpCodes.Ldstr, "rando_save.json")))
+                .Start().MatchForward(true, new CodeMatch(OpCodes.Ldstr, "wk_save-backup.json"))
+                    .Repeat(matcher => matcher.SetInstruction(new CodeInstruction(OpCodes.Ldstr, "rando_save-backup.json")))
+                .Start().MatchForward(true, new CodeMatch(OpCodes.Ldstr, "save-error-backup.json"))
+                    .Repeat(matcher => matcher.SetInstruction(new CodeInstruction(OpCodes.Ldstr, "rando_save-error-backup.json")))
+                .Start().MatchForward(true, new CodeMatch(OpCodes.Ldstr, "save-backup-crash.json"))
+                    .Repeat(matcher => matcher.SetInstruction(new CodeInstruction(OpCodes.Ldstr, "save-backup-crash.json")))
+                .Start().MatchForward(true, new CodeMatch(OpCodes.Ldstr, "save-backup-quit.json"))
+                    .Repeat(matcher => matcher.SetInstruction(new CodeInstruction(OpCodes.Ldstr, "rando_save-backup-quit.json")))
+                .InstructionEnumeration();
         }
     }
 

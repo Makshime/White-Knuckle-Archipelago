@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using static BuffContainer;
 
@@ -41,6 +42,16 @@ public class CustomPerks
                  NewBuff("addSpeed", 0.05f, 0.05f)
             }
         };
+        Texture2D texture = new Texture2D(256, 256);
+        var p = Path.Combine(BepInEx.Paths.PluginPath, "WKRando\\Assets\\Archipelago_Perk.png");
+        Plugin.Logger.LogInfo($"Filepath: {p}");
+        texture.LoadImage(File.ReadAllBytes(p));
+        _apBuff.icon = Sprite.Create(
+            texture,
+            new Rect(0, 0, texture.width, texture.height),
+            new Vector2(0.5f, 0.5f),
+            pixelsPerUnit: 0.25f
+            );
         return  _apBuff;
     }
     
@@ -75,6 +86,14 @@ public class CustomPerks
                 NewBuff("addSpeed", -0.04f, -0.04f)
             }
         };
+        Texture2D texture1 = new Texture2D(256, 256);
+        texture1.LoadImage(File.ReadAllBytes(Path.Combine(BepInEx.Paths.PluginPath, "WKRando\\Assets\\Broken_Archipelago_Perk.png")));
+        _apDebuff.icon = Sprite.Create(
+            texture1,
+            new Rect(0, 0, texture1.width, texture1.height),
+            new Vector2(0f, 0f),
+            pixelsPerUnit: 0.25f
+        );
         return  _apDebuff;
     }
 

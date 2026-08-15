@@ -24,6 +24,8 @@ public class ArchipelagoClient
     public static bool Connected;
     private static int _reconnectAttempts = 0;
 
+    private static List<ItemInfo> _items = [];
+    
     private static void NewSession(string host, int port)
     {
         _session = ArchipelagoSessionFactory.CreateSession(host, port);
@@ -97,7 +99,7 @@ public class ArchipelagoClient
 
         _session.Items.ItemReceived += OnItemReceive;
         _session.MessageLog.OnMessageReceived += OnMessageReceive;
-
+        
         CommandConsole.Log($"Successfully connected to {_servername} as {user}!");
         CommandConsole.Log($"   Slot Number: {loginSuccess.Slot}");
 
@@ -140,7 +142,7 @@ public class ArchipelagoClient
         {
             try
             {
-                return;
+                CheckReceivedItemQueue();
             }
             catch 
             {
@@ -184,6 +186,16 @@ public class ArchipelagoClient
             Disconnect();
         }
     }
-    
+
+    private static void CheckReceivedItemQueue()
+    {
+        if (!Connected)
+        {
+            return;
+        }
+        
+        
+    }
+
 
 }

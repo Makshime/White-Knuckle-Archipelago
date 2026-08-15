@@ -15,6 +15,7 @@ public class APItems
         {
             //All other global upgrades are either overridden or inconsequential
             ["UPG_Global_Bazaar_I2"] = false,
+            ["UPG_Global_PerkRefresh"] = false
         },
         ["CAMPAIGN_INTERLUDE_01"] = new ()
         {
@@ -74,21 +75,24 @@ public class APItems
     public static void UpdateFromId(long id)
     {
 
+
         if (0xAAFFFFF >= id & id >= 0xAA11000 || id == 0xAA10000)
         {
+
             var vals = APtoFullFacilityUpgrade[id].Split(" ");
             FacilityDict[vals[0]][vals[1]] = true;
             Facility.onPurchaseUpgrade();
-        } else if (0xA900001 == id)
+        }
+        else if (0xA900001 == id)
         {
             Plugin.LoanAmount += 1;
             CL_GameManager.runRoaches += 1;
-        } else if (0xA900002 == id)
+        }
+        else if (0xA900002 == id)
         {
             CL_GameManager.globalRoaches += 10;
         }
-        
-        
+
     }
     
     //Handles AP IDs of facility upgrades
@@ -103,6 +107,7 @@ public class APItems
         [0xAA10006] = "GLOBAL UPG_Global_OrnamentalHammer",
         [0xAA10007] = "GLOBAL UPG_Global_Cosmetic_WorkGloves",
         [0xAA10008] = "GLOBAL UPG_Global_Cosmetic_SpecialtyGloves",
+        [0xAA10009] = "GLOBAL UPG_Global_PerkRefresh",
         
         [0xAA11000] = "CAMPAIGN_INTERLUDE_01 UPG_Recycler",
         [0xAA11001] = "CAMPAIGN_INTERLUDE_01 UPG_SectorMaintenance",

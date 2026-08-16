@@ -9,6 +9,9 @@ using BepInEx.Logging;
 using HarmonyLib;
 using HarmonyLib.Tools;
 using UnityEngine;
+using UnityEngine.UI;
+using Logger = UnityEngine.Logger;
+using Object = System.Object;
 
 namespace WKRando;
 
@@ -28,27 +31,31 @@ public class Plugin : BaseUnityPlugin
 
         var harmony = new Harmony("com.wuckle.concsumer.name");
         HarmonyFileLog.Enabled = true;
-        
-        
-        
+
+
         harmony.PatchAll(Assembly.GetExecutingAssembly());
         Logger.LogInfo($"BasicPlugin Loaded");
     }
-    
-    //testing...
-    private void Update()
+
+    //Handles all Update functions
+    [HarmonyPatch(typeof(ENT_Player), "Update")]
+    class update
     {
-        CL_GameManager.globalRoaches += 1;
+        static void Prefix()
+        {
+            ArchipelagoClient.Update();
+        }
     }
 
 
 
 
-    [HarmonyPatch(typeof(FacilityUpgrade), "IsOwned")]
-    class AlterCheck
+[HarmonyPatch(typeof(FacilityUpgrade), "IsOwned")]
+    class AlterUpgradeCheck
     {
         static bool Prefix(FacilityUpgrade __instance, ref bool __result, object[] __args)
         {
+            
             string facilityId = StatManager.saveData.GetFacility((string)__args[0]).id;
             if (APItems.FacilityDict.TryGetValue(facilityId, out Dictionary<string, bool> dict) && dict.ContainsKey(__instance.id))
             {
@@ -167,46 +174,72 @@ public class Plugin : BaseUnityPlugin
             CommandConsole.Log("Resetting Save...");
             File.Create(Path.Combine(UnityEngine.Application.persistentDataPath, "rando_save.json"));
         }
-        
-        //This was a successful attempt at making custom commands into the game through a transpiler, before it was realized
-        //that you can just use a prefix instead.
-        
-        /*
-        public static Action<string[]> CreateChangeLoanAction()
-        {
-            return new Action<string[]>(AddCommands.ChangeLoanCommand);
-        }
-        public static Action<string[]> CreateTryConnectCommandAction()
-        {
-            return new Action<string[]>(AddCommands.TryConnectCommand);
-        }
 
-        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        public static void SendFacilityDebugCommand(string[] args)
         {
-            var loanActionFactory = AccessTools.Method(typeof(AddCommands), "CreateChangeLoanAction");
-            var connectActionFactory = AccessTools.Method(typeof(AddCommands), "TryConnectCommandAction");
-            var commandAdd = AccessTools.Method(typeof(CommandConsole), "AddCommand");
-
-            return new CodeMatcher(instructions)
-                .MatchForward(false,
-                    new CodeMatch(OpCodes.Ldstr, "load"))
-                .InsertAndAdvance(
-                    new CodeInstruction(OpCodes.Ldstr, "changeloan"),
-                    new CodeInstruction(OpCodes.Call, loanActionFactory),
-                    new CodeInstruction(OpCodes.Ldc_I4_1),
-                    new CodeInstruction(OpCodes.Call, commandAdd)
-                )
-                .InsertAndAdvance(
-                    new CodeInstruction(OpCodes.Ldstr, "connect"),
-                    new CodeInstruction(OpCodes.Call, connectActionFactory),
-                    new CodeInstruction(OpCodes.Ldc_I4_1),
-                    new CodeInstruction(OpCodes.Call, commandAdd)
-                )
-                .InstructionEnumeration();
-        }*/
+            if (args.Length > 0)
+                if (APItems.FullFacilityUpgradetoAP.ContainsKey(args[0]))
+                    ArchipelagoClient.SendItem(APItems.FullFacilityUpgradetoAP[args[0]]);
+        }
+        
     }
 
+    private static List<string> selectablenames = [];
+    [HarmonyPatch(typeof(UI_CapsuleButton), "CheckAchievement")]
+    class PatchModeUIButtons
+    {
+
+        static bool Prefix(UI_CapsuleButton __instance)
+        {
+            if (!selectablenames.Contains(__instance.name) & !APItems.ModeUnlocks.ContainsKey(__instance.name))
+            {
+                selectablenames.Add(__instance.name);
+                Logger.LogInfo(__instance.name);
+            }
+
+            if (APItems.ModeUnlocks.ContainsKey(__instance.name))
+            {
+                bool flag = APItems.ModeUnlocks[__instance.name];
+                if ((Object) __instance.unlockIcon != (Object) null)
+                    __instance.unlockIcon.gameObject.SetActive(!flag);
+                if ((Object) __instance.group != (Object) null)
+                {
+                    __instance.group.interactable = flag;
+                    __instance.group.alpha = flag ? 1f : 0.5f;
+                }
+                __instance.button.interactable = flag;
+                return false;
+            }
+
+            return true;
+        }
+        
+    }
     
+
+    [HarmonyPatch(typeof(SteamManager), "Update")]
+    class DisableSteamLeaderboardUploads
+    {
+        static bool Prefix()
+        {
+            return false;
+        }
+    }
+    
+    [HarmonyPatch(typeof(ProgressionUnlock), "CheckUnlock")]
+    class PatchUnlocks
+    {
+        static bool Prefix(ProgressionUnlock __instance, ref bool __result)
+        {
+            bool state = APItems.ProgressionUnlocks[__instance.id];
+            __instance.state = state;
+            if ((UnityEngine.Object) CL_GameManager.gMan != (UnityEngine.Object) null)
+                CL_GameManager.SetGameFlag("unlock_" + __instance.name, state);
+            __result = state;
+            return false;
+        }
+        
+    }
     //
     [HarmonyPatch(typeof(App_PerkPage), "CheckIronKnuckle")]
     class PatchPerksPage
@@ -214,7 +247,8 @@ public class Plugin : BaseUnityPlugin
 
         static bool Prefix(App_PerkPage __instance)
         {
-            switch (WorldLoader.instance.GetCurrentLevel().GetLevel().levelName)
+            string level = WorldLoader.instance.GetCurrentLevel().GetLevel().levelName;
+            switch (level)
             {
                 case "Campaign_Interlude_Silo_To_Pipeworks_01": 
                 case "M3_Habitation_Shaft_Intro": 
@@ -235,41 +269,57 @@ public class Plugin : BaseUnityPlugin
         }
     }
     
+    //Blocks the buttons of these regions from being interacted with if their region is not found
     [HarmonyPatch(typeof(CL_Button), "Interact", [])]
     class PatchFacilityButtons
     {
         
 
-        static bool Prefix()
+        static bool Prefix(CL_Button __instance)
         {
-            switch (WorldLoader.instance.GetCurrentLevel().GetLevel().levelName)
+            Logger.LogInfo(__instance.name);
+            string currLvl = WorldLoader.instance.GetCurrentLevel().GetLevel().levelName;
+
+            if (currLvl == "Campaign_Interlude_Silo_To_Pipeworks_01" & __instance.name == "Button.002")
             {
-                case "M3_Habitation_Shaft_Intro":
-                case "Campaign_Interlude_Habitation_To_Abyss_01":
-                case "Campaign_Interlude_Abyss_To_Nest_01_SafeArea": return false;
+                return false;
             }
-            return true;
+            if (currLvl == "M3_Habitation_Shaft_Intro" & __instance.name == "Prop_Button_03_Door")
+            {
+                return false;
+            }
+            if (currLvl == "Campaign_Interlude_Habitation_To_Abyss_01" & __instance.name == "Prop_Button_03.01")
+            {
+                return false;
+            }
+            return !(currLvl == "Campaign_Interlude_Abyss_To_Nest_01_SafeArea" & __instance.name == "Prop_Button_03");
         }
         
         
     }
-    
+
+    [HarmonyPatch(typeof(CL_GameManager), "Awake")]
+    class PatchCommandConsole
+    {
+
+        static void Prefix()
+        {
+            selectablenames.ForEach(name => Logger.LogInfo(name));
+            CommandConsole.BuildCommand("setloan", AddCommands.ChangeLoanCommand).Description("Sets the starting roach loan value to the specified value");
+            CommandConsole.BuildCommand("connect", AddCommands.TryConnectCommand).NotCheat().Description("Attempts to connect to Archipelago Server: Server, Name");
+            CommandConsole.BuildCommand("reconnect", AddCommands.TryReconnectCommand).NotCheat().Description("Reconnects to Archipelago server in case of disconnect");
+            CommandConsole.BuildCommand("resetapsave", AddCommands.ResetAPSaveData).NotCheat().Description("Deletes the current APSave's data for starting a new archipelago game");
+            CommandConsole.BuildCommand("say", ArchipelagoClient.Say).NotCheat()
+                .Description("Sends a message to the archipelago client.");
+            CommandConsole.BuildCommand("cheatroaches", AddCommands.CheatRoachesInCommand)
+                .NotCheat().Description("Cheats in roaches without activating cheat mode for debug purposes");
+            CommandConsole.BuildCommand("senditem", AddCommands.SendFacilityDebugCommand).NotCheat();
+        }
+    }
     
     [HarmonyPatch(typeof(CL_GameManager), "LoadIn", MethodType.Enumerator)]
     class PatchCommands
     {
-        
-        static void Prefix()
-        {
-            CommandConsole.BuildCommand("setloan", new Action<string[]>(AddCommands.ChangeLoanCommand)).Description("Sets the starting roach loan value to the specified value");
-            CommandConsole.BuildCommand("connect", new Action<string[]>(AddCommands.TryConnectCommand)).NotCheat().Description("Attempts to connect to Archipelago Server: Server, Name");
-            CommandConsole.BuildCommand("reconnect", new Action<string[]>(AddCommands.TryReconnectCommand)).NotCheat().Description("Reconnects to Archipelago server in case of disconnect");
-            CommandConsole.BuildCommand("resetapsave", new Action<string[]>(AddCommands.ResetAPSaveData)).NotCheat().Description("Deletes the current APSave's data for starting a new archipelago game");
-            CommandConsole.BuildCommand("say", new Action<string[]>(ArchipelagoClient.Say)).NotCheat()
-                .Description("Sends a message to the archipelago client.");
-            CommandConsole.BuildCommand("cheatroaches", new Action<string[]>(AddCommands.CheatRoachesInCommand))
-                .NotCheat().Description("Cheats in roaches without activating cheat mode for debug purposes");
-        }
         
         
         //Alters the roach loan value to refer to the LoanAmount value instantiated in this Plugin.cs file

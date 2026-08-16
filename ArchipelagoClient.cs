@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using Archipelago.MultiClient.Net;
 using Archipelago.MultiClient.Net.Enums;
@@ -8,6 +9,8 @@ using Archipelago.MultiClient.Net.Exceptions;
 using Archipelago.MultiClient.Net.Helpers;
 using Archipelago.MultiClient.Net.MessageLog.Messages;
 using Archipelago.MultiClient.Net.Models;
+using HarmonyLib;
+
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
 namespace WKRando;
@@ -18,13 +21,13 @@ public class ArchipelagoClient
     private static string _servername = "localhost:38281";
     private static string _username = string.Empty;
     private static string _password = string.Empty;
-
-    private static bool _connecting;
+    
     private static bool _connectedBefore;
     public static bool Connected;
     private static int _reconnectAttempts = 0;
+    private static int _slot = -1;
 
-    private static List<ItemInfo> _items = [];
+    private static Queue<ItemInfo> _items = [];
     
     private static void NewSession(string host, int port)
     {
@@ -40,13 +43,7 @@ public class ArchipelagoClient
     //Archipelago connection procedure using Multiclient.net (WHY DOES IT CALL MULTIPLE TIMES????)
     public static async Task<object> Connect(string server = null, string user = null, string pass = null)
     {
-
-        if (_connecting)
-        {
-            return null;
-        }
         
-        _connecting = true;
         
         if (Connected)
         {
@@ -90,22 +87,24 @@ public class ArchipelagoClient
                 CommandConsole.Log($"    {error}");
             }
             
-            _connecting = false;
             await Disconnect();
             return null;
         }
         
         var loginSuccess = (LoginSuccessful)result;
+        _slot = loginSuccess.Slot;
 
         _session.Items.ItemReceived += OnItemReceive;
         _session.MessageLog.OnMessageReceived += OnMessageReceive;
         
+        
         CommandConsole.Log($"Successfully connected to {_servername} as {user}!");
         CommandConsole.Log($"   Slot Number: {loginSuccess.Slot}");
-
+        
+        CheckReceivedItemsOnJoin();
+        
         Connected = true;
         _connectedBefore = true;
-        _connecting = false;
         
         return null;
     }
@@ -136,13 +135,13 @@ public class ArchipelagoClient
     }
 
     //Main update loop for checking for checks
-    public void Update()
+    public static void Update()
     {
         if (Connected)
         {
             try
             {
-                CheckReceivedItemQueue();
+                
             }
             catch 
             {
@@ -154,9 +153,10 @@ public class ArchipelagoClient
     
     private static void OnItemReceive(ReceivedItemsHelper helper)
     {
-        ItemInfo item = helper.DequeueItem();
-        
-        APItems.UpdateFromId(item.ItemId);
+        while (helper.Any())
+        {
+            APItems.UpdateFromId(helper.DequeueItem().ItemId);
+        }
         
     }
 
@@ -187,11 +187,21 @@ public class ArchipelagoClient
         }
     }
 
-    private static void CheckReceivedItemQueue()
+    private static void CheckReceivedItemsOnJoin()
     {
-        if (!Connected)
+        
+        while(_session.Items.Any())
         {
-            return;
+            ItemInfo item = _session.Items.DequeueItem();
+            if (item.Player.Slot == _slot)
+            {
+                APItems.UpdateFromId(item.ItemId);
+            }
+            else
+            {
+                APItems.SentItems.Add(item.LocationId);
+            }
+            CommandConsole.Log($"Received item: {item.ItemDisplayName}");
         }
         
         

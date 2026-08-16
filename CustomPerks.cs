@@ -14,7 +14,7 @@ public class CustomPerks
     public static Perk ApBuff()
     {
         _apBuff = ScriptableObject.CreateInstance<Perk>();
-        _apBuff.id = "archipelago_buff_perk";
+        _apBuff.id = "archipelago_buff";
         _apBuff.name = "perk_ap_buff";
         _apBuff.title = "Archipelago Buff";
         _apBuff.description = "You feel the pull of other worlds taking you higher";
@@ -38,7 +38,7 @@ public class CustomPerks
                  NewBuff("addStaminaRegen", 0.03f, 0.03f),
                  NewBuff("addStamina",  0.05f, 0.05f),
                  NewBuff("addClimb", 0.05f, 0.05f),
-                 NewBuff("addJump", 0.02f, 0.02f),
+                 NewBuff("addJump", 0.03f, 0.03f),
                  NewBuff("addSpeed", 0.05f, 0.05f)
             }
         };
@@ -50,15 +50,16 @@ public class CustomPerks
             texture,
             new Rect(0, 0, texture.width, texture.height),
             new Vector2(0.5f, 0.5f),
-            pixelsPerUnit: 0.25f
+            pixelsPerUnit: 900f
             );
+        _apBuff.iconMat = CL_AssetManager.baseDatabase.perkAssets[62].iconMat;
         return  _apBuff;
     }
     
     public static Perk ApDebuff()
     {
         _apDebuff = ScriptableObject.CreateInstance<Perk>();
-        _apDebuff.id = "archipelago_debuff_perk";
+        _apDebuff.id = "archipelago_debuff";
         _apDebuff.name = "perk_ap_debuff";
         _apDebuff.title = "Archipelago Debuff";
         _apDebuff.description = "The grasp of other worlds weighs you down";
@@ -91,9 +92,10 @@ public class CustomPerks
         _apDebuff.icon = Sprite.Create(
             texture1,
             new Rect(0, 0, texture1.width, texture1.height),
-            new Vector2(0f, 0f),
-            pixelsPerUnit: 0.25f
+            new Vector2(0.5f, 0.5f),
+            pixelsPerUnit: 900f
         );
+        _apDebuff.iconMat = CL_AssetManager.baseDatabase.perkAssets[10].iconMat;
         return  _apDebuff;
     }
 

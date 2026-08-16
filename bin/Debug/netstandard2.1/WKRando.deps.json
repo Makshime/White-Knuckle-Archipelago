@@ -14,6 +14,7 @@
           "BepInEx.Core": "5.4.21",
           "MonoMod": "22.7.31.1",
           "MonoMod.RuntimeDetour": "25.3.5",
+          "Unity3D.UnityEngine.UI": "2018.3.5.1",
           "Assembly-CSharp": "0.0.0.0"
         },
         "runtime": {
@@ -279,6 +280,25 @@
           }
         }
       },
+      "Unity3D.UnityEngine/2018.3.5.1": {
+        "runtime": {
+          "lib/UnityEngine.dll": {
+            "assemblyVersion": "0.0.0.0",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "Unity3D.UnityEngine.UI/2018.3.5.1": {
+        "dependencies": {
+          "Unity3D.UnityEngine": "2018.3.5.1"
+        },
+        "runtime": {
+          "lib/UnityEngine.UI.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
       "Assembly-CSharp/0.0.0.0": {
         "runtime": {
           "Assembly-CSharp.dll": {
@@ -324,14 +344,6 @@
           "Unity.Addressables.dll": {
             "assemblyVersion": "0.0.0.0",
             "fileVersion": "0.0.0.0"
-          }
-        }
-      },
-      "UnityEngine.UI/1.0.0.0": {
-        "runtime": {
-          "UnityEngine.UI.dll": {
-            "assemblyVersion": "1.0.0.0",
-            "fileVersion": "1.0.0.0"
           }
         }
       },
@@ -745,6 +757,20 @@
       "path": "system.threading/4.3.0",
       "hashPath": "system.threading.4.3.0.nupkg.sha512"
     },
+    "Unity3D.UnityEngine/2018.3.5.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-63ZCYwGdoBCmsJCUI6dodSY+1TrU/7lTDmfF+492Z6nn8my30E3sb5HXLe7qm7MLvBIcKz9TCy114yu5VGycKA==",
+      "path": "unity3d.unityengine/2018.3.5.1",
+      "hashPath": "unity3d.unityengine.2018.3.5.1.nupkg.sha512"
+    },
+    "Unity3D.UnityEngine.UI/2018.3.5.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-8trOQSsm9mFyICzc6IDxLitAF3M/SOn39wHitHcKa4gXSfJhK5Ri51d40rrqb5UF1I6w2nIDXyWMUP/DZX7YFw==",
+      "path": "unity3d.unityengine.ui/2018.3.5.1",
+      "hashPath": "unity3d.unityengine.ui.2018.3.5.1.nupkg.sha512"
+    },
     "Assembly-CSharp/0.0.0.0": {
       "type": "reference",
       "serviceable": false,
@@ -771,11 +797,6 @@
       "sha512": ""
     },
     "Unity.Addressables/0.0.0.0": {
-      "type": "reference",
-      "serviceable": false,
-      "sha512": ""
-    },
-    "UnityEngine.UI/1.0.0.0": {
       "type": "reference",
       "serviceable": false,
       "sha512": ""

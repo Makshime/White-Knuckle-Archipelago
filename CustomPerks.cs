@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using static BuffContainer;
@@ -34,12 +35,12 @@ public class CustomPerks
             multiplier = 1,
             loseRateEffectedByPerks = false,
             buffs = new List<Buff>{
-                 NewBuff("addGravity", -0.02f, -0.02f),
-                 NewBuff("addStaminaRegen", 0.03f, 0.03f),
+                 NewBuff("addGravity", -0.03f, -0.03f),
+                 NewBuff("addStaminaRegen", 0.04f, 0.04f),
                  NewBuff("addStamina",  0.05f, 0.05f),
-                 NewBuff("addClimb", 0.05f, 0.05f),
-                 NewBuff("addJump", 0.03f, 0.03f),
-                 NewBuff("addSpeed", 0.05f, 0.05f)
+                 NewBuff("addClimb", 0.06f, 0.06f),
+                 NewBuff("addJump", 0.05f, 0.05f),
+                 NewBuff("addSpeed", 0.06f, 0.06f)
             }
         };
         Texture2D texture = new Texture2D(256, 256);
@@ -69,7 +70,7 @@ public class CustomPerks
         _apDebuff.buffMultiplier = 1;
         _apDebuff.multiplierCurve = AnimationCurve.Constant(0, 1, 1);
         _apDebuff.modules = new List<PerkModule>();
-        _apDebuff.buff = new BuffContainer()
+        _apDebuff.buff = new BuffContainer
         {
             id = "archipelago_debuff",
             desc = "",
@@ -79,11 +80,12 @@ public class CustomPerks
             multiplier = 1,
             loseRateEffectedByPerks = false,
             buffs = new List<Buff>{
-                //NewBuff("addGravity", 0.02f, 0.02f),
+                NewBuff("addGravity", 0.05f, 0.05f),
                 NewBuff("addStaminaRegen", -0.02f, -0.02f),
-                NewBuff("addStamina",  -0.02f, -0.02f),
-                NewBuff("addClimb", -0.02f, -0.02f),
-                NewBuff("addJump", -0.03f, -0.03f),
+                NewBuff("addStamina",  -0.05f, -0.05f),
+                //The climb and jump debuffs make it even worse than maso!
+                NewBuff("addClimb", -0.01f, -0.01f),
+                NewBuff("addJump", -0.005f, -0.005f),
                 NewBuff("addSpeed", -0.04f, -0.04f)
             }
         };
@@ -106,5 +108,21 @@ public class CustomPerks
         buff.amount = amount;
         buff.maxAmount = maxAmount;
         return buff;
+    }
+
+    
+    //Was for an idea of messing around with how the debuffs/buffs are translated, stays here in case I still want it for some reason
+    private static AnimationCurve CreateExponentialDecayCurve(float decay, int keyFrameCount = 100)
+    {
+        Keyframe[] keyframes = new Keyframe[keyFrameCount];
+        float value = 1f;
+        
+        for (int i = 0; i < keyFrameCount; i++)
+        {
+            keyframes[i] = new Keyframe((float)i / (keyFrameCount - 1), value);
+            value *= decay;
+        }
+        
+        return new AnimationCurve(keyframes);
     }
 }

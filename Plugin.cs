@@ -8,6 +8,7 @@ using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
 using HarmonyLib.Tools;
+using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.UI;
 using Logger = UnityEngine.Logger;
@@ -23,6 +24,7 @@ public class Plugin : BaseUnityPlugin
     internal static new ManualLogSource Logger;
 
     public static int LoanAmount = 0;
+    public static bool Loaded;
 
     private void Awake()
     {
@@ -44,59 +46,36 @@ public class Plugin : BaseUnityPlugin
         static void Prefix()
         {
             ArchipelagoClient.Update();
+            long roomID = APItems.RoomNameToAP[WorldLoader.instance.GetCurrentLevel().GetLevel().levelName];
+            if (!APItems.SentLocations.Contains(roomID))
+            {
+                APItems.SentLocations.Add(roomID);
+                ArchipelagoClient.TryQueueLocation(roomID);
+            }
         }
     }
 
 
 
-
-[HarmonyPatch(typeof(FacilityUpgrade), "IsOwned")]
+    
+    [HarmonyPatch(typeof(FacilityUpgrade), "IsOwned")]
     class AlterUpgradeCheck
     {
         static bool Prefix(FacilityUpgrade __instance, ref bool __result, object[] __args)
         {
-            
+            //Replaces the check in the save data for if a facility upgrade is available with the mod's info
             string facilityId = StatManager.saveData.GetFacility((string)__args[0]).id;
-            if (APItems.FacilityDict.TryGetValue(facilityId, out Dictionary<string, bool> dict) && dict.ContainsKey(__instance.id))
+            if (APItems.FacilityDict.TryGetValue(facilityId, out Dictionary<string, bool> dict) && dict.TryGetValue(__instance.id, out var value))
             {
-                 __result = dict[__instance.id];
+                 __result = value;
                  return false;
             }
             return true;
         }
     }
     
-    //Patch I was making before realizing that I can just do a prefix instead
     
-    /*
-    [HarmonyPatch(typeof(UT_FacilityUpgrade_Activator), "Check")]
-    class AlterCheck2
-    {
-
-        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
-        {
-            //var jump = generator.DefineLabel();
-            
-            return new CodeMatcher(instructions).MatchForward(false,
-                new CodeMatch(OpCodes.Ldarg_0),
-                new CodeMatch(OpCodes.Ldfld),
-                new CodeMatch(OpCodes.Brfalse_S),
-                new CodeMatch(OpCodes.Ldarg_0),
-                new CodeMatch(OpCodes.Ldc_I4_0),
-                new CodeMatch(OpCodes.Ceq)
-            ).InsertAndAdvance(
-                //new CodeInstruction(OpCodes.Ldstr, "UPG_Recycler"),
-                //new CodeInstruction(OpCodes.Ldfld, typeof(UT_FacilityUpgrade_Activator).GetField("invert", BindingFlags.Public)),
-                //new CodeInstruction(OpCodes.Brfalse_S, jump),
-                new CodeInstruction(OpCodes.Ldc_I4_1),
-                new CodeInstruction(OpCodes.Stloc_0)
-                ).InstructionEnumeration();
-
-        }
-    }*/
-    
-    
-    //This class replaces the directory that the game saves the game to with its own one
+    //This class replaces the directories that the game saves the game to with its own ones
     [HarmonyPatch(typeof(StatManager), "Awake")]
     class AlterStats
     {
@@ -175,11 +154,9 @@ public class Plugin : BaseUnityPlugin
             File.Create(Path.Combine(UnityEngine.Application.persistentDataPath, "rando_save.json"));
         }
 
-        public static void SendFacilityDebugCommand(string[] args)
+        public static async void DisconnectCommand(string[] args)
         {
-            if (args.Length > 0)
-                if (APItems.FullFacilityUpgradetoAP.ContainsKey(args[0]))
-                    ArchipelagoClient.SendItem(APItems.FullFacilityUpgradetoAP[args[0]]);
+            await ArchipelagoClient.Disconnect(false);
         }
         
     }
@@ -240,7 +217,7 @@ public class Plugin : BaseUnityPlugin
         }
         
     }
-    //
+    
     [HarmonyPatch(typeof(App_PerkPage), "CheckIronKnuckle")]
     class PatchPerksPage
     {
@@ -248,24 +225,80 @@ public class Plugin : BaseUnityPlugin
         static bool Prefix(App_PerkPage __instance)
         {
             string level = WorldLoader.instance.GetCurrentLevel().GetLevel().levelName;
-            switch (level)
+            int unlock = APItems.ProgressivePerkUnlocks;
+
+            if (level is "Campaign_Interlude_Silo_To_Pipeworks_01" or "Campaign_Interlude_Sink_To_Pipeworks_01" & unlock > 0 || 
+                level is "M3_Habitation_Shaft_Intro" or "Campaign_Interlude_Chute_To_Habitation" & unlock > 1 ||
+                level is "Campaign_Interlude_Abyss_To_Nest_01_SafeArea" & unlock > 2)
             {
-                case "Campaign_Interlude_Silo_To_Pipeworks_01": 
-                case "M3_Habitation_Shaft_Intro": 
-                case "Campaign_Interlude_Habitation_To_Abyss_01": 
-                case "Campaign_Interlude_Abyss_To_Nest_01_SafeArea":
-                    __instance.window.os.messageManager.CreateMessage(new Message_Manager.Message_Packet()
-                    {
-                        type = "default",
-                        closeText = "Quit",
-                        closeFunction = new Action(__instance.window.CloseApp),
-                        message = "Perks for this sector are disabled by Archipelago!",
-                        screenPos = new Vector2(0.0f, 0.0f)
-                    });
-                    return false;
+                __instance.window.os.messageManager.CreateMessage(new Message_Manager.Message_Packet()
+                {
+                    type = "default",
+                    closeText = "Quit",
+                    closeFunction = __instance.window.CloseApp,
+                    message = "Perks for this sector are disabled by Archipelago!",
+                    screenPos = new Vector2(0.0f, 0.0f)
+                });
+                return false;
             }
 
             return true;
+        }
+    }
+
+    [HarmonyPatch(typeof(App_Unlocker))]
+    class PatchShortcutUnlock
+    {
+        [HarmonyPatch("Start")]
+        static void Postfix(App_Unlocker __instance)
+        {
+            
+            /*Logger.LogInfo(__instance.authorizationTitle);
+            Logger.LogInfo(__instance.flagOnUnlock);
+            Logger.LogInfo(__instance.saveFlagOnUnlock);
+            Logger.LogInfo(__instance.window.file.fileInfo.data);*/
+            //Above commented out loggers are for testing, maybe they'll add another one in the future 
+
+            __instance.password = "impossible passcode uwu you can't unlock this no matter what you do!";
+            if (__instance.saveFlagOnUnlock == "unlockedsink" & APItems.ProgressionUnlocks["r_shortcut_tangledsink"] ||
+                __instance.window.file.fileInfo.data.Split(",")[0].Split(":")[1] == "chutecode" & APItems.ProgressionUnlocks["r_shortcut_expulsionchute"])
+            {
+                __instance.authorizationCost = 0;
+                __instance.CheckAuthorize();
+            }
+        }
+        
+    }
+    
+    [HarmonyPatch(typeof(Trinket), "IsUnlocked")]
+    class PatchTrinketUnlock
+    {
+        static bool Prefix(Trinket __instance, ref bool __result)
+        {
+            //TODO: Find the ID that must be added to gamemode exclude to prevent bindings from rendering
+            if (__instance.name.Split("_")[0] == "binding")
+            {
+                __instance.icon = null;
+                __instance.lockIcon = null;
+                return true;
+            }
+
+            if (APItems.TrinketUnlocks.TryGetValue(__instance.name, out var unlock))
+            {
+                __result = unlock;
+                return false;
+            }
+            return true;
+        }
+    }
+
+    [HarmonyPatch(typeof(Item))]
+    class RemoveUnlockPopup
+    {
+        [HarmonyPatch("SendUnlockMessage")]
+        static bool Prefix()
+        {
+            return false;
         }
     }
     
@@ -279,20 +312,23 @@ public class Plugin : BaseUnityPlugin
         {
             Logger.LogInfo(__instance.name);
             string currLvl = WorldLoader.instance.GetCurrentLevel().GetLevel().levelName;
+            int reg = APItems.ProgressiveRegions;
 
-            if (currLvl == "Campaign_Interlude_Silo_To_Pipeworks_01" & __instance.name == "Button.002")
+            if (reg > 0 & (currLvl == "Campaign_Interlude_Silo_To_Pipeworks_01" & __instance.name == "Button.002" ||
+                currLvl == "Campaign_Interlude_Sink_To_Pipeworks_01" & __instance.name == "Prop_Button_02_Switch.01"))
             {
                 return false;
             }
-            if (currLvl == "M3_Habitation_Shaft_Intro" & __instance.name == "Prop_Button_03_Door")
+            if (reg > 1 & (currLvl == "M3_Habitation_Shaft_Intro" & __instance.name == "Prop_Button_03_Door" ||
+                currLvl == "Campaign_Interlude_Chute_To_Habitation" & __instance.name == "Prop_Button_04"))
             {
                 return false;
             }
-            if (currLvl == "Campaign_Interlude_Habitation_To_Abyss_01" & __instance.name == "Prop_Button_03.01")
+            if (reg > 2 & currLvl == "Campaign_Interlude_Habitation_To_Abyss_01" & __instance.name == "Prop_Button_03.01")
             {
                 return false;
             }
-            return !(currLvl == "Campaign_Interlude_Abyss_To_Nest_01_SafeArea" & __instance.name == "Prop_Button_03");
+            return !(reg > 3 & currLvl == "Campaign_Interlude_Abyss_To_Nest_01_SafeArea" & __instance.name == "Prop_Button_03");
         }
         
         
@@ -309,34 +345,50 @@ public class Plugin : BaseUnityPlugin
             CommandConsole.BuildCommand("connect", AddCommands.TryConnectCommand).NotCheat().Description("Attempts to connect to Archipelago Server: Server, Name");
             CommandConsole.BuildCommand("reconnect", AddCommands.TryReconnectCommand).NotCheat().Description("Reconnects to Archipelago server in case of disconnect");
             CommandConsole.BuildCommand("resetapsave", AddCommands.ResetAPSaveData).NotCheat().Description("Deletes the current APSave's data for starting a new archipelago game");
-            CommandConsole.BuildCommand("say", ArchipelagoClient.Say).NotCheat()
-                .Description("Sends a message to the archipelago client.");
-            CommandConsole.BuildCommand("cheatroaches", AddCommands.CheatRoachesInCommand)
-                .NotCheat().Description("Cheats in roaches without activating cheat mode for debug purposes");
-            CommandConsole.BuildCommand("senditem", AddCommands.SendFacilityDebugCommand).NotCheat();
+            CommandConsole.BuildCommand("say", ArchipelagoClient.Say).NotCheat().Description("Sends a message to the archipelago client.");
+            CommandConsole.BuildCommand("disconnect", AddCommands.DisconnectCommand).NotCheat();
         }
     }
     
     [HarmonyPatch(typeof(CL_GameManager), "LoadIn", MethodType.Enumerator)]
     class PatchCommands
     {
-        
+        static void Postfix()
+        {
+            Loaded = true;
+        }
         
         //Alters the roach loan value to refer to the LoanAmount value instantiated in this Plugin.cs file
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-
-            var loanInstruction = new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(Plugin), nameof(LoanAmount)));
-
             return new CodeMatcher(instructions)
-                .MatchForward(false, 
-                    new CodeMatch(OpCodes.Ldc_I4_S))
-                .Repeat(matcher => 
-                    matcher.SetInstructionAndAdvance(
-                    loanInstruction))
+                .MatchForward(false, new CodeMatch(OpCodes.Ldc_I4_S))
+                .SetInstructionAndAdvance(new CodeInstruction(OpCodes.Ldsfld,
+                    AccessTools.Field(typeof(Plugin), nameof(LoanAmount))))
                 .InstructionEnumeration();
-            
-            
+        }
+    }
+
+    [HarmonyPatch(typeof(StatManager.SaveData.Facility), "HasUpgrade")]
+    class Force20RoachConditional
+    {
+        static bool Prefix(ref bool __result, object[] __args)
+        {
+            if ((string)__args[0] == "UPG_Global_StartingRoaches_T3")
+            {
+                __result = true;
+                return false;
+            }
+            return true;
+        }
+    }
+    
+    [HarmonyPatch(typeof(CL_GameManager), "OnDestroy")]
+    class UnloadgMan
+    {
+        static void Prefix()
+        {
+            Loaded = false;
         }
     }
     
@@ -347,7 +399,7 @@ public class Plugin : BaseUnityPlugin
         static void Prefix(FacilityUpgrade __instance, object[] __args)
         {
             long APID = APItems.FullFacilityUpgradetoAP[$"{((StatManager.SaveData.Facility)__args[0]).id} {__instance.id}"];
-            ArchipelagoClient.SendItem(APID);
+            ArchipelagoClient.TryQueueLocation(APID);
         }
     }
     

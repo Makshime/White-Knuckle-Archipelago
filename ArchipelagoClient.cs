@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using Archipelago.MultiClient.Net;
@@ -26,29 +27,30 @@ public class ArchipelagoClient
     public static bool Connected;
     private static int _reconnectAttempts = 0;
     private static int _slot = -1;
+    private static bool _connecting;
 
     private static Queue<ItemInfo> _items = [];
+    private static List<long> _locationsToSend = [];
     
-    private static void NewSession(string host, int port)
-    {
-        _session = ArchipelagoSessionFactory.CreateSession(host, port);
-        _servername = $"{host}:{port}";
-    }
+
     private static void NewSession(string server)
     {
         _session = ArchipelagoSessionFactory.CreateSession(server);
         _servername = server;
     }
     
-    //Archipelago connection procedure using Multiclient.net (WHY DOES IT CALL MULTIPLE TIMES????)
+    //Archipelago connection procedure using Multiclient.net 
     public static async Task<object> Connect(string server = null, string user = null, string pass = null)
     {
         
         
         if (Connected)
         {
-            CommandConsole.Log($"Already connected to server {_servername} as {user}");
+            CommandConsole.Log($"Already connected to server {_servername} as {_username}");
+            return null;
         }
+
+        _connecting = true;
         
         Plugin.Logger.LogInfo("Connecting to " + server);
 
@@ -62,21 +64,32 @@ public class ArchipelagoClient
             _password = pass;
         
         
+        _session.Items.ItemReceived += OnItemReceive;
+        _session.MessageLog.OnMessageReceived += OnMessageReceive;
+        _session.Socket.ErrorReceived += OnError;
+        _session.Socket.SocketClosed += OnSocketClosed;
+        _session.Locations.CheckedLocationsUpdated += OnLocationReceive;
+        
+        APItems.ClearAllFlags();
+        APItems.SentLocations.Clear();
+        
         LoginResult result;
 
+        
         try
         {
-            result = await Task.Run(() => _session.TryConnectAndLogin("White Knuckle", user, ItemsHandlingFlags.AllItems));
+            result = await Task.Run(() => _session.TryConnectAndLogin("White Knuckle", _username, ItemsHandlingFlags.AllItems));
         }
         catch (Exception e)
         {
             result = new LoginFailure(e.GetBaseException().Message);
         }
 
+        
         if (!result.Successful)
         {
             LoginFailure failure = (LoginFailure)result;
-            CommandConsole.Log($"Failed to Connect to {_servername} as {user}:");
+            CommandConsole.Log($"Failed to Connect to {_servername} as {_username}:");
             foreach (string error in failure.Errors)
             {
                 CommandConsole.Log($"    {error}");
@@ -94,38 +107,50 @@ public class ArchipelagoClient
         var loginSuccess = (LoginSuccessful)result;
         _slot = loginSuccess.Slot;
 
-        _session.Items.ItemReceived += OnItemReceive;
-        _session.MessageLog.OnMessageReceived += OnMessageReceive;
+        APItems.SentLocations.AddRange(_session.Locations.AllLocationsChecked);
+        CheckReceivedItems();
+        foreach (long item in APItems.SentLocations)
+        {
+            Plugin.Logger.LogInfo($"ID: {item}");
+        }
         
-        
-        CommandConsole.Log($"Successfully connected to {_servername} as {user}!");
+        CommandConsole.Log($"Successfully connected to {_servername} as {_username}!");
         CommandConsole.Log($"   Slot Number: {loginSuccess.Slot}");
-        
-        CheckReceivedItemsOnJoin();
         
         Connected = true;
         _connectedBefore = true;
+        _connecting = false;
         
         return null;
     }
 
-    public static async Task<object> Disconnect()
+    
+    
+    public static async Task<object> Disconnect(bool tryReconnect = true)
     {
+        
         Connected = false;
-
-
+        
         if (_session != null)
         {
             _session.Items.ItemReceived -= OnItemReceive;
+            _session.MessageLog.OnMessageReceived -= OnMessageReceive;
+            _session.Socket.ErrorReceived -= OnError;
+            _session.Socket.SocketClosed -= OnSocketClosed;
+            _session.Locations.CheckedLocationsUpdated -= OnLocationReceive;
+
+            APItems.ClearAllFlags();
+            APItems.SentLocations.Clear();
         }
 
-        if (_connectedBefore)
+        if (_connectedBefore & tryReconnect)
         {
             _reconnectAttempts++;
             if (_reconnectAttempts >= 5)
             {
                 await Task.Delay(5000);
                 _connectedBefore = false;
+                _connecting = false;
             }
 
             await Connect();
@@ -141,7 +166,8 @@ public class ArchipelagoClient
         {
             try
             {
-                
+                CheckReceivedItems();
+                CheckLocationsToSend();
             }
             catch 
             {
@@ -150,61 +176,91 @@ public class ArchipelagoClient
             
         }
     }
+
+    private static void OnLocationReceive(ReadOnlyCollection<long> newCheckedLocations)
+    {
+        lock (APItems.SentLocations)
+        {
+            foreach (var newLoc in newCheckedLocations)
+            {
+                APItems.SentLocations.Add(newLoc);
+            }
+        }
+    }
     
     private static void OnItemReceive(ReceivedItemsHelper helper)
     {
         while (helper.Any())
         {
-            APItems.UpdateFromId(helper.DequeueItem().ItemId);
+            _items.Enqueue(helper.DequeueItem());
         }
         
     }
 
     private static void OnMessageReceive(LogMessage message)
     {
-        CommandConsole.Log($"    {message}"); 
+        CommandConsole.Log($"[{_servername}] - {message}"); 
     }
 
     private static bool _saying;
     public static void Say(string[] args)
     {
-        if (_saying) { return;}
-        _saying = true;
         if(Connected) {_session.Say(args[0]);}
         else {CommandConsole.Log("Not currently connected to server");}
-        _saying = false;
     }
 
-    public static void SendItem(long itemID)
+    public static void TryQueueLocation(long itemID)
     {
-        try
-        {
-            _session.Locations.CompleteLocationChecksAsync(itemID);
-        }
-        catch (ArchipelagoSocketClosedException)
-        {
-            Disconnect();
-        }
+        _locationsToSend.Add(itemID);
     }
-
-    private static void CheckReceivedItemsOnJoin()
+    
+    private static void CheckReceivedItems()
     {
         
-        while(_session.Items.Any())
+        while(_items.Any())
         {
-            ItemInfo item = _session.Items.DequeueItem();
+            ItemInfo item = _items.Dequeue();
             if (item.Player.Slot == _slot)
             {
                 APItems.UpdateFromId(item.ItemId);
+                CommandConsole.Log($"Received item: {item.ItemDisplayName} from {item.LocationName} in game {item.LocationGame}");
             }
-            else
-            {
-                APItems.SentItems.Add(item.LocationId);
-            }
-            CommandConsole.Log($"Received item: {item.ItemDisplayName}");
+            
         }
         
+    }
+
+    private static void CheckLocationsToSend()
+    {
+        if (_locationsToSend.Any() & Connected)
+        {
+            try
+            {
+                _session.Locations.CompleteLocationChecksAsync(_locationsToSend.ToArray());
+                foreach (long l in _locationsToSend) APItems.SentLocations.Add(l);
+            }
+            catch (ArchipelagoSocketClosedException e)
+            {
+                Plugin.Logger.LogError(e.ToString());
+                Disconnect();
+            }
+        }
+    }
+
+    private static void OnError(Exception exception, string message)
+    {
+        Plugin.Logger.LogError(exception.ToString());
+        CommandConsole.Log("AP " + message);
+
+        Disconnect();
+    }
+
+    private static void OnSocketClosed(string message)
+    {
+        Plugin.Logger.LogError("AP " + message);
+        CommandConsole.Log("AP " + message);
         
+        Disconnect();
     }
 
 

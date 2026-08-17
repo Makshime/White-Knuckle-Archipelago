@@ -2,7 +2,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from BaseClasses import ItemClassification, Location
-from . import items
 
 if TYPE_CHECKING:
     from .world import WKWorld
@@ -127,7 +126,7 @@ LOCATION_NAME_TO_ID = {
     "Pipeworks: Pipe Organ 04": 0xAB22200,
     "Pipeworks: Pipe Organ 08": 0xAB22201,
     #Pipeworks 3
-    "Pipeworks: Rho Altar Room": 0xAB23200,
+    "Pipeworks: Pipe Organ 09": 0xAB23200,
 
     #Habitation
     "Habitation: Elevator Shaft 01": 0xAB30000,
@@ -231,6 +230,10 @@ class WKLocation(Location):
 def get_location_names_with_ids(location_names: list[str]) -> dict[str, int | None]:
     return {location_name: LOCATION_NAME_TO_ID[location_name] for location_name in location_names}
 
+def get_ids_with_location_names(location_ids: list[int]) -> dict[str, int | None]:
+    keys = [k for k, v in LOCATION_NAME_TO_ID.items() if v in location_ids]
+    return {k: v for k, v in zip(keys, location_ids)}
+
 def create_all_locations(world: WKWorld) -> None:
     create_regular_locations(world)
     create_events(world)
@@ -332,34 +335,34 @@ def create_regular_locations(world: WKWorld) -> None:
         ), WKLocation
     )
 
-    sink.add_locations(range(0xAB60000, 0xAB60005), WKLocation)
-    chute.add_locations(range(0xAB70000, 0xAB70008), WKLocation)
+    sink.add_locations(get_ids_with_location_names(list(range(0xAB60000, 0xAB60005))), WKLocation)
+    chute.add_locations(get_ids_with_location_names(list(range(0xAB70000, 0xAB70008))), WKLocation)
 
-    deep_storage.add_locations(get_location_names_with_ids([f"Silos: Deep Storage {i:2d}" for i in range(1,18)]), WKLocation)
-    shattered_chambers.add_locations(get_location_names_with_ids([f"Silos: Shattered Chambers {i:2d}" for i in range(1,12)]), WKLocation)
-    air_exchange.add_locations(get_location_names_with_ids([f"Silos: Air Exchange {i:2d}" for i in range(1,12)]), WKLocation)
+    deep_storage.add_locations(get_location_names_with_ids([f"Silos: Deep Storage {i:02d}" for i in range(1,18)]), WKLocation)
+    shattered_chambers.add_locations(get_location_names_with_ids([f"Silos: Shattered Chambers {i:02d}" for i in range(1,12)]), WKLocation)
+    air_exchange.add_locations(get_location_names_with_ids([f"Silos: Air Exchange {i:02d}" for i in range(1,12)]), WKLocation)
 
-    drainage_system.add_locations(get_location_names_with_ids([f"Pipeworks: Drainage System {i:2d}" for i in range(1,11)]), WKLocation)
-    waste_heap.add_locations(get_location_names_with_ids([f"Pipeworks: Waste Heap {i:2d}" for i in range(1,6)]), WKLocation)
-    pipe_organ.add_locations(get_location_names_with_ids([f"Pipeworks: Pipeworks {i:2d}" for i in range(1,10)]), WKLocation)
+    drainage_system.add_locations(get_location_names_with_ids([f"Pipeworks: Drainage {i:02d}" for i in range(1,11)]), WKLocation)
+    waste_heap.add_locations(get_location_names_with_ids([f"Pipeworks: Waste Heap {i:02d}" for i in range(1,6)]), WKLocation)
+    pipe_organ.add_locations(get_location_names_with_ids([f"Pipeworks: Pipe Organ {i:02d}" for i in range(1,10)]), WKLocation)
 
-    s = [f"Habitation: Elevator Shaft {i:2d}" for i in range(1,8)]
+    s = [f"Habitation: Elevator Shaft {i:02d}" for i in range(1,8)]
     s.append("Habitation: Elevator Shaft Exit")
     shaft.add_locations(get_location_names_with_ids(s), WKLocation)
-    pier.add_locations(get_location_names_with_ids([f"Habitation: Haunted Pier {i:2d}" for i in range(1,5)]), WKLocation)
-    s = [f"Habitation: Delta Labs {i:2d}" for i in range(1,8)]
+    pier.add_locations(get_location_names_with_ids([f"Habitation: Haunted Pier {i:02d}" for i in range(1,5)]), WKLocation)
+    s = [f"Habitation: Delta Labs {i:02d}" for i in range(1,8)]
     s.extend(["Habitation: Delta Labs Lobby", "Habitation: Delta Labs Exit"])
     delta_labs.add_locations(get_location_names_with_ids(s), WKLocation)
 
     s = list(range(0xAB40101, 0xAB400107))
     s.append(0xAB40000)
-    transit.add_locations(s, WKLocation)
-    handle.add_locations([0xAB40200,0xAB40400], WKLocation)
-    gardens.add_locations([0xAB40300,0xAB40301,0xAB40302,0xAB40303,0xAB40001], WKLocation)
+    transit.add_locations(get_ids_with_location_names(s), WKLocation)
+    handle.add_locations(get_ids_with_location_names([0xAB40200,0xAB40400]), WKLocation)
+    gardens.add_locations(get_ids_with_location_names([0xAB40300,0xAB40301,0xAB40302,0xAB40303,0xAB40001]), WKLocation)
 
-    lambda_labs.add_locations(range(0xAB50000,0xAB50008), WKLocation)
-    feeding_trough.add_locations(range(0xAB50100,0xAB6000108), WKLocation)
-    hot_zone.add_locations(range(0xAB50200,0xAB500006), WKLocation)
+    lambda_labs.add_locations(get_ids_with_location_names(list(range(0xAB50000,0xAB50008))), WKLocation)
+    feeding_trough.add_locations(get_ids_with_location_names(list(range(0xAB50100,0xAB6000108))), WKLocation)
+    hot_zone.add_locations(get_ids_with_location_names(list(range(0xAB50200,0xAB500006))), WKLocation)
 
 
 

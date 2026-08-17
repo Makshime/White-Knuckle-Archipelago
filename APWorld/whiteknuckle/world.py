@@ -3,8 +3,8 @@ from typing import Any
 
 from worlds.AutoWorld import World
 
-from . import items, locations, regions, rules
-from . import options as wuckle_options
+from APWorld.whiteknuckle import rules, regions, locations, items, options as wuckle_options
+
 
 class WKWorld(World):
     """

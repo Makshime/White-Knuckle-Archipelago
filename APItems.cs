@@ -19,7 +19,6 @@ public class APItems
             //All other global upgrades are either overridden or inconsequential
             ["UPG_Global_Bazaar_I2"] = false,
             ["UPG_Global_PerkRefresh"] = false,
-            ["UPG_Global_StartingRoaches_T3"] = true
         },
         ["CAMPAIGN_INTERLUDE_01"] = new ()
         {
@@ -356,8 +355,7 @@ public class APItems
         ["M3_Habitation_Shaft_04"] = 0xAB30003,
         ["M3_Habitation_Shaft_05"] = 0xAB30004,
         ["M3_Habitation_Shaft_06"] = 0xAB30005,
-        ["M3_Habitation_Shaft_Intro"] = 0xAB30006,
-        ["M3_Habitation_Shaft_To_Pier"] = 0xAB30007,
+        ["M3_Habitation_Shaft_To_Pier"] = 0xAB30006,
         
         ["M3_Habitation_Pier_01"] = 0xAB30100,
         ["M3_Habitation_Pier_02"] = 0xAB30101,

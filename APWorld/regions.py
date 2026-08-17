@@ -17,6 +17,8 @@ def create_and_connect_regions(world: WKWorld) -> None:
 def create_all_regions(world: WKWorld) -> None:
     global_shop = Region("Global Shop", world.player, world.multiworld)
 
+    sink = Region("Sink", world.player, world.multiworld)
+    chute = Region("Chute", world.player, world.multiworld)
     silos_1 = Region("Silos 1", world.player, world.multiworld)
     silos_2 = Region("Silos 2", world.player, world.multiworld) ## Shattered
     silos_3 = Region("Silos 3", world.player, world.multiworld) ## Air Exchange
@@ -38,7 +40,7 @@ def create_all_regions(world: WKWorld) -> None:
     nest_3 = Region("Nest 3", world.player, world.multiworld)
     core_1 = Region("Core 1", world.player, world.multiworld)
 
-    regions = [global_shop, silos_1, silos_2, silos_3, interlude_1, pipeworks_1, pipeworks_2, pipeworks_3, interlude_2, hab_1, hab_2, hab_3, interlude_3, abyss_1, abyss_2, abyss_3, interlude_4, nest_1, nest_2, nest_3, core_1]
+    regions = [sink, chute, global_shop, silos_1, silos_2, silos_3, interlude_1, pipeworks_1, pipeworks_2, pipeworks_3, interlude_2, hab_1, hab_2, hab_3, interlude_3, abyss_1, abyss_2, abyss_3, interlude_4, nest_1, nest_2, nest_3, core_1]
 
     world.multiworld.regions += regions
 
@@ -46,6 +48,8 @@ def create_all_regions(world: WKWorld) -> None:
 def connect_regions(world: WKWorld) -> None:
     global_shop = world.get_region("Global Shop")
 
+    sink = world.get_region("Sink")
+    chute = world.get_region("Chute")
     silos_1 = world.get_region("Silos 1")
     silos_2 = world.get_region("Silos 2") ## Shattered
     silos_3 = world.get_region("Silos 3") ## Air Exchange
@@ -74,7 +78,13 @@ def connect_regions(world: WKWorld) -> None:
     silos_2.connect(interlude_1, "Silos 2 to Interlude 1")
     silos_3.connect(interlude_1, "Silos 3 to Interlude 1")
 
+    silos_1.connect(sink, "Silos 1 to Sink 1")
+    sink.connect(interlude_1, "Sink to Interlude 1")
+
     interlude_1.connect(pipeworks_1, "Interlude 1 to Pipeworks 1")
+
+    pipeworks_1.connect(chute, "Pipeworks 1 to Chute")
+    chute.connect(interlude_2, "Chute to Interlude 2")
 
     pipeworks_1.connect(pipeworks_2, "Pipeworks 1 to Pipeworks 2")
     pipeworks_2.connect(pipeworks_3, "Pipeworks 2 to Pipeworks 3")

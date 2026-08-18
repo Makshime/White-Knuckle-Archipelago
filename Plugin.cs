@@ -11,6 +11,7 @@ using HarmonyLib.Tools;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Yoga;
 using Logger = UnityEngine.Logger;
 using Object = System.Object;
 
@@ -41,18 +42,71 @@ public class Plugin : BaseUnityPlugin
 
     //Handles all Update functions
     [HarmonyPatch(typeof(ENT_Player), "Update")]
-    class update
+    class Update
     {
-        static void Prefix()
-        {
+        static void Prefix(ENT_Player __instance)
+        {   
             ArchipelagoClient.Update();
-            long roomID = APItems.RoomNameToAP[WorldLoader.instance.GetCurrentLevel().GetLevel().levelName];
-            if (!APItems.SentLocations.Contains(roomID))
+            try
             {
-                APItems.SentLocations.Add(roomID);
-                ArchipelagoClient.TryQueueLocation(roomID);
+                if (WorldLoader.instance != null &&
+                    APItems.RoomNameToAP.TryGetValue(WorldLoader.instance.GetCurrentLevel().GetLevel().levelName, out var roomID))
+                {
+                    if (!APItems.SentLocations.Contains(roomID))
+                    {
+                        APItems.SentLocations.Add(roomID);
+                        ArchipelagoClient.TryQueueLocation(roomID);
+                    }
+                }
             }
+            catch
+            {
+                // ignored
+            }
+
+            int perkCount = __instance?.GetPerk("archipelago_debuff")?.stackAmount ?? -__instance?.GetPerk("archipelago_buff")?.stackAmount ?? 0;
+                 
+            lock(__instance) {
+                if (perkCount != APItems.TargetAPDebuffCount && __instance != null)
+                {
+                    Logger.LogInfo("Amount, Target: " + perkCount + ", " + APItems.TargetAPDebuffCount);
+
+                    if (perkCount < APItems.TargetAPDebuffCount)
+                    {
+                        __instance.RemovePerk("archipelago_buff");
+                        __instance.RemovePerk("archipelago_debuff");
+                        if (perkCount >= 0) // wow i love nullables now
+                        {
+                            __instance.AddPerk(__instance.GetPerk("archipelago_debuff") ?? CL_AssetManager.GetPerkAsset("archipelago_debuff"), APItems.TargetAPDebuffCount - perkCount);
+                        }
+                        else if (APItems.TargetAPDebuffCount != 0)
+                        {
+                            __instance.AddPerk(
+                                __instance.GetPerk("archipelago_debuff") ??
+                                CL_AssetManager.GetPerkAsset("archipelago_debuff"), APItems.TargetAPDebuffCount);
+                        }
+                    }
+                    else
+                    {
+                        __instance.RemovePerk("archipelago_buff");
+                        __instance.RemovePerk("archipelago_debuff");
+                        if (perkCount <= 0)
+                        {
+                            __instance.AddPerk(__instance.GetPerk("archipelago_buff") ?? CL_AssetManager.GetPerkAsset("archipelago_buff"), perkCount - APItems.TargetAPDebuffCount);
+                        }
+                        else // alternate way to do it cause why not
+                        {
+                            if (APItems.TargetAPDebuffCount != 0)
+                                __instance.AddPerkCommand([
+                                    "archipelago_buff", $"{-APItems.TargetAPDebuffCount}"
+                                ]);
+                        }
+                    }
+                }
+            } 
+            
         }
+        
     }
 
 
@@ -97,10 +151,10 @@ public class Plugin : BaseUnityPlugin
 
 
     
-    [HarmonyPatch(typeof(CL_GameManager), "Start")]
+    [HarmonyPatch(typeof(CommandConsole), "Awake")]
     class AddCommands
     {
-        public static void ChangeLoanCommand(string[] args)
+        private static void ChangeLoanCommand(string[] args)
         {
             if (args.Length == 0 || args[0] == "")
             {
@@ -125,7 +179,7 @@ public class Plugin : BaseUnityPlugin
 
         }
 
-        public static async void TryConnectCommand(string[] args)
+        private static async void TryConnectCommand(string[] args)
         {
             if (args.Length < 2 || args[0] == "")
             {
@@ -142,23 +196,45 @@ public class Plugin : BaseUnityPlugin
             
         }
 
-        public static async void TryReconnectCommand(string[] args)
+        private static async void TryReconnectCommand(string[] args)
         {
            await ArchipelagoClient.Connect();
         }
 
-        public static void ResetAPSaveData(string[] args)
+        private static void ResetAPSaveData(string[] args)
         {
             //Creates a fresh save
             CommandConsole.Log("Resetting Save...");
             File.Create(Path.Combine(UnityEngine.Application.persistentDataPath, "rando_save.json"));
         }
 
-        public static async void DisconnectCommand(string[] args)
+        private static async void DisconnectCommand(string[] args)
         {
             await ArchipelagoClient.Disconnect(false);
         }
-        
+
+        private static void SetDebuffs(string[] args)
+        {
+            if (args.Length < 1 || !int.TryParse(args[0], out int result))
+            {
+                CommandConsole.Log("Requires a single integer");
+                return;
+            }
+            APItems.TargetAPDebuffCount = result;
+        }
+
+
+        static void Postfix()
+        {
+            CommandConsole.BuildCommand("setdebuff", SetDebuffs).NotCheat().Description(
+                "Sets the number of archipelago debuffs to the specified integer. Using a negative integer will apply buffs instead.");
+            CommandConsole.BuildCommand("setloan", ChangeLoanCommand).Description("Sets the starting roach loan value to the specified value");
+            CommandConsole.BuildCommand("connect", TryConnectCommand).NotCheat().Description("Attempts to connect to Archipelago Server: Server, Name");
+            CommandConsole.BuildCommand("reconnect", TryReconnectCommand).NotCheat().Description("Reconnects to Archipelago server in case of disconnect");
+            CommandConsole.BuildCommand("resetapsave", ResetAPSaveData).NotCheat().Description("Deletes the current APSave's data for starting a new archipelago game");
+            CommandConsole.BuildCommand("say", ArchipelagoClient.Say).NotCheat().Description("Sends a message to the archipelago client.");
+            CommandConsole.BuildCommand("disconnect", DisconnectCommand).NotCheat();
+        }
     }
 
     private static List<string> selectablenames = [];
@@ -227,9 +303,9 @@ public class Plugin : BaseUnityPlugin
             string level = WorldLoader.instance.GetCurrentLevel().GetLevel().levelName;
             int unlock = APItems.ProgressivePerkUnlocks;
 
-            if (level is "Campaign_Interlude_Silo_To_Pipeworks_01" or "Campaign_Interlude_Sink_To_Pipeworks_01" & unlock > 0 || 
-                level is "M3_Habitation_Shaft_Intro" or "Campaign_Interlude_Chute_To_Habitation" & unlock > 1 ||
-                level is "Campaign_Interlude_Abyss_To_Nest_01_SafeArea" & unlock > 2)
+            if (level is "Campaign_Interlude_Silo_To_Pipeworks_01" or "Campaign_Interlude_Sink_To_Pipeworks_01" & unlock < 1 || 
+                level is "M3_Habitation_Shaft_Intro" or "Campaign_Interlude_Chute_To_Habitation" & unlock < 2 ||
+                level is "Campaign_Interlude_Abyss_To_Nest_01_SafeArea" & unlock < 3)
             {
                 __instance.window.os.messageManager.CreateMessage(new Message_Manager.Message_Packet()
                 {
@@ -310,25 +386,26 @@ public class Plugin : BaseUnityPlugin
 
         static bool Prefix(CL_Button __instance)
         {
-            Logger.LogInfo(__instance.name);
+            Logger.LogInfo(__instance.name); ;
             string currLvl = WorldLoader.instance.GetCurrentLevel().GetLevel().levelName;
             int reg = APItems.ProgressiveRegions;
+            Logger.LogInfo("Current Progressive Region Count: " + reg);
 
-            if (reg > 0 & (currLvl == "Campaign_Interlude_Silo_To_Pipeworks_01" & __instance.name == "Button.002" ||
+            if (reg < 1 & (currLvl == "Campaign_Interlude_Silo_To_Pipeworks_01" & __instance.name == "Button.002" ||
                 currLvl == "Campaign_Interlude_Sink_To_Pipeworks_01" & __instance.name == "Prop_Button_02_Switch.01"))
             {
                 return false;
             }
-            if (reg > 1 & (currLvl == "M3_Habitation_Shaft_Intro" & __instance.name == "Prop_Button_03_Door" ||
+            if (reg < 2 & (currLvl == "M3_Habitation_Shaft_Intro" & __instance.name == "Prop_Button_03_Door" ||
                 currLvl == "Campaign_Interlude_Chute_To_Habitation" & __instance.name == "Prop_Button_04"))
             {
                 return false;
             }
-            if (reg > 2 & currLvl == "Campaign_Interlude_Habitation_To_Abyss_01" & __instance.name == "Prop_Button_03.01")
+            if (reg < 3 & currLvl == "Campaign_Interlude_Habitation_To_Abyss_01" & __instance.name == "Prop_Button_03.01")
             {
                 return false;
             }
-            return !(reg > 3 & currLvl == "Campaign_Interlude_Abyss_To_Nest_01_SafeArea" & __instance.name == "Prop_Button_03");
+            return !(reg < 4 & currLvl == "Campaign_Interlude_Abyss_To_Nest_01_SafeArea" & __instance.name == "Prop_Button_03");
         }
         
         
@@ -340,13 +417,7 @@ public class Plugin : BaseUnityPlugin
 
         static void Prefix()
         {
-            selectablenames.ForEach(name => Logger.LogInfo(name));
-            CommandConsole.BuildCommand("setloan", AddCommands.ChangeLoanCommand).Description("Sets the starting roach loan value to the specified value");
-            CommandConsole.BuildCommand("connect", AddCommands.TryConnectCommand).NotCheat().Description("Attempts to connect to Archipelago Server: Server, Name");
-            CommandConsole.BuildCommand("reconnect", AddCommands.TryReconnectCommand).NotCheat().Description("Reconnects to Archipelago server in case of disconnect");
-            CommandConsole.BuildCommand("resetapsave", AddCommands.ResetAPSaveData).NotCheat().Description("Deletes the current APSave's data for starting a new archipelago game");
-            CommandConsole.BuildCommand("say", ArchipelagoClient.Say).NotCheat().Description("Sends a message to the archipelago client.");
-            CommandConsole.BuildCommand("disconnect", AddCommands.DisconnectCommand).NotCheat();
+
         }
     }
     

@@ -78,15 +78,15 @@ public class APItems
     public static void ClearAllFlags()
     {
         ClearCampaignFacilities();
-        foreach (string key in ProgressionUnlocks.Keys)
+        foreach (string key in ProgressionUnlocks.Keys.ToList())
         {
             ProgressionUnlocks[key] = false;
         }
-        foreach (string key in ModeUnlocks.Keys)
+        foreach (string key in ModeUnlocks.Keys.ToList())
         {
             ModeUnlocks[key] = false;
         }
-        foreach (string key in TrinketUnlocks.Keys)
+        foreach (string key in TrinketUnlocks.Keys.ToList())
         {
             TrinketUnlocks[key] = false;
         }
@@ -94,6 +94,7 @@ public class APItems
 
     public static void UpdateFromId(long id)
     {
+        Plugin.Logger.LogInfo("Attempting to update from AP Item: " + id);
         //Facility
         if (0xAAFFFFF >= id & id >= 0xAA11000 || id == 0xAA10000 || id == 0xAA10009)
         {
@@ -111,7 +112,7 @@ public class APItems
         {
             ModeUnlocks[APIDtoModeUnlock[id]] = true;
         }
-        //Trinket Unlock
+        //Trinket Unlock?
         else if (0xAEFFFFF >= id & id >= 0xAE00000)
         {
             TrinketUnlocks[APIDtoTrinketUnlock[id]] = true;
@@ -178,7 +179,7 @@ public class APItems
         [0xAA11005] = "CAMPAIGN_INTERLUDE_01 UPG_Ration_T2",
         [0xAA11006] = "CAMPAIGN_INTERLUDE_01 UPG_ATM",
         [0xAA11007] = "CAMPAIGN_INTERLUDE_01 UPG_Vendor_T1_01",
-        [0xAA11008] = "CAMPAIGN_INTERLUDE_01 UPG_Vendor_T1_02",
+        [0xAA11008] = "CAMPAIGN_INTERLUDE_01 UPG_Vendor_T2_02",
         
         [0xAA12000] = "CAMPAIGN_INTERLUDE_02 UPG_Recycler", 
         [0xAA12001] = "CAMPAIGN_INTERLUDE_02 UPG_ItemLocker_01",
@@ -418,6 +419,7 @@ public class APItems
         ["M5_Nest_Trough_06"] = 0xAB50105,
         ["M5_Nest_Trough_07"] = 0xAB50106,
         ["M5_Nest_Trough_08"] = 0xAB50107,
+        ["M5_Nest_Trough_Ending_01"] = 0xAB50108,
         
         ["M5_Nest_HotZone_Intro_01"] = 0xAB50200,
         ["M5_Nest_HotZone_Outro_01"] = 0xAB50201,
@@ -523,6 +525,7 @@ public class APItems
         ["perk_u_t1"] = false,
         ["perk_u_t2"] = false,
         ["perk_u_t3"] = false,
+        
         ["r_abyss_t1"] = false,
         ["r_deepstorage_t1"] = false,
         ["r_habitation_t1"] = false,
@@ -631,6 +634,7 @@ public class APItems
         ["r_silos_t2"] = 0xAC00208,
         ["r_silos_t3"] = 0xAC00209,
         ["r_silos_t4"] = 0xAC0020A,
+        ["r_deepstorage_t1"] = 0xAC0020B,
         
         //Remove these later ig
         ["trinket_deltalabs"] = 0xAC00300,
@@ -678,6 +682,7 @@ public class APItems
         [0xAC00208] = "r_silos_t2",
         [0xAC00209] = "r_silos_t3",
         [0xAC0020A] = "r_silos_t4",
+        [0xAC0020B] = "r_deepstorage_t1",
     };
     
 
@@ -731,7 +736,7 @@ public class APItems
     public static Dictionary<string, bool> TrinketUnlocks = new Dictionary<string, bool>()
     {
         ["Trinket_Beta"] = false,
-        ["Trinket_Carabiner"] = true,
+        ["Trinket_Carabiner"] = false,
         ["Trinket_Chalk"] = false,
         ["Trinket_EmployeeID"] = false,
         ["Trinket_GoldNugget"] = false,
@@ -740,7 +745,7 @@ public class APItems
         ["Trinket_PhotoOfHome"] = false,
         ["Trinket_Pouch"] = false,
         ["Trinket_BagExpander"] = false,
-        ["Trinket_Headlamp"] = true,
+        ["Trinket_Headlamp"] = false,
         ["Trinket_ClimbingShoes"] = false,
         ["Trinket_Helmet"] = false,
         ["Trinket_CalmingBuddy"] = false,
@@ -761,7 +766,7 @@ public class APItems
         [0xAD0000A] = "Trinket_Headlamp",
         [0xAD0000B] = "Trinket_ClimbingShoes",
         [0xAD0000C] = "Trinket_Helmet",
-        [0xAD0000D] = "Trinket_CalmingBuddy",
+        [0xAD0000D] = "Trinket_CalmingBuddy"
     };
 
 

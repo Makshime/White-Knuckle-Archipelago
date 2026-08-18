@@ -11,6 +11,7 @@ using Archipelago.MultiClient.Net.Helpers;
 using Archipelago.MultiClient.Net.MessageLog.Messages;
 using Archipelago.MultiClient.Net.Models;
 using HarmonyLib;
+using UnityEngine;
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
@@ -27,7 +28,6 @@ public class ArchipelagoClient
     public static bool Connected;
     private static int _reconnectAttempts = 0;
     private static int _slot = -1;
-    private static bool _connecting;
 
     private static Queue<ItemInfo> _items = [];
     private static List<long> _locationsToSend = [];
@@ -49,8 +49,7 @@ public class ArchipelagoClient
             CommandConsole.Log($"Already connected to server {_servername} as {_username}");
             return null;
         }
-
-        _connecting = true;
+        
         
         Plugin.Logger.LogInfo("Connecting to " + server);
 
@@ -69,7 +68,8 @@ public class ArchipelagoClient
         _session.Socket.ErrorReceived += OnError;
         _session.Socket.SocketClosed += OnSocketClosed;
         _session.Locations.CheckedLocationsUpdated += OnLocationReceive;
-        
+
+        APItems.TargetAPDebuffCount = 10;
         APItems.ClearAllFlags();
         APItems.SentLocations.Clear();
         
@@ -108,10 +108,15 @@ public class ArchipelagoClient
         _slot = loginSuccess.Slot;
 
         APItems.SentLocations.AddRange(_session.Locations.AllLocationsChecked);
+        FixSendQueue();
+        foreach (var item in _session.Items.AllItemsReceived)
+        {
+            _items.Enqueue(item);
+        }
         CheckReceivedItems();
         foreach (long item in APItems.SentLocations)
         {
-            Plugin.Logger.LogInfo($"ID: {item}");
+            Plugin.Logger.LogInfo($"Logged Sent Location ID: {item}");
         }
         
         CommandConsole.Log($"Successfully connected to {_servername} as {_username}!");
@@ -119,17 +124,14 @@ public class ArchipelagoClient
         
         Connected = true;
         _connectedBefore = true;
-        _connecting = false;
         
         return null;
     }
 
     
     
-    public static async Task<object> Disconnect(bool tryReconnect = true)
+    public static async Task<object> Disconnect(bool tryReconnect = false)
     {
-        
-        Connected = false;
         
         if (_session != null)
         {
@@ -138,11 +140,15 @@ public class ArchipelagoClient
             _session.Socket.ErrorReceived -= OnError;
             _session.Socket.SocketClosed -= OnSocketClosed;
             _session.Locations.CheckedLocationsUpdated -= OnLocationReceive;
-
+            
+            APItems.TargetAPDebuffCount = 10;
             APItems.ClearAllFlags();
             APItems.SentLocations.Clear();
         }
-
+        
+        Connected = false;
+        
+        
         if (_connectedBefore & tryReconnect)
         {
             _reconnectAttempts++;
@@ -150,7 +156,6 @@ public class ArchipelagoClient
             {
                 await Task.Delay(5000);
                 _connectedBefore = false;
-                _connecting = false;
             }
 
             await Connect();
@@ -201,8 +206,7 @@ public class ArchipelagoClient
     {
         CommandConsole.Log($"[{_servername}] - {message}"); 
     }
-
-    private static bool _saying;
+    
     public static void Say(string[] args)
     {
         if(Connected) {_session.Say(args[0]);}
@@ -217,7 +221,7 @@ public class ArchipelagoClient
     private static void CheckReceivedItems()
     {
         
-        while(_items.Any())
+        while(_items.Any() && Connected)
         {
             ItemInfo item = _items.Dequeue();
             if (item.Player.Slot == _slot)
@@ -236,8 +240,20 @@ public class ArchipelagoClient
         {
             try
             {
+                if (_locationsToSend.Any(l => l == 0xAB50108))
+                {
+                    _session.SetGoalAchieved();
+                    return;
+                }
                 _session.Locations.CompleteLocationChecksAsync(_locationsToSend.ToArray());
-                foreach (long l in _locationsToSend) APItems.SentLocations.Add(l);
+                foreach (long l in _locationsToSend)
+                {
+                    if (!APItems.SentLocations.Contains(l))
+                    {
+                        APItems.SentLocations.Add(l);
+                    }
+                }
+                _locationsToSend.Clear();
             }
             catch (ArchipelagoSocketClosedException e)
             {
@@ -251,7 +267,7 @@ public class ArchipelagoClient
     {
         Plugin.Logger.LogError(exception.ToString());
         CommandConsole.Log("AP " + message);
-
+        
         Disconnect();
     }
 
@@ -261,6 +277,17 @@ public class ArchipelagoClient
         CommandConsole.Log("AP " + message);
         
         Disconnect();
+    }
+
+    private static void FixSendQueue()
+    {
+        for (int i = 0; i < _locationsToSend.Count; i++) 
+        {
+            if (APItems.SentLocations.Contains(_locationsToSend[i]))
+            {
+                _locationsToSend.RemoveAt(i);
+            }
+        }
     }
 
 

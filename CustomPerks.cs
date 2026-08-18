@@ -12,7 +12,7 @@ public class CustomPerks
     private static Perk _apDebuff;
     private static Perk _apBuff;
 
-    public static Perk ApBuff()
+    public static Perk ApBuff(int stacks = 1)
     {
         _apBuff = ScriptableObject.CreateInstance<Perk>();
         _apBuff.id = "archipelago_buff";
@@ -25,6 +25,7 @@ public class CustomPerks
         _apBuff.buffMultiplier = 1;
         _apBuff.multiplierCurve = AnimationCurve.Constant(0, 1, 1);
         _apBuff.modules = new List<PerkModule>();
+        _apBuff.stackAmount = stacks;
         _apBuff.buff = new BuffContainer()
         {
             id = "archipelago_buff",
@@ -57,7 +58,7 @@ public class CustomPerks
         return  _apBuff;
     }
     
-    public static Perk ApDebuff()
+    public static Perk ApDebuff(int stacks = 1)
     {
         _apDebuff = ScriptableObject.CreateInstance<Perk>();
         _apDebuff.id = "archipelago_debuff";
@@ -70,6 +71,7 @@ public class CustomPerks
         _apDebuff.buffMultiplier = 1;
         _apDebuff.multiplierCurve = AnimationCurve.Constant(0, 1, 1);
         _apDebuff.modules = new List<PerkModule>();
+        _apDebuff.stackAmount = stacks;
         _apDebuff.buff = new BuffContainer
         {
             id = "archipelago_debuff",
@@ -81,12 +83,12 @@ public class CustomPerks
             loseRateEffectedByPerks = false,
             buffs = new List<Buff>{
                 NewBuff("addGravity", 0.05f, 0.05f),
-                NewBuff("addStaminaRegen", -0.02f, -0.02f),
+                NewBuff("addStaminaRegen", -0.01f, -0.01f),
                 NewBuff("addStamina",  -0.05f, -0.05f),
                 //The climb and jump debuffs make it even worse than maso!
-                NewBuff("addClimb", -0.01f, -0.01f),
+                NewBuff("addClimb", -0.005f, -0.005f),
                 NewBuff("addJump", -0.005f, -0.005f),
-                NewBuff("addSpeed", -0.04f, -0.04f)
+                NewBuff("addSpeed", -0.03f, -0.03f)
             }
         };
         Texture2D texture1 = new Texture2D(256, 256);

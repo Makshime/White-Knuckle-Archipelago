@@ -3,7 +3,8 @@ from typing import Any
 
 from worlds.AutoWorld import World
 
-from APWorld.whiteknuckle import rules, regions, locations, items, options as wuckle_options
+from . import rules, regions, locations, items
+from . import options as wk_options
 
 
 class WKWorld(World):
@@ -14,8 +15,9 @@ class WKWorld(World):
 
     game = "White Knuckle"
 
-    options_dataclass = wuckle_options.WKOptions
-    options: wuckle_options.WKOptions
+    options_dataclass = wk_options.WKOptions
+
+    options: wk_options.WKOptions
 
     location_name_to_id = locations.LOCATION_NAME_TO_ID
     item_name_to_id = items.ITEM_NAME_TO_ID
@@ -40,4 +42,4 @@ class WKWorld(World):
         return items.get_random_filler_item_name(self)
 
     def fill_slot_data(self) -> Mapping[str, Any]:
-        return self.options.as_dict()
+        return {}

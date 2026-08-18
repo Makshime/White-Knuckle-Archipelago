@@ -57,7 +57,7 @@ def set_all_entrance_rules(world: WKWorld) -> None:
     world.set_rule(sink_to_i1, Has("Progressive Buff", count=5))
     world.set_rule(s1_to_sink, HasAllCounts({"Progressive Buff": 2, "Tangled Sink Access": 1}))
 
-    world.set_rule(p1_to_chute, HasAllCounts({"Progressive Buff": 5, "Expulsion Chute Access": 1}) )#| HasAllCounts({"Progressive Buff": 3, "Progressive Perk Machine": 1, "Expulsion Chute Access":1}))
+    world.set_rule(p1_to_chute, HasAllCounts({"Progressive Buff": 5, "Expulsion Chute Access": 1}) | HasAllCounts({"Progressive Buff": 3, "Progressive Perk Machine": 1, "Expulsion Chute Access":1}))
     world.set_rule(chute_to_i2, Has("Progressive Buff", count=7) | HasAllCounts({"Progressive Buff": 5, "Progressive Perk Machine": 1}))
     world.set_rule(p3_to_i2, Has("Progressive Buff", count=5) | HasAllCounts({"Progressive Buff": 3, "Progressive Perk Machine": 1}))
 
@@ -69,11 +69,11 @@ def set_all_entrance_rules(world: WKWorld) -> None:
     world.set_rule(n2_to_n3, Has("Progressive Buff", count=15) | HasAllCounts({"Progressive Buff": 12, "Progressive Perk Machine": 1}) | HasAllCounts({"Progressive Buff": 10, "Progressive Perk Machine": 2}) | HasAllCounts({"Progressive Buff": 8, "Progressive Perk Machine": 3}))
     world.set_rule(n2_to_n3, Has("Progressive Buff", count=13) | HasAllCounts({"Progressive Buff": 11, "Progressive Perk Machine":1}) | HasAllCounts({"Progressive Buff": 10, "Progressive Perk Machine": 2}) | HasAllCounts({"Progressive Buff": 8, "Progressive Perk Machine": 3}))
 
-    world.set_rule(i1_to_p1, Has("Progressive Region", count=1))
-    world.set_rule(i2_to_h1, Has("Progressive Region", count=2))
-    world.set_rule(i3_to_a1, Has("Progressive Region", count=3))
-    world.set_rule(i4_to_n1, Has("Progressive Region", count=4))
-    world.set_rule(i4_to_n2, Has("Progressive Region", count=4))
+    world.set_rule(i1_to_p1, Has("Progressive Region", 1))
+    world.set_rule(i2_to_h1, Has("Progressive Region", 2))
+    world.set_rule(i3_to_a1, Has("Progressive Region", 3))
+    world.set_rule(i4_to_n1, Has("Progressive Region", 4))
+    world.set_rule(i4_to_n2, Has("Progressive Region", 4))
 
 def set_all_location_rules(world: WKWorld) -> None:
 
@@ -99,7 +99,8 @@ def set_all_location_rules(world: WKWorld) -> None:
 
 
 def set_completion_condition(world: WKWorld) -> None:
-    world.set_completion_rule(Has("Progressive Region", count=5) & Has("Progressive Perk Machine", count=1) & Has("Progressive Buff", count=12))
+
+    world.set_completion_rule(HasAllCounts({"Progressive Region":4, "Progressive Perk Machine": 1, "Progressive Buff": 12}))
 
 
 def set_silos_unlock_rules(world: WKWorld) -> None:
@@ -140,7 +141,7 @@ def set_silos_unlock_rules(world: WKWorld) -> None:
     ]
 
     for name in deep_1:
-        world.set_rule(world.get_location(name), Has("Silos: Deep Storage Room Unlocks"))
+        world.set_rule(world.get_location(name), Has("Deep Storage Room Unlocks"))
     for name in silos_1:
         world.set_rule(world.get_location(name), Has("Silos Room Unlocks: 1"))
     for name in silos_2:
@@ -165,7 +166,7 @@ def set_pipeworks_unlock_rules(world:WKWorld) -> None:
         "Pipeworks: Pipe Organ 04",
         "Pipeworks: Pipe Organ 08"
     ]
-    world.set_rule(world.get_location("Pipeworks: Pipe Organ 09", Has("Pipeworks Rho Room Access")))
+    world.set_rule(world.get_location("Pipeworks: Pipe Organ 09"), Has("Pipeworks Rho Room Access"))
     for name in pipe_1:
         world.set_rule(world.get_location(name), Has("Pipeworks Room Unlocks: 1"))
     for name in pipe_1:
@@ -173,7 +174,7 @@ def set_pipeworks_unlock_rules(world:WKWorld) -> None:
 
 def set_habitation_abyss_unlock_rules(world:WKWorld) -> None:
     hab_1 = [
-        "Habitation: Elevator Shaft 07",
+        "Habitation: Service Shaft 07",
         "Habitation: Haunted Pier 03",
         "Habitation: Haunted Pier 04",
         "Habitation: Delta Labs 05",

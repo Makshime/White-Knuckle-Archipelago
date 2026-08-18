@@ -1,2 +1,3 @@
 
-from APWorld.whiteknuckle.world import WKWorld as WKWorld
+from .world import WKWorld as WKWorld
+

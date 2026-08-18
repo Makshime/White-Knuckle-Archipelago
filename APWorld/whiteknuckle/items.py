@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 ITEM_NAME_TO_ID = {
     "Interlude Ascent: Bazaar Access": 0xAA10000,
-    "Global: Biomod Oversupply": 0xAA10009,
+    "Global: Perk Reroll": 0xAA10009,
 
     "I1: Recycler Upgrade": 0xAA11000,
     "I1: Sector Maintenance": 0xAA11001,
@@ -47,12 +47,12 @@ ITEM_NAME_TO_ID = {
     "I4: ATM Install": 0xAA14006,
     "I4: Vendor Upgrade": 0xAA14007,
 
-    "Permanent Extra Roach": 0xA90001,
-    "10 Facility Credits": 0xA90002,
+    "Permanent Extra Roach": 0xA900001,
+    "10 Facility Credits": 0xA900002,
 
-    "Progressive Region": 0xA90010,
-    "Progressive Buff": 0xA90020,
-    "Progressive Perk Machine": 0xA90030,
+    "Progressive Region": 0xA900010,
+    "Progressive Buff": 0xA900020,
+    "Progressive Perk Machine": 0xA900030,
 
     "Perks: Grub": 0xAC00100,
     "Perks: Tier 1": 0xAC00101,
@@ -214,7 +214,7 @@ def create_all_items(world: WKWorld) -> None:
     itempool += create_trinket_unlocks(world)
 
     itempool += create_buff_perks(world)
-    itempool += create_perk_unlocks(world)
+    itempool += create_perk_terminal_unlocks(world)
     itempool += create_progressive_access(world)
 
     number_of_items = len(itempool)
@@ -341,18 +341,18 @@ def create_trinket_unlocks(world:WKWorld) -> list[Item]:
 def create_buff_perks(world:WKWorld) -> list[Item]:
     out = []
     for i in range(15):
-        out += world.create_item("Progressive Buff")
+        out.append(world.create_item("Progressive Buff"))
     return out
 
 def create_perk_terminal_unlocks(world:WKWorld) -> list[Item]:
     out = []
     for i in range(3):
-        out += world.create_item("Progressive Perk Machine")
+        out.append(world.create_item("Progressive Perk Machine"))
     return out
 
 def create_progressive_access(world:WKWorld) -> list[Item]:
     out = []
     for i in range(5):
-        out += world.create_item("Progressive Region")
+        out.append(world.create_item("Progressive Region"))
     return out
 

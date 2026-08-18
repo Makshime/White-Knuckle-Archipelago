@@ -129,13 +129,13 @@ LOCATION_NAME_TO_ID = {
     "Pipeworks: Pipe Organ 09": 0xAB23200,
 
     #Habitation
-    "Habitation: Elevator Shaft 01": 0xAB30000,
-    "Habitation: Elevator Shaft 02": 0xAB30001,
-    "Habitation: Elevator Shaft 03": 0xAB30002,
-    "Habitation: Elevator Shaft 04": 0xAB30003,
-    "Habitation: Elevator Shaft 05": 0xAB30004,
-    "Habitation: Elevator Shaft 06": 0xAB30005,
-    "Habitation: Elevator Shaft Exit": 0xAB30006,
+    "Habitation: Service Shaft 01": 0xAB30000,
+    "Habitation: Service Shaft 02": 0xAB30001,
+    "Habitation: Service Shaft 03": 0xAB30002,
+    "Habitation: Service Shaft 04": 0xAB30003,
+    "Habitation: Service Shaft 05": 0xAB30004,
+    "Habitation: Service Shaft 06": 0xAB30005,
+    "Habitation: Service Shaft Exit": 0xAB30006,
     "Habitation: Haunted Pier 01": 0xAB30100,
     "Habitation: Haunted Pier 02": 0xAB30101,
     "Habitation: Delta Labs Lobby": 0xAB30200,
@@ -145,7 +145,7 @@ LOCATION_NAME_TO_ID = {
     "Habitation: Delta Labs 04": 0xAB30204,
     "Habitation: Delta Labs Exit": 0xAB30205,
     #Habitation 1
-    "Habitation: Elevator Shaft 07": 0xAB31000,
+    "Habitation: Service Shaft 07": 0xAB31000,
     "Habitation: Haunted Pier 03": 0xAB31100,
     "Habitation: Haunted Pier 04": 0xAB31101,
     "Habitation: Delta Labs 05": 0xAB31200,
@@ -346,24 +346,23 @@ def create_regular_locations(world: WKWorld) -> None:
     waste_heap.add_locations(get_location_names_with_ids([f"Pipeworks: Waste Heap {i:02d}" for i in range(1,6)]), WKLocation)
     pipe_organ.add_locations(get_location_names_with_ids([f"Pipeworks: Pipe Organ {i:02d}" for i in range(1,10)]), WKLocation)
 
-    s = [f"Habitation: Elevator Shaft {i:02d}" for i in range(1,8)]
-    s.append("Habitation: Elevator Shaft Exit")
+    s = [f"Habitation: Service Shaft {i:02d}" for i in range(1,8)]
+    s.append("Habitation: Service Shaft Exit")
     shaft.add_locations(get_location_names_with_ids(s), WKLocation)
     pier.add_locations(get_location_names_with_ids([f"Habitation: Haunted Pier {i:02d}" for i in range(1,5)]), WKLocation)
-    s = [f"Habitation: Delta Labs {i:02d}" for i in range(1,8)]
+    s = [f"Habitation: Delta Labs {i:02d}" for i in range(1,9)]
     s.extend(["Habitation: Delta Labs Lobby", "Habitation: Delta Labs Exit"])
     delta_labs.add_locations(get_location_names_with_ids(s), WKLocation)
 
-    s = list(range(0xAB40101, 0xAB400107))
+    s = list(range(0xAB40101, 0xAB40107))
     s.append(0xAB40000)
     transit.add_locations(get_ids_with_location_names(s), WKLocation)
     handle.add_locations(get_ids_with_location_names([0xAB40200,0xAB40400]), WKLocation)
     gardens.add_locations(get_ids_with_location_names([0xAB40300,0xAB40301,0xAB40302,0xAB40303,0xAB40001]), WKLocation)
 
     lambda_labs.add_locations(get_ids_with_location_names(list(range(0xAB50000,0xAB50008))), WKLocation)
-    feeding_trough.add_locations(get_ids_with_location_names(list(range(0xAB50100,0xAB6000108))), WKLocation)
-    hot_zone.add_locations(get_ids_with_location_names(list(range(0xAB50200,0xAB500006))), WKLocation)
-
+    feeding_trough.add_locations(get_ids_with_location_names(list(range(0xAB50100,0xAB50108))), WKLocation)
+    hot_zone.add_locations(get_ids_with_location_names(list(range(0xAB50200,0xAB50206))), WKLocation)
 
 
 

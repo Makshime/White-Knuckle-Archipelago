@@ -71,14 +71,14 @@ def connect_regions(world: WKWorld) -> None:
     nest_3 = world.get_region("Nest 3")
     core_1 = world.get_region("Core 1")
 
-    global_shop.connect(silos_1, "Global Shop Access")
+    silos_1.connect(global_shop, "Global Shop Access")
 
     silos_1.connect(silos_2, "Silos 1 to Silos 2")
     silos_1.connect(silos_3, "Silos 1 to Silos 3")
     silos_2.connect(interlude_1, "Silos 2 to Interlude 1")
     silos_3.connect(interlude_1, "Silos 3 to Interlude 1")
 
-    silos_1.connect(sink, "Silos 1 to Sink 1")
+    silos_1.connect(sink, "Silos 1 to Sink")
     sink.connect(interlude_1, "Sink to Interlude 1")
 
     interlude_1.connect(pipeworks_1, "Interlude 1 to Pipeworks 1")

@@ -1,6 +1,6 @@
 from test.bases import WorldTestBase
 
-from APWorld import APQuestWorld
+from ..world import WKWorld
 
 class WKTestBase(WorldTestBase):
     game = "White Knuckle"

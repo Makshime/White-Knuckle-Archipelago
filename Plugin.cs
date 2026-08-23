@@ -67,23 +67,23 @@ public class Plugin : BaseUnityPlugin
             int perkCount = __instance?.GetPerk("archipelago_debuff")?.stackAmount ?? -__instance?.GetPerk("archipelago_buff")?.stackAmount ?? 0;
                  
             lock(__instance) {
-                if (perkCount != APItems.TargetAPDebuffCount && __instance != null)
+                if (perkCount != APOptions.StartingDebuffs - APItems.TotalBuffs && __instance != null)
                 {
-                    Logger.LogInfo("Amount, Target: " + perkCount + ", " + APItems.TargetAPDebuffCount);
+                    Logger.LogInfo("Amount, Target: " + perkCount + ", " + (APOptions.StartingDebuffs - APItems.TotalBuffs));
 
-                    if (perkCount < APItems.TargetAPDebuffCount)
+                    if (perkCount < APOptions.StartingDebuffs - APItems.TotalBuffs)
                     {
                         __instance.RemovePerk("archipelago_buff");
                         __instance.RemovePerk("archipelago_debuff");
                         if (perkCount >= 0) // wow i love nullables now
                         {
-                            __instance.AddPerk(__instance.GetPerk("archipelago_debuff") ?? CL_AssetManager.GetPerkAsset("archipelago_debuff"), APItems.TargetAPDebuffCount - perkCount);
+                            __instance.AddPerk(__instance.GetPerk("archipelago_debuff") ?? CL_AssetManager.GetPerkAsset("archipelago_debuff"), APOptions.StartingDebuffs - APItems.TotalBuffs - perkCount);
                         }
-                        else if (APItems.TargetAPDebuffCount != 0)
+                        else if (APOptions.StartingDebuffs - APItems.TotalBuffs != 0)
                         {
                             __instance.AddPerk(
                                 __instance.GetPerk("archipelago_debuff") ??
-                                CL_AssetManager.GetPerkAsset("archipelago_debuff"), APItems.TargetAPDebuffCount);
+                                CL_AssetManager.GetPerkAsset("archipelago_debuff"), APOptions.StartingDebuffs - APItems.TotalBuffs);
                         }
                     }
                     else
@@ -92,13 +92,13 @@ public class Plugin : BaseUnityPlugin
                         __instance.RemovePerk("archipelago_debuff");
                         if (perkCount <= 0)
                         {
-                            __instance.AddPerk(__instance.GetPerk("archipelago_buff") ?? CL_AssetManager.GetPerkAsset("archipelago_buff"), perkCount - APItems.TargetAPDebuffCount);
+                            __instance.AddPerk(__instance.GetPerk("archipelago_buff") ?? CL_AssetManager.GetPerkAsset("archipelago_buff"), perkCount - APOptions.StartingDebuffs - APItems.TotalBuffs);
                         }
                         else // alternate way to do it cause why not
                         {
-                            if (APItems.TargetAPDebuffCount != 0)
+                            if (APOptions.StartingDebuffs - APItems.TotalBuffs != 0)
                                 __instance.AddPerkCommand([
-                                    "archipelago_buff", $"{-APItems.TargetAPDebuffCount}"
+                                    "archipelago_buff", $"{-APOptions.StartingDebuffs - APItems.TotalBuffs}"
                                 ]);
                         }
                     }
@@ -220,14 +220,13 @@ public class Plugin : BaseUnityPlugin
                 CommandConsole.Log("Requires a single integer");
                 return;
             }
-            APItems.TargetAPDebuffCount = result;
+            result = APOptions.StartingDebuffs - APItems.TotalBuffs;
         }
 
 
         static void Postfix()
         {
-            CommandConsole.BuildCommand("setdebuff", SetDebuffs).NotCheat().Description(
-                "Sets the number of archipelago debuffs to the specified integer. Using a negative integer will apply buffs instead.");
+            CommandConsole.BuildCommand("setdebuff", SetDebuffs).NotCheat().Description("Sets the number of archipelago debuffs to the specified integer. Using a negative integer will apply buffs instead.");
             CommandConsole.BuildCommand("setloan", ChangeLoanCommand).Description("Sets the starting roach loan value to the specified value");
             CommandConsole.BuildCommand("connect", TryConnectCommand).NotCheat().Description("Attempts to connect to Archipelago Server: Server, Name");
             CommandConsole.BuildCommand("reconnect", TryReconnectCommand).NotCheat().Description("Reconnects to Archipelago server in case of disconnect");
@@ -505,7 +504,16 @@ public class Plugin : BaseUnityPlugin
             return false;
         }
     }
-    
 
-        
+    // will contain all archipelago options that are stored in the server data
+    // upon connection it will be all stored in the "APOptions" static variable
+    // gets written to in ArchipelagoClient.cs
+    // decided to implement this as it seems like itd be a bit easier to have a static variable to reference all options
+    // but feel free to remove if you want to
+
+    public static ArchipelagoOptions APOptions = new();
+    public class ArchipelagoOptions
+    {
+        public int StartingDebuffs { get; set;}
+    }
 }

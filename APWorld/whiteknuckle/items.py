@@ -340,7 +340,7 @@ def create_trinket_unlocks(world:WKWorld) -> list[Item]:
 
 def create_buff_perks(world:WKWorld) -> list[Item]:
     out = []
-    for i in range(15):
+    for i in range(world.options.Total_Buffs):
         out.append(world.create_item("Progressive Buff"))
     return out
 

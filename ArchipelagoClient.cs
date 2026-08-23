@@ -69,7 +69,6 @@ public class ArchipelagoClient
         _session.Socket.SocketClosed += OnSocketClosed;
         _session.Locations.CheckedLocationsUpdated += OnLocationReceive;
 
-        APItems.TargetAPDebuffCount = 10;
         APItems.ClearAllFlags();
         APItems.SentLocations.Clear();
         
@@ -124,7 +123,9 @@ public class ArchipelagoClient
         
         Connected = true;
         _connectedBefore = true;
-        
+
+        FillOptions(loginSuccess.SlotData);
+
         return null;
     }
 
@@ -140,8 +141,9 @@ public class ArchipelagoClient
             _session.Socket.ErrorReceived -= OnError;
             _session.Socket.SocketClosed -= OnSocketClosed;
             _session.Locations.CheckedLocationsUpdated -= OnLocationReceive;
+            Plugin.APOptions = new Plugin.ArchipelagoOptions();
             
-            APItems.TargetAPDebuffCount = 10;
+            APItems.TotalBuffs = 0;
             APItems.ClearAllFlags();
             APItems.SentLocations.Clear();
         }
@@ -290,5 +292,19 @@ public class ArchipelagoClient
         }
     }
 
-
+    // writes all options from the ap server into variables accessible here
+    private static void FillOptions(Dictionary<string, object> slotData)
+    {
+        string slotDataLogger = "";
+        foreach (string I in slotData.Keys)
+        {
+            slotDataLogger += $"{I}: {slotData[I]}\n"; 
+        }
+        Plugin.Logger.LogInfo(slotDataLogger);
+        // done first as otherwise itd not log if theres any error
+        try
+        { // Added for backwards compatability, remove once past reasonable time of using alpha 0.0.0
+            Plugin.APOptions.StartingDebuffs = Convert.ToInt32(slotData["Starting_Debuffs"]);
+        }catch { Plugin.APOptions.StartingDebuffs = 10; }
+    }
 }

@@ -57,7 +57,6 @@ public class CustomPerks
         _apBuff.iconMat = CL_AssetManager.baseDatabase.perkAssets[62].iconMat;
         return  _apBuff;
     }
-    
     public static Perk ApDebuff(int stacks = 1)
     {
         _apDebuff = ScriptableObject.CreateInstance<Perk>();

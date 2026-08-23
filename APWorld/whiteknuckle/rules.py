@@ -52,22 +52,22 @@ def set_all_entrance_rules(world: WKWorld) -> None:
     n3_to_c1 = world.get_entrance("Nest 3 to Core 1")
 
     #i1 logic rules
-    world.set_rule(s2_to_i1, Has("Progressive Buff", count=2))
-    world.set_rule(s3_to_i1, Has("Progressive Buff", count=2))
-    world.set_rule(sink_to_i1, Has("Progressive Buff", count=5))
-    world.set_rule(s1_to_sink, HasAllCounts({"Progressive Buff": 2, "Tangled Sink Access": 1}))
+    world.set_rule(s2_to_i1, Has("Progressive Buff", count=world.options.Starting_Debuffs - 8))
+    world.set_rule(s3_to_i1, Has("Progressive Buff", count=world.options.Starting_Debuffs - 8))
+    world.set_rule(sink_to_i1, Has("Progressive Buff", count=world.options.Starting_Debuffs - 5))
+    world.set_rule(s1_to_sink, HasAllCounts({"Progressive Buff": world.options.Starting_Debuffs - 8, "Tangled Sink Access": 1}))
 
-    world.set_rule(p1_to_chute, HasAllCounts({"Progressive Buff": 5, "Expulsion Chute Access": 1}) | HasAllCounts({"Progressive Buff": 3, "Progressive Perk Machine": 1, "Expulsion Chute Access":1}))
-    world.set_rule(chute_to_i2, Has("Progressive Buff", count=7) | HasAllCounts({"Progressive Buff": 5, "Progressive Perk Machine": 1}))
-    world.set_rule(p3_to_i2, Has("Progressive Buff", count=5) | HasAllCounts({"Progressive Buff": 3, "Progressive Perk Machine": 1}))
+    world.set_rule(p1_to_chute, HasAllCounts({"Progressive Buff": (world.options.Starting_Debuffs - 5), "Expulsion Chute Access": 1}) | HasAllCounts({"Progressive Buff": (world.options.Starting_Debuffs - 7), "Progressive Perk Machine": 1, "Expulsion Chute Access":1}))
+    world.set_rule(chute_to_i2, Has("Progressive Buff", count=(world.options.Starting_Debuffs - 3)) | HasAllCounts({"Progressive Buff": (world.options.Starting_Debuffs - 5), "Progressive Perk Machine": 1}))
+    world.set_rule(p3_to_i2, Has("Progressive Buff", count=(world.options.Starting_Debuffs - 5)) | HasAllCounts({"Progressive Buff": (world.options.Starting_Debuffs - 7), "Progressive Perk Machine": 1}))
 
-    world.set_rule(h3_to_i3, Has("Progressive Buff", count=7) | HasAllCounts({"Progressive Buff": 5, "Progressive Perk Machine": 1}) | HasAllCounts({"Progressive Buff": 4, "Progressive Perk Machine": 2}))
+    world.set_rule(h3_to_i3, Has("Progressive Buff", count=(world.options.Starting_Debuffs - 3)) | HasAllCounts({"Progressive Buff": (world.options.Starting_Debuffs - 5), "Progressive Perk Machine": 1}) | HasAllCounts({"Progressive Buff": (world.options.Starting_Debuffs - 6), "Progressive Perk Machine": 2}))
 
-    world.set_rule(a3_to_i4, Has("Progressive Buff", count=10) | HasAllCounts({"Progressive Buff": 8, "Progressive Perk Machine": 1}) | HasAllCounts({"Progressive Buff": 6, "Progressive Perk Machine": 2}))
+    world.set_rule(a3_to_i4, Has("Progressive Buff", count=(world.options.Starting_Debuffs + 0)) | HasAllCounts({"Progressive Buff": (world.options.Starting_Debuffs - 2), "Progressive Perk Machine": 1}) | HasAllCounts({"Progressive Buff": (world.options.Starting_Debuffs - 4), "Progressive Perk Machine": 2}))
 
 
-    world.set_rule(n2_to_n3, Has("Progressive Buff", count=15) | HasAllCounts({"Progressive Buff": 12, "Progressive Perk Machine": 1}) | HasAllCounts({"Progressive Buff": 10, "Progressive Perk Machine": 2}) | HasAllCounts({"Progressive Buff": 8, "Progressive Perk Machine": 3}))
-    world.set_rule(n2_to_n3, Has("Progressive Buff", count=13) | HasAllCounts({"Progressive Buff": 11, "Progressive Perk Machine":1}) | HasAllCounts({"Progressive Buff": 10, "Progressive Perk Machine": 2}) | HasAllCounts({"Progressive Buff": 8, "Progressive Perk Machine": 3}))
+    world.set_rule(n2_to_n3, Has("Progressive Buff", count=(world.options.Starting_Debuffs + 5)) | HasAllCounts({"Progressive Buff": (world.options.Starting_Debuffs + 2), "Progressive Perk Machine": 1}) | HasAllCounts({"Progressive Buff": (world.options.Starting_Debuffs + 0), "Progressive Perk Machine": 2}) | HasAllCounts({"Progressive Buff": (world.options.Starting_Debuffs - 2), "Progressive Perk Machine": 3}))
+    world.set_rule(n2_to_n3, Has("Progressive Buff", count=(world.options.Starting_Debuffs + 3)) | HasAllCounts({"Progressive Buff": (world.options.Starting_Debuffs + 1), "Progressive Perk Machine":1}) | HasAllCounts({"Progressive Buff": (world.options.Starting_Debuffs + 0), "Progressive Perk Machine": 2}) | HasAllCounts({"Progressive Buff": (world.options.Starting_Debuffs - 2), "Progressive Perk Machine": 3}))
 
     world.set_rule(i1_to_p1, Has("Progressive Region", 1))
     world.set_rule(i2_to_h1, Has("Progressive Region", 2))
@@ -100,7 +100,7 @@ def set_all_location_rules(world: WKWorld) -> None:
 
 def set_completion_condition(world: WKWorld) -> None:
 
-    world.set_completion_rule(HasAllCounts({"Progressive Region":4, "Progressive Perk Machine": 1, "Progressive Buff": 12}))
+    world.set_completion_rule(HasAllCounts({"Progressive Region":4, "Progressive Perk Machine": 1, "Progressive Buff": (world.options.Starting_Debuffs + 2)})) #this is like not rules builder... but i cant figure out how the fromoption works, soooooo
 
 
 def set_silos_unlock_rules(world: WKWorld) -> None:

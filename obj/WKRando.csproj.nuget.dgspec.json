@@ -1,0 +1,126 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\Users\\Krrvd\\AppData\\Roaming\\r2modmanPlus-local\\WhiteKnuckle\\profiles\\ArchipelagoTest\\BepInEx\\plugins\\WKRando\\WKRando.csproj": {}
+  },
+  "projects": {
+    "C:\\Users\\Krrvd\\AppData\\Roaming\\r2modmanPlus-local\\WhiteKnuckle\\profiles\\ArchipelagoTest\\BepInEx\\plugins\\WKRando\\WKRando.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\Krrvd\\AppData\\Roaming\\r2modmanPlus-local\\WhiteKnuckle\\profiles\\ArchipelagoTest\\BepInEx\\plugins\\WKRando\\WKRando.csproj",
+        "projectName": "WKRando",
+        "projectPath": "C:\\Users\\Krrvd\\AppData\\Roaming\\r2modmanPlus-local\\WhiteKnuckle\\profiles\\ArchipelagoTest\\BepInEx\\plugins\\WKRando\\WKRando.csproj",
+        "packagesPath": "C:\\Users\\Krrvd\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Krrvd\\AppData\\Roaming\\r2modmanPlus-local\\WhiteKnuckle\\profiles\\ArchipelagoTest\\BepInEx\\plugins\\WKRando\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\Krrvd\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "netstandard2.1"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {},
+          "https://api.nuget.org/v3/index.json": {},
+          "https://nuget.bepinex.dev/v3/index.json": {},
+          "https://nuget.samboy.dev/v3/index.json": {}
+        },
+        "frameworks": {
+          "netstandard2.1": {
+            "targetAlias": "netstandard2.1",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "netstandard2.1": {
+          "targetAlias": "netstandard2.1",
+          "dependencies": {
+            "Archipelago.MultiClient.Net": {
+              "target": "Package",
+              "version": "[6.7.1, )"
+            },
+            "BepInEx.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.*, )"
+            },
+            "BepInEx.AssemblyPublicizer.MSBuild": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[0.4.3, )"
+            },
+            "BepInEx.Core": {
+              "target": "Package",
+              "version": "[5.*, )"
+            },
+            "BepInEx.PluginInfoProps": {
+              "target": "Package",
+              "version": "[2.*, )"
+            },
+            "Lib.Harmony": {
+              "target": "Package",
+              "version": "[2.4.2, )"
+            },
+            "MonoMod": {
+              "target": "Package",
+              "version": "[22.7.31.1, )"
+            },
+            "MonoMod.Backports": {
+              "target": "Package",
+              "version": "[1.1.2, )"
+            },
+            "MonoMod.RuntimeDetour": {
+              "target": "Package",
+              "version": "[25.3.5, )"
+            },
+            "Unity3D.UnityEngine.UI": {
+              "target": "Package",
+              "version": "[2018.3.5.1, )"
+            },
+            "UnityEngine.Modules": {
+              "include": "Compile",
+              "target": "Package",
+              "version": "[2022.3.62, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "NETStandard.Library": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.315\\RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

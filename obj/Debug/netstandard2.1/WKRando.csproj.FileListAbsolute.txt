@@ -1,0 +1,15 @@
+C:\Users\Krrvd\AppData\Roaming\r2modmanPlus-local\WhiteKnuckle\profiles\ArchipelagoTest\BepInEx\plugins\WKRando\obj\Debug\netstandard2.1\WKRando.csproj.AssemblyReference.cache
+C:\Users\Krrvd\AppData\Roaming\r2modmanPlus-local\WhiteKnuckle\profiles\ArchipelagoTest\BepInEx\plugins\WKRando\obj\Debug\netstandard2.1\MyPluginInfo.cs
+C:\Users\Krrvd\AppData\Roaming\r2modmanPlus-local\WhiteKnuckle\profiles\ArchipelagoTest\BepInEx\plugins\WKRando\obj\Debug\netstandard2.1\WKRando.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Krrvd\AppData\Roaming\r2modmanPlus-local\WhiteKnuckle\profiles\ArchipelagoTest\BepInEx\plugins\WKRando\obj\Debug\netstandard2.1\WKRando.AssemblyInfoInputs.cache
+C:\Users\Krrvd\AppData\Roaming\r2modmanPlus-local\WhiteKnuckle\profiles\ArchipelagoTest\BepInEx\plugins\WKRando\obj\Debug\netstandard2.1\WKRando.AssemblyInfo.cs
+C:\Users\Krrvd\AppData\Roaming\r2modmanPlus-local\WhiteKnuckle\profiles\ArchipelagoTest\BepInEx\plugins\WKRando\obj\Debug\netstandard2.1\WKRando.csproj.CoreCompileInputs.cache
+C:\Users\Krrvd\AppData\Roaming\r2modmanPlus-local\WhiteKnuckle\profiles\ArchipelagoTest\BepInEx\plugins\WKRando\obj\Debug\netstandard2.1\WKRando.IgnoresAccessChecksTo.cs
+C:\Users\Krrvd\AppData\Roaming\r2modmanPlus-local\WhiteKnuckle\profiles\ArchipelagoTest\BepInEx\plugins\WKRando\bin\Debug\netstandard2.1\WKRando.deps.json
+C:\Users\Krrvd\AppData\Roaming\r2modmanPlus-local\WhiteKnuckle\profiles\ArchipelagoTest\BepInEx\plugins\WKRando\bin\Debug\netstandard2.1\WKRando.dll
+C:\Users\Krrvd\AppData\Roaming\r2modmanPlus-local\WhiteKnuckle\profiles\ArchipelagoTest\BepInEx\plugins\WKRando\bin\Debug\netstandard2.1\WKRando.pdb
+C:\Users\Krrvd\AppData\Roaming\r2modmanPlus-local\WhiteKnuckle\profiles\ArchipelagoTest\BepInEx\plugins\WKRando\bin\Debug\netstandard2.1\ALINE.dll
+C:\Users\Krrvd\AppData\Roaming\r2modmanPlus-local\WhiteKnuckle\profiles\ArchipelagoTest\BepInEx\plugins\WKRando\bin\Debug\netstandard2.1\Assembly-CSharp.dll
+C:\Users\Krrvd\AppData\Roaming\r2modmanPlus-local\WhiteKnuckle\profiles\ArchipelagoTest\BepInEx\plugins\WKRando\obj\Debug\netstandard2.1\WKRando.csproj.Up2Date
+C:\Users\Krrvd\AppData\Roaming\r2modmanPlus-local\WhiteKnuckle\profiles\ArchipelagoTest\BepInEx\plugins\WKRando\obj\Debug\netstandard2.1\WKRando.dll
+C:\Users\Krrvd\AppData\Roaming\r2modmanPlus-local\WhiteKnuckle\profiles\ArchipelagoTest\BepInEx\plugins\WKRando\obj\Debug\netstandard2.1\WKRando.pdb

@@ -8,7 +8,7 @@ public class APItems
 {
     public static int ProgressiveRegions;
     public static int ProgressivePerkUnlocks;
-    public static int TargetAPDebuffCount = 10;
+    public static int TotalBuffs = 0;
     
     // Stores flags for facility data to override ingame 
     public static Dictionary<string, Dictionary<string, bool>> FacilityDict { get; set; } =
@@ -131,7 +131,7 @@ public class APItems
                 ProgressiveRegions += 1;
                 break;
             case 0xA900020:
-                TargetAPDebuffCount -= 1;
+                TotalBuffs += 1;
                 break;
             case 0xA900030:
                 ProgressivePerkUnlocks += 1;

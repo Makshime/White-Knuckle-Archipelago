@@ -18,7 +18,7 @@
   <ItemGroup>
     <PackageReference Include="Archipelago.MultiClient.Net" Version="6.7.1" />
     <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
-    <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.5.0-beta.2">
+    <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -26,6 +26,7 @@
     <PackageReference Include="BepInEx.PluginInfoProps" Version="2.*" />
     <PackageReference Include="Lib.Harmony" Version="2.4.2" />
     <PackageReference Include="MonoMod" Version="22.7.31.1" />
+    <PackageReference Include="MonoMod.Backports" Version="1.1.2" />
     <PackageReference Include="MonoMod.RuntimeDetour" Version="25.3.5" />
     <PackageReference Include="Unity3D.UnityEngine.UI" Version="2018.3.5.1" />
     <PackageReference Include="UnityEngine.Modules" Version="2022.3.62" IncludeAssets="compile" />
@@ -39,8 +40,128 @@
     <Reference Include="ALINE">
       <HintPath>..\..\..\..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\White Knuckle\White Knuckle_Data\Managed\ALINE.dll</HintPath>
     </Reference>
+    <Reference Include="andywiecko.BurstTriangulator">
+      <HintPath>bin\Debug\netstandard2.1\andywiecko.BurstTriangulator.dll</HintPath>
+    </Reference>
+    <Reference Include="Archipelago.MultiClient.Net">
+      <HintPath>bin\Debug\netstandard2.1\Archipelago.MultiClient.Net.dll</HintPath>
+    </Reference>
     <Reference Include="Assembly-CSharp" Publicize="true">
       <HintPath>..\..\..\..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\White Knuckle\White Knuckle_Data\Managed\Assembly-CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Assembly-CSharp-firstpass">
+      <HintPath>bin\Debug\netstandard2.1\Assembly-CSharp-firstpass.dll</HintPath>
+    </Reference>
+    <Reference Include="AstarPathfindingProject">
+      <HintPath>bin\Debug\netstandard2.1\AstarPathfindingProject.dll</HintPath>
+    </Reference>
+    <Reference Include="BakeryRuntimeAssembly">
+      <HintPath>bin\Debug\netstandard2.1\BakeryRuntimeAssembly.dll</HintPath>
+    </Reference>
+    <Reference Include="Clipper2Lib">
+      <HintPath>bin\Debug\netstandard2.1\Clipper2Lib.dll</HintPath>
+    </Reference>
+    <Reference Include="DarkMachineUI">
+      <HintPath>bin\Debug\netstandard2.1\DarkMachineUI.dll</HintPath>
+    </Reference>
+    <Reference Include="DOTween">
+      <HintPath>bin\Debug\netstandard2.1\DOTween.dll</HintPath>
+    </Reference>
+    <Reference Include="Drawing">
+      <HintPath>bin\Debug\netstandard2.1\Drawing.dll</HintPath>
+    </Reference>
+    <Reference Include="Facepunch.Steamworks.Win64">
+      <HintPath>bin\Debug\netstandard2.1\Facepunch.Steamworks.Win64.dll</HintPath>
+    </Reference>
+    <Reference Include="Febucci.Attributes.Runtime">
+      <HintPath>bin\Debug\netstandard2.1\Febucci.Attributes.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="Febucci.TextAnimator.Runtime">
+      <HintPath>bin\Debug\netstandard2.1\Febucci.TextAnimator.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="Febucci.TextAnimator.TMP.Runtime">
+      <HintPath>bin\Debug\netstandard2.1\Febucci.TextAnimator.TMP.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="MonoMod.Backports">
+      <HintPath>bin\Debug\netstandard2.1\MonoMod.Backports.dll</HintPath>
+    </Reference>
+    <Reference Include="MonoMod.ILHelpers">
+      <HintPath>bin\Debug\netstandard2.1\MonoMod.ILHelpers.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>bin\Debug\netstandard2.1\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="PackageTools">
+      <HintPath>bin\Debug\netstandard2.1\PackageTools.dll</HintPath>
+    </Reference>
+    <Reference Include="Pathfinding.Ionic.Zip.Reduced">
+      <HintPath>bin\Debug\netstandard2.1\Pathfinding.Ionic.Zip.Reduced.dll</HintPath>
+    </Reference>
+    <Reference Include="PrefabBaker">
+      <HintPath>bin\Debug\netstandard2.1\PrefabBaker.dll</HintPath>
+    </Reference>
+    <Reference Include="Sirenix.Utilities">
+      <HintPath>bin\Debug\netstandard2.1\Sirenix.Utilities.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Addressables">
+      <HintPath>bin\Debug\netstandard2.1\Unity.Addressables.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Burst">
+      <HintPath>bin\Debug\netstandard2.1\Unity.Burst.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Burst.Unsafe">
+      <HintPath>bin\Debug\netstandard2.1\Unity.Burst.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Collections">
+      <HintPath>bin\Debug\netstandard2.1\Unity.Collections.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Collections.LowLevel.ILSupport">
+      <HintPath>bin\Debug\netstandard2.1\Unity.Collections.LowLevel.ILSupport.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Entities">
+      <HintPath>bin\Debug\netstandard2.1\Unity.Entities.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.InputSystem">
+      <HintPath>bin\Debug\netstandard2.1\Unity.InputSystem.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Mathematics">
+      <HintPath>bin\Debug\netstandard2.1\Unity.Mathematics.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Mathematics.Extensions">
+      <HintPath>bin\Debug\netstandard2.1\Unity.Mathematics.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Postprocessing.Runtime">
+      <HintPath>bin\Debug\netstandard2.1\Unity.Postprocessing.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Profiling.Core">
+      <HintPath>bin\Debug\netstandard2.1\Unity.Profiling.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.ResourceManager">
+      <HintPath>bin\Debug\netstandard2.1\Unity.ResourceManager.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Serialization">
+      <HintPath>bin\Debug\netstandard2.1\Unity.Serialization.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Splines">
+      <HintPath>bin\Debug\netstandard2.1\Unity.Splines.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.TextMeshPro">
+      <HintPath>bin\Debug\netstandard2.1\Unity.TextMeshPro.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Transforms">
+      <HintPath>bin\Debug\netstandard2.1\Unity.Transforms.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.VisualScripting.Antlr3.Runtime">
+      <HintPath>bin\Debug\netstandard2.1\Unity.VisualScripting.Antlr3.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.VisualScripting.Core">
+      <HintPath>bin\Debug\netstandard2.1\Unity.VisualScripting.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.VisualScripting.Flow">
+      <HintPath>bin\Debug\netstandard2.1\Unity.VisualScripting.Flow.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>bin\Debug\netstandard2.1\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>

@@ -42,4 +42,6 @@ class WKWorld(World):
         return items.get_random_filler_item_name(self)
 
     def fill_slot_data(self) -> Mapping[str, Any]:
-        return {}
+        return self.options.as_dict(
+            "Starting_Debuffs"
+        )

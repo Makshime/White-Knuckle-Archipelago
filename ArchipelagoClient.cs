@@ -29,19 +29,19 @@ namespace WKRando;
 public class ArchipelagoClient
 {
     private static ArchipelagoSession _session = ArchipelagoSessionFactory.CreateSession("localhost", 38281);
-    private static string _servername = "localhost:38281";
-    private static string _username = string.Empty;
-    private static string _password = string.Empty;
+    public static string Servername = "localhost:38281";
+    public static string Username = string.Empty;
+    public static string Password = string.Empty;
 
     public static string DeathMessage = "Died to Archipelago Player";
-    public static DeathLinkService _deathlinkservice;
+    public static DeathLinkService Deathlinkservice;
     
     private static bool _connectedBefore;
     public static bool Connected;
     private static int _reconnectAttempts = 0;
     private static int _slot = -1;
 
-    private static Dictionary<string, object> slotData; // might be needed later, who knows? i do, i need it later
+    private static Dictionary<string, object> _slotData; // might be needed later, who knows? i do, i need it later
 
     private static Queue<ItemInfo> _items = [];
     private static List<long> _locationsToSend = [];
@@ -50,7 +50,7 @@ public class ArchipelagoClient
     private static void NewSession(string server)
     {
         _session = ArchipelagoSessionFactory.CreateSession(server);
-        _servername = server;
+        Servername = server;
     }
     
     //Archipelago connection procedure using Multiclient.net 
@@ -60,21 +60,21 @@ public class ArchipelagoClient
         
         if (Connected)
         {
-            CommandConsole.Log($"Already connected to server {_servername} as {_username}");
+            CommandConsole.Log($"Already connected to server {Servername} as {Username}");
             return null;
         }
         
         
         Plugin.Logger.LogInfo("Connecting to " + server);
 
-        if (server != null && server != _servername)
+        if (server != null && server != Servername)
         {
             NewSession(server);
         }
-        if (user != null && user != _username) 
-            _username = user;
-        if (pass != null && pass != _password) 
-            _password = pass;
+        if (user != null && user != Username) 
+            Username = user;
+        if (pass != null && pass != Password) 
+            Password = pass;
         
         
         _session.Items.ItemReceived += OnItemReceive;
@@ -92,7 +92,7 @@ public class ArchipelagoClient
         
         try
         {
-            result = _session.TryConnectAndLogin("White Knuckle", _username, ItemsHandlingFlags.AllItems);
+            result = _session.TryConnectAndLogin("White Knuckle", Username, ItemsHandlingFlags.AllItems);
         }
         catch (Exception e)
         {
@@ -103,7 +103,7 @@ public class ArchipelagoClient
         if (!result.Successful)
         {
             LoginFailure failure = (LoginFailure)result;
-            CommandConsole.Log($"Failed to Connect to {_servername} as {_username}:");
+            CommandConsole.Log($"Failed to Connect to {Servername} as {Username}:");
             foreach (string error in failure.Errors)
             {
                 CommandConsole.Log($"    {error}");
@@ -137,14 +137,14 @@ public class ArchipelagoClient
         
         FillOptions(loginSuccess.SlotData);
         
-        CommandConsole.Log($"Successfully connected to {_servername} as {_username}!");
+        CommandConsole.Log($"Successfully connected to {Servername} as {Username}!");
         CommandConsole.Log($"   Slot Number: {loginSuccess.Slot}");
         
 
         _connectedBefore = true;
 
-        _deathlinkservice = _session.CreateDeathLinkService();
-        _deathlinkservice.OnDeathLinkReceived += (deathLinkObject) => {
+        Deathlinkservice = _session.CreateDeathLinkService();
+        Deathlinkservice.OnDeathLinkReceived += (deathLinkObject) => {
             Deathlink.ProcDeathlink(deathLinkObject);
         };
         return null;
@@ -183,7 +183,7 @@ public class ArchipelagoClient
             await Connect();
         }
 
-        slotData = new();
+        _slotData = new();
 
         return null;
     }
@@ -228,7 +228,7 @@ public class ArchipelagoClient
 
     private static void OnMessageReceive(LogMessage message)
     {
-        CommandConsole.Log($"[{_servername}] - {message}"); 
+        CommandConsole.Log($"[{Servername}] - {message}"); 
     }
     
     public static void Say(string[] args)
@@ -248,11 +248,9 @@ public class ArchipelagoClient
         while(_items.Any() && Connected)
         {
             ItemInfo item = _items.Dequeue();
-            if (item.Player.Slot == _slot)
-            {
-                APItems.UpdateFromItem(item);
-                CommandConsole.Log($"Received item: {item.ItemDisplayName} from {item.LocationName} in game {item.LocationGame}");
-            }
+            
+            APItems.UpdateFromItem(item);
+            CommandConsole.Log($"Received item: {item.ItemDisplayName} from {item.LocationName} in game {item.LocationGame}");
             
         }
         
@@ -274,7 +272,7 @@ public class ArchipelagoClient
                 foreach (long l in _locationsToSend)
                 {
                     Plugin.Logger.LogInfo("Sent item");
-                    if (infos[l].Player.Name != _username)
+                    if (infos[l].Player.Name != Username)
                         CL_ProgressionManager.ShowUnlockPopup(APItems.SpriteFromPath("WKRando/Assets/Archipelago_Icon.png"), 
                             $"Sent <color=green>{infos[l].ItemDisplayName}</color>", 
                             $"for {infos[l].Player} from {infos[l].LocationDisplayName}", 
@@ -382,9 +380,9 @@ public class ArchipelagoClient
     private static void FillOptions()
     {
         string slotDataLogger = "";
-        foreach (string I in slotData.Keys)
+        foreach (string I in _slotData.Keys)
         {
-            slotDataLogger += $"{I}: {slotData[I]} ({slotData[I].GetType()})\n"; 
+            slotDataLogger += $"{I}: {_slotData[I]} ({_slotData[I].GetType()})\n"; 
         }
         Plugin.Logger.LogInfo(slotDataLogger);
         Plugin.Logger.LogInfo(Convert.ToString((bool)_session.DataStorage[Scope.Slot, "ConnectedOnce"]));
@@ -407,11 +405,11 @@ public class ArchipelagoClient
         try
         {
             // why isnt this a switch block?? fuck if i know but it stopped working when i tried it
-            if (Convert.ToInt32(slotData["deathlink"]) == 0)
+            if (Convert.ToInt32(_slotData["deathlink"]) == 0)
             {
                 Plugin.ClientOptions.EnableDeathlink();
             }
-            else if (Convert.ToInt32(slotData["deathlink"]) == 1)
+            else if (Convert.ToInt32(_slotData["deathlink"]) == 1)
             {
                 Plugin.ClientOptions.DisableDeathlink();
             }
@@ -419,14 +417,14 @@ public class ArchipelagoClient
 
         try
         {
-            if (Convert.ToInt32(slotData["deathlink_amnesty"]) != 0)
+            if (Convert.ToInt32(_slotData["deathlink_amnesty"]) != 0)
             {
-                Plugin.ClientOptions.deathlink_amnesty = Convert.ToInt32(slotData["deathlink_amnesty"]);
+                Plugin.ClientOptions.deathlink_amnesty = Convert.ToInt32(_slotData["deathlink_amnesty"]);
             }
         } catch { Plugin.Logger.LogInfo("Deathlink amnesty not found, skipping"); }
 
         Plugin.ClientOptions.SaveOptions();
-        if (Plugin.ClientOptions.deathlink) {_deathlinkservice.EnableDeathLink();}
+        if (Plugin.ClientOptions.deathlink) {Deathlinkservice.EnableDeathLink();}
     }
 
     public event DeathLinkService.DeathLinkReceivedHandler OnDeathLinkReceived { add { } remove { } }

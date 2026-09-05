@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using UnityEngine;
 
 namespace WKRando
 {
@@ -19,7 +20,7 @@ namespace WKRando
         }
 
         public static bool deathlinkbusy = false;
-        private static int DeathLinksSentSinceLast = 0;
+        public static int DeathLinksSentSinceLast = 0;
         private static void DeathlinkDeath(DeathLink DeathlinkObject)
         {
             // deathlink that causes you to die
@@ -29,8 +30,17 @@ namespace WKRando
             if (DeathLinksSentSinceLast >= Plugin.ClientOptions.deathlink_amnesty)
             {
                 deathlinkbusy = true;
+                ArchipelagoClient.DeathMessage = DeathlinkObject.Cause;
                 Plugin.Logger.LogInfo($"Killing player because of deathlink {DeathlinkObject.Source}, {DeathlinkObject.Cause}");
-                ENT_Player.playerObject.Kill();
+                ENT_Player.playerObject.Kill("deathlink");
+            }
+            else
+            {
+                CL_ProgressionManager.ShowUnlockPopup(APItems.SpriteFromPath("WKRando/Assets/Archipelago_Icon.png"),
+                    "Deathlink Stack Received Due To",
+                    DeathlinkObject.Cause,
+                    new Color(0.4f, 0.1f, 0.1f),
+                    addToSession: false);
             }
         }
     }

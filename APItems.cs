@@ -99,6 +99,8 @@ public class APItems
 
     public static void UpdateFromItem(ItemInfo item)
     {
+        Sprite image = SpriteFromPath("WKRando/Asstes/Archipelago_Icon.png");
+        Color color = new Color(0.3f, 0.3f, 0f);
         long id = item.ItemId;
         Plugin.Logger.LogInfo("Attempting to update from AP Item: " + item.ItemDisplayName);
         //Facility
@@ -143,17 +145,14 @@ public class APItems
                 ProgressivePerkUnlocks += 1;
                 break;
         }
-    }
-
-    public static void ShowReceivePopup(Sprite image, ItemInfo item)
-    {
         CL_ProgressionManager.ShowUnlockPopup(
             image,
             $"Received {item.ItemDisplayName}",
             $"from game {item.LocationGame} at {item.LocationDisplayName}",
-            new Color(0f, 0.1f, 0f));
+            color
+            );
     }
-
+    
     public static List<long> CheckFacilities()
     {
         return StatManager.saveData.facilities.SelectMany(facility => facility.upgrades, (facility, upgrade) => FullFacilityUpgradetoAP[$"{facility} {upgrade}"]).Where(id => !SentLocations.Contains((long)id)).ToList();
@@ -786,35 +785,35 @@ public class APItems
 
     public static Dictionary<string, long> ChallengeMedaltoAPID = new Dictionary<string, long>()
     {
-        ["Advanced Course 1"] = 0xAE00000,
-        ["Advanced Course 2"] = 0xAE00001,
-        ["Advanced Course 3"] = 0xAE00002,
-        ["Advanced Course 4"] = 0xAE00003,
+        ["Advanced Course 1"] = 0xAF00000,
+        ["Advanced Course 2"] = 0xAF00001,
+        ["Advanced Course 3"] = 0xAF00002,
+        ["Advanced Course 4"] = 0xAF00003,
         
-        ["Fractured Territory 1"] =  0xAE00014,
-        ["Fractured Territory 2"] =  0xAE00015,
-        ["Fractured Territory 3"] =  0xAE00016,
-        ["Fractured Territory 4"] =  0xAE00017,
+        ["Fractured Territory 1"] =  0xAF00010,
+        ["Fractured Territory 2"] =  0xAF00011,
+        ["Fractured Territory 3"] =  0xAF00012,
+        ["Fractured Territory 4"] =  0xAF00013,
         
-        ["Roach Run 1"] = 0xAE00020,
-        ["Roach Run 2"] = 0xAE00021,
-        ["Roach Run 3"] = 0xAE00022,
-        ["Roach Run 4"] = 0xAE00023,
+        ["Roach Run 1"] = 0xAF00020,
+        ["Roach Run 2"] = 0xAF00021,
+        ["Roach Run 3"] = 0xAF00022,
+        ["Roach Run 4"] = 0xAF00023,
         
-        ["Comms Array 1"] = 0xAE00030,
-        ["Comms Array 2"] = 0xAE00031,
-        ["Comms Array 3"] = 0xAE00032,
-        ["Comms Array 4"] = 0xAE00033,
+        ["Comms Array 1"] = 0xAF00030,
+        ["Comms Array 2"] = 0xAF00031,
+        ["Comms Array 3"] = 0xAF00032,
+        ["Comms Array 4"] = 0xAF00033,
         
-        ["Shuttered Rift 1"] =  0xAE00040,
-        ["Shuttered Rift 2"] = 0xAE00041,
-        ["Shuttered Rift 3"] = 0xAE00042,
-        ["Shuttered Rift 4"] = 0xAE00043,
+        ["Shuttered Rift 1"] = 0xAF00040,
+        ["Shuttered Rift 2"] = 0xAF00041,
+        ["Shuttered Rift 3"] = 0xAF00042,
+        ["Shuttered Rift 4"] = 0xAF00043,
         
-        ["Boost Course 1"] =  0xAE00050,
-        ["Boost Course 2"] = 0xAE00051,
-        ["Boost Course 3"] = 0xAE00052,
-        ["Boost Course 4"] = 0xAE00053,
+        ["Boost Course 1"] = 0xAF00050,
+        ["Boost Course 2"] = 0xAF00051,
+        ["Boost Course 3"] = 0xAF00052,
+        ["Boost Course 4"] = 0xAF00053,
     };
 
     public static Sprite SpriteFromPath(string localPath)

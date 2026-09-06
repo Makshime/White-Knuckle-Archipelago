@@ -44,6 +44,11 @@ public class Plugin : BaseUnityPlugin
             Directory.CreateDirectory(Path.Combine(Application.persistentDataPath, "Archipelago"));
         }
 
+        if (!Directory.Exists($"{Application.persistentDataPath}\\Archipelago"))
+        {
+            Directory.CreateDirectory(Path.Combine(Application.persistentDataPath, "Archipelago"));
+        }
+
         if (!File.Exists($"{Application.persistentDataPath}\\Archipelago\\ClientOptions.json"))
         {
             File.Create($"{Application.persistentDataPath}\\Archipelago\\ClientOptions.json");

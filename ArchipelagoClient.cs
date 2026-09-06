@@ -36,7 +36,7 @@ public class ArchipelagoClient
     public static string DeathMessage = "Died to Archipelago Player";
     public static DeathLinkService Deathlinkservice;
 
-    public static string Seed;
+    private static string Seed;
     private static bool _connectedBefore;
     public static bool Connected;
     private static int _reconnectAttempts = 0;
@@ -148,6 +148,10 @@ public class ArchipelagoClient
             Plugin.AlterStats.UpdateSaveLocationNames(Seed);
             CommandConsole.hasCheated = true;
             CL_GameManager.gMan.Restart([]);
+        }
+        else
+        {
+            Plugin.AlterStats.UpdateSaveLocationNames(Seed);
         }
         
         _connectedBefore = true;

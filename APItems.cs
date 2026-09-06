@@ -87,14 +87,16 @@ public class APItems
         {
             ProgressionUnlocks[key] = false;
         }
-        /*foreach (string key in ModeUnlocks.Keys.ToList())
+        foreach (string key in ModeUnlocks.Keys.ToList())
         {
-            ModeUnlocks[key] = false;
-        }*///currently unused so
+            if(key != "Mode Selection Button - Campaign Variant" && key != "Mode Selection Button - Tutorial")
+                ModeUnlocks[key] = false;
+        }
         foreach (string key in TrinketUnlocks.Keys.ToList())
         {
             TrinketUnlocks[key] = false;
         }
+        
     }
 
     public static void UpdateFromItem(ItemInfo item)
@@ -115,15 +117,15 @@ public class APItems
         {
             ProgressionUnlocks[APIDtoProgressionUnlock[id]] = true;
         }
-        //Mode Unlock (Challenge, maybe endless eventually)
-        else if (0xAEFFFFF >= id & id >= 0xAE00000)
-        {
-            ModeUnlocks[APIDtoModeUnlock[id]] = true;
-        }
         //Trinket Unlock
         else if (0xADFFFFF >= id & id >= 0xAD00000)
         {
             TrinketUnlocks[APIDtoTrinketUnlock[id]] = true;
+        }
+        //Mode Unlock (Challenge, maybe endless eventually)
+        else if (0xAEFFFFF >= id & id >= 0xAE00000)
+        {
+            ModeUnlocks[APIDtoModeUnlock[id]] = true;
         }
 
         switch (id)
@@ -143,14 +145,28 @@ public class APItems
                 break;
             case 0xA900030:
                 ProgressivePerkUnlocks += 1;
+                color.g = 0.5f;
                 break;
         }
-        CL_ProgressionManager.ShowUnlockPopup(
-            image,
-            $"Received {item.ItemDisplayName}",
-            $"from game {item.LocationGame} at {item.LocationDisplayName}",
-            color
+
+        if (item.Player.Slot != ArchipelagoClient.Slot)
+        {
+            CL_ProgressionManager.ShowUnlockPopup(
+                image,
+                $"Received {item.ItemDisplayName}",
+                $"from game {item.LocationGame} at {item.LocationDisplayName}",
+                color
             );
+        }
+        else
+        {
+            CL_ProgressionManager.ShowUnlockPopup(
+                image,
+                $"Found your {item.ItemDisplayName}",
+                $"At location {item.LocationDisplayName}",
+                color
+            );
+        }
     }
     
     public static List<long> CheckFacilities()
@@ -705,6 +721,7 @@ public class APItems
         ["Mode Selection Button - Campaign Variant"] = true,
         ["Mode Selection Button - Tutorial"] = true,
         ["Mode Selection Button - Training Sector"] = false,
+        //TODO: Add some settings options on how to unlock these endless modes as qol for getting those rooms you just can't find
         ["Mode Selection Button - Endless"] = false,
         ["Mode Selection Button - Endless Underworks"] = false,
         ["Mode Selection Button - Endless Superstructure"] = false,
@@ -713,12 +730,14 @@ public class APItems
         ["Mode Selection Button - Habitation"] = false,
         ["Mode Selection Button - Abyss"] = false,
         ["Mode Selection Button - Nest"] = false,
+        
         ["Mode Selection Button - Challenge 01 - Advanced Course"] = true,
         ["Mode Selection Button - Challenge 02 - Shattered"] = true,
         ["Mode Selection Button - Challenge 03 - Roach Run"] = true,
         ["Mode Selection Button - Challenge 04 - Comms"] = false,
         ["Mode Selection Button - Challenge 05 - Shutter"] = false,
         ["Mode Selection Button - Challenge 06 - Boost"] = false,
+        
         ["Mode Selection Button - Chimney"] = false,
         ["Mode Selection Button - Parasite.01"] = false,
     };
@@ -763,6 +782,7 @@ public class APItems
     {
         [0xAE00000] = "Mode Selection Button - Campaign Variant",
         [0xAE00001] = "Mode Selection Button - Training Sector",
+        
         [0xAE00002] = "Mode Selection Button - Endless",
         [0xAE00003] = "Mode Selection Button - Endless Underworks",
         [0xAE00004] = "Mode Selection Button - Endless Superstructure",

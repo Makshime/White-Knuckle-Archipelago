@@ -25,11 +25,9 @@ class Deathlink_Amnesty(NamedRange):
     display_name = "Deathlink Amnesty"
     special_range_names = {
     "unchanged": 0,
-    
-    
-    range_start = 0
-    range_end = 20
-    default = 2
+    "range_start": 0,
+    "range_end": 20,
+    "default": 2,
     }
 
 class TotalBuffs(Range):

@@ -44,14 +44,13 @@ public class Plugin : BaseUnityPlugin
             Directory.CreateDirectory(Path.Combine(Application.persistentDataPath, "Archipelago"));
         }
 
-        if (!Directory.Exists($"{Application.persistentDataPath}\\Archipelago"))
-        {
-            Directory.CreateDirectory(Path.Combine(Application.persistentDataPath, "Archipelago"));
-        }
-
         if (!File.Exists($"{Application.persistentDataPath}\\Archipelago\\ClientOptions.json"))
         {
             File.Create($"{Application.persistentDataPath}\\Archipelago\\ClientOptions.json");
+        }
+        else
+        {
+            
         }
 
         harmony.PatchAll(Assembly.GetExecutingAssembly());
@@ -84,44 +83,24 @@ public class Plugin : BaseUnityPlugin
             }
 
             int perkCount = __instance?.GetPerk("archipelago_debuff")?.stackAmount ?? -__instance?.GetPerk("archipelago_buff")?.stackAmount ?? 0;
-                 
-            lock(__instance) {
-                if (perkCount != APItems.TargetAPDebuffCount && __instance != null)
-                {
-                    Logger.LogInfo("Amount, Target: " + perkCount + ", " + APItems.TargetAPDebuffCount);
 
-                    if (perkCount < APItems.TargetAPDebuffCount)
-                    {
-                        __instance.RemovePerk("archipelago_buff");
-                        __instance.RemovePerk("archipelago_debuff");
-                        if (perkCount >= 0) 
-                        {
-                            __instance.AddPerk(__instance.GetPerk("archipelago_debuff") ?? CL_AssetManager.GetPerkAsset("archipelago_debuff"), APItems.TargetAPDebuffCount);
-                        }
-                        else if (APItems.TargetAPDebuffCount != 0)
-                        {
-                            __instance.AddPerk(__instance.GetPerk("archipelago_debuff") ?? CL_AssetManager.GetPerkAsset("archipelago_debuff"), APItems.TargetAPDebuffCount);
-                        }
-                    }
-                    else
-                    {
-                        __instance.RemovePerk("archipelago_buff");
-                        __instance.RemovePerk("archipelago_debuff");
-                        if (perkCount <= 0)
-                        {
-                            __instance.AddPerk(__instance.GetPerk("archipelago_buff") ?? CL_AssetManager.GetPerkAsset("archipelago_buff"), APItems.TargetAPDebuffCount);
-                        }
-                        else // alternate way to do it cause why not
-                        {
-                            if (APItems.TargetAPDebuffCount != 0)
-                                __instance.AddPerkCommand([
-                                    "archipelago_buff", $"{-APItems.TargetAPDebuffCount}"
-                                ]);
-                        }
-                    }
+
+            if (perkCount != APItems.TargetAPDebuffCount && __instance != null)
+            {
+                Logger.LogInfo("Amount, Target: " + perkCount + ", " + APItems.TargetAPDebuffCount);
+
+                __instance.RemovePerk("archipelago_buff");
+                __instance.RemovePerk("archipelago_debuff");
+                if (APItems.TargetAPDebuffCount > 0)
+                {
+                    __instance.AddPerk(CL_AssetManager.GetPerkAsset("archipelago_debuff"), APItems.TargetAPDebuffCount);
                 }
-            } 
-            
+                else if (APItems.TargetAPDebuffCount != 0)
+                {
+                    __instance.AddPerk(CL_AssetManager.GetPerkAsset("archipelago_buff"), APItems.TargetAPDebuffCount);
+                }
+                
+            }
         }
         
     }
@@ -147,21 +126,38 @@ public class Plugin : BaseUnityPlugin
     
     
     //This class replaces the directories that the game saves the game to with its own ones
-    [HarmonyPatch(typeof(StatManager), "Awake")]
-    class AlterStats
+    public class AlterStats
     {
+        public static string SaveLocation = "rando_save.json";
+        public static string BackupSaveLocation = "rando_save-backup.json";
+        public static string ErrorBackupLocation = "rando_save-error-backup.json";
+        public static string CrashBackupLocation = "rando_save-backup-crash.json";
+        public static string QuitBackupLocation = "rando_save-backup-quit.json";
+
+        public static void UpdateSaveLocationNames(string seedID)
+        {
+            SaveLocation = $"{seedID}_save.json";
+            StatManager.instance.filePath = SaveLocation;
+            BackupSaveLocation = $"{seedID}_save-backup.json";
+            ErrorBackupLocation = $"{seedID}_save-error-backup.json";
+            CrashBackupLocation = $"{seedID}_save-backup-crash.json";
+            QuitBackupLocation = $"{seedID}_save-backup-quit.json";
+
+        }
+        
+        [HarmonyPatch(typeof(StatManager), "Awake")]
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             return new CodeMatcher(instructions).MatchForward(true, new CodeMatch(OpCodes.Ldstr, "wk_save.json"))
-                    .Repeat(matcher => matcher.SetInstruction(new CodeInstruction(OpCodes.Ldstr, "rando_save.json")))
+                    .Repeat(matcher => matcher.SetInstruction(new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(AlterStats), nameof(SaveLocation)))))
                 .Start().MatchForward(true, new CodeMatch(OpCodes.Ldstr, "wk_save-backup.json"))
-                    .Repeat(matcher => matcher.SetInstruction(new CodeInstruction(OpCodes.Ldstr, "rando_save-backup.json")))
+                    .Repeat(matcher => matcher.SetInstruction(new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(AlterStats), nameof(BackupSaveLocation)))))
                 .Start().MatchForward(true, new CodeMatch(OpCodes.Ldstr, "save-error-backup.json"))
-                    .Repeat(matcher => matcher.SetInstruction(new CodeInstruction(OpCodes.Ldstr, "rando_save-error-backup.json")))
+                    .Repeat(matcher => matcher.SetInstruction(new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(AlterStats), nameof(ErrorBackupLocation)))))
                 .Start().MatchForward(true, new CodeMatch(OpCodes.Ldstr, "save-backup-crash.json"))
-                    .Repeat(matcher => matcher.SetInstruction(new CodeInstruction(OpCodes.Ldstr, "save-backup-crash.json")))
+                    .Repeat(matcher => matcher.SetInstruction(new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(AlterStats), nameof(CrashBackupLocation)))))
                 .Start().MatchForward(true, new CodeMatch(OpCodes.Ldstr, "save-backup-quit.json"))
-                    .Repeat(matcher => matcher.SetInstruction(new CodeInstruction(OpCodes.Ldstr, "rando_save-backup-quit.json")))
+                    .Repeat(matcher => matcher.SetInstruction(new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(AlterStats), nameof(QuitBackupLocation)))))
                 .InstructionEnumeration();
         }
     }
@@ -222,7 +218,7 @@ public class Plugin : BaseUnityPlugin
         {
             //Creates a fresh save
             CommandConsole.Log("Resetting Save...");
-            File.Create(Path.Combine(UnityEngine.Application.persistentDataPath, "rando_save.json"));
+            File.Create(Path.Combine(Application.persistentDataPath, "rando_save.json"));
         }
 
         private static async void DisconnectCommand(string[] args)
@@ -263,7 +259,7 @@ public class Plugin : BaseUnityPlugin
                             Logger.LogInfo($"deathlink...");
                             if (args[i + 1] == "amnesty")
                             {
-                                ClientOptions.deathlink_amnesty = Convert.ToInt32(args[i + 2]);
+                                ClientOptions.DeathlinkAmnesty = Convert.ToInt32(args[i + 2]);
                                 Logger.LogInfo($"setting deathlink amnesty to {args[i + 2]}");
                                 CommandConsole.Log($"setting deathlink amnesty to {args[i + 2]}");
                             }
@@ -277,7 +273,7 @@ public class Plugin : BaseUnityPlugin
                             break;
                             
                         case "deathlink_amnesty":
-                            ClientOptions.deathlink_amnesty = Convert.ToInt32(args[i + 1]);
+                            ClientOptions.DeathlinkAmnesty = Convert.ToInt32(args[i + 1]);
                             Logger.LogInfo($"setting deathlink amnesty to {args[i + 1]}");
                             CommandConsole.Log($"setting deathlink amnesty to {args[i + 1]}");
                             break;
@@ -302,9 +298,9 @@ public class Plugin : BaseUnityPlugin
                 "Sets the number of archipelago debuffs to the specified integer. Using a negative integer will apply buffs instead.");
             CommandConsole.BuildCommand("setloan", ChangeLoanCommand).Description("Sets the starting roach loan value to the specified value");
             CommandConsole.BuildCommand("connect", TryConnectCommand).NotCheat().Description("Attempts to connect to Archipelago Server \n")
-                .OverValue((Func<object>) (() => (object) $"\n<color=yellow>Servername:</color> {ArchipelagoClient.Servername} " +
-                                                 $"\n<color=yellow>Username:</color> {(ArchipelagoClient.Username.IsNullOrWhiteSpace() ? "none" : ArchipelagoClient.Username)} " +
-                                                 $"\n<color=yellow>Password:</color> {(ArchipelagoClient.Password.IsNullOrWhiteSpace() ? "none" : new string('*',ArchipelagoClient.Password.Length))}\n"));
+                .OverValue((Func<object>) (() => (object) $"\n<color=yellow>Servername:</color> {(ClientOptions.Server.IsNullOrWhiteSpace() ? "none" : ClientOptions.Server)} " +
+                                                 $"\n<color=yellow>Username:</color> {(ClientOptions.User.IsNullOrWhiteSpace() ? "none" : ClientOptions.User)} " +
+                                                 $"\n<color=yellow>Password:</color> {(ClientOptions.Password.IsNullOrWhiteSpace() ? "none" : new string('*', ClientOptions.Password.Length))}\n"));
             CommandConsole.BuildCommand("reconnect", TryReconnectCommand).NotCheat().Description("Reconnects to Archipelago server in case of disconnect");
             CommandConsole.BuildCommand("resetapsave", ResetAPSaveData).NotCheat().Description("Deletes the current APSave's data for starting a new archipelago game");
             CommandConsole.BuildCommand("say", ArchipelagoClient.Say).NotCheat().Description("Sends a message to the archipelago client.");
@@ -491,14 +487,14 @@ public class Plugin : BaseUnityPlugin
                     new CodeMatch(OpCodes.Stloc_1))
                 .Advance(2)
                 .SetInstruction(new CodeInstruction(OpCodes.Ldsfld, 
-                    AccessTools.Field(typeof(APOptions),nameof(APOptions.TrinketSlots))))
+                    AccessTools.Field(typeof(APItems),nameof(APItems.TrinketSlots))))
                 .InstructionEnumeration();
         }
         //Extra failsafe 
         [HarmonyPatch("UpdatePips")]
         static void Prefix(object[] __args)
         {
-            __args[0] = APOptions.TrinketSlots;
+            __args[0] = APItems.TrinketSlots;
         }
     }
 
@@ -738,7 +734,7 @@ public class Plugin : BaseUnityPlugin
     public class APOptions
     {
         public static int StartingDebuffs = 10;
-        public static int TrinketSlots = 1;
+        public static int StartingTrinketSlots = 1;
         public static bool EnableAllTrinkets;
         public static string GoalArea = "M5_Nest_Trough_Ending_01";
         
@@ -763,17 +759,20 @@ public class Plugin : BaseUnityPlugin
     public static CLoptions ClientOptions = new();
     public class CLoptions
     {
-        public bool deathlink; // need to be simple fields for jsonutility to work
-        public int deathlink_amnesty; // if you need to change that they have get/set youd need to move to a different json library
+        public bool Deathlink; // need to be simple fields for jsonutility to work
+        public int DeathlinkAmnesty; // if you need to change that they have get/set youd need to move to a different json library
+        public string Server;
+        public string User;
+        public string Password;
 
         public void EnableDeathlink()
         {
-            deathlink = true;
+            Deathlink = true;
             ArchipelagoClient.Deathlinkservice.EnableDeathLink();
         }
         public void DisableDeathlink()
         {
-            deathlink = false;
+            Deathlink = false;
             ArchipelagoClient.Deathlinkservice.DisableDeathLink();
         }        
 
@@ -791,7 +790,7 @@ public class Plugin : BaseUnityPlugin
         // left here so people dont forget to update it
         public void ListClientSettings(string[] args)
         {
-            CommandConsole.Log($"Deathlink: {deathlink} \nDeathlink Amnesty: {deathlink_amnesty}");
+            CommandConsole.Log($"Deathlink: {Deathlink} \nDeathlink Amnesty: {DeathlinkAmnesty}");
         }
     }   
 }

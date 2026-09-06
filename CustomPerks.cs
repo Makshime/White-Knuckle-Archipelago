@@ -112,7 +112,7 @@ public class CustomPerks
     }
 
     
-    //Was for an idea of messing around with how the debuffs/buffs are translated, stays here in case I still want it for some reason
+    //Makes it so that when more stacks of a perk are added they have decreasing impact
     private static AnimationCurve CreateExponentialDecayCurve(float decay, int keyFrameCount = 100)
     {
         Keyframe[] keyframes = new Keyframe[keyFrameCount];

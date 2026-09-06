@@ -35,7 +35,8 @@ public class ArchipelagoClient
 
     public static string DeathMessage = "Died to Archipelago Player";
     public static DeathLinkService Deathlinkservice;
-    
+
+    public static string Seed;
     private static bool _connectedBefore;
     public static bool Connected;
     private static int _reconnectAttempts = 0;
@@ -50,7 +51,7 @@ public class ArchipelagoClient
     private static void NewSession(string server)
     {
         _session = ArchipelagoSessionFactory.CreateSession(server);
-        Servername = server;
+        Plugin.ClientOptions.Server = server;
     }
     
     //Archipelago connection procedure using Multiclient.net 
@@ -60,21 +61,21 @@ public class ArchipelagoClient
         
         if (Connected)
         {
-            CommandConsole.Log($"Already connected to server {Servername} as {Username}");
+            CommandConsole.Log($"Already connected to server {Plugin.ClientOptions.Server} as {Plugin.ClientOptions.User}");
             return null;
         }
         
         
         Plugin.Logger.LogInfo("Connecting to " + server);
 
-        if (server != null && server != Servername)
+        if (server != null && server != Plugin.ClientOptions.Server)
         {
             NewSession(server);
         }
-        if (user != null && user != Username) 
-            Username = user;
-        if (pass != null && pass != Password) 
-            Password = pass;
+        if (user != null && user != Plugin.ClientOptions.User) 
+            Plugin.ClientOptions.User = user;
+        if (pass != null && pass != Plugin.ClientOptions.Password) 
+            Plugin.ClientOptions.Password = pass;
         
         
         _session.Items.ItemReceived += OnItemReceive;
@@ -92,7 +93,7 @@ public class ArchipelagoClient
         
         try
         {
-            result = _session.TryConnectAndLogin("White Knuckle", Username, ItemsHandlingFlags.AllItems);
+            result = _session.TryConnectAndLogin("White Knuckle", Plugin.ClientOptions.User, ItemsHandlingFlags.AllItems);
         }
         catch (Exception e)
         {
@@ -103,7 +104,7 @@ public class ArchipelagoClient
         if (!result.Successful)
         {
             LoginFailure failure = (LoginFailure)result;
-            CommandConsole.Log($"Failed to Connect to {Servername} as {Username}:");
+            CommandConsole.Log($"Failed to Connect to {Plugin.ClientOptions.Server} as {Plugin.ClientOptions.User}:");
             foreach (string error in failure.Errors)
             {
                 CommandConsole.Log($"    {error}");
@@ -137,16 +138,23 @@ public class ArchipelagoClient
         
         FillOptions(loginSuccess.SlotData);
         
-        CommandConsole.Log($"Successfully connected to {Servername} as {Username}!");
+        CommandConsole.Log($"Successfully connected to {Plugin.ClientOptions.Server} as {Plugin.ClientOptions.User}!");
         CommandConsole.Log($"   Slot Number: {loginSuccess.Slot}");
-        
 
+        Seed = _session.RoomState.Seed;
+        if (!File.Exists(Path.Combine(Application.persistentDataPath, $"{Seed}_save.json")))
+        {
+            File.Create(Path.Combine(Application.persistentDataPath, $"{Seed}_save.json"));
+            Plugin.AlterStats.UpdateSaveLocationNames(Seed);
+            CommandConsole.hasCheated = true;
+            CL_GameManager.gMan.Restart([]);
+        }
+        
         _connectedBefore = true;
 
         Deathlinkservice = _session.CreateDeathLinkService();
-        Deathlinkservice.OnDeathLinkReceived += (deathLinkObject) => {
-            Deathlink.ProcDeathlink(deathLinkObject);
-        };
+        Deathlinkservice.OnDeathLinkReceived += Deathlink.ProcDeathlink;
+        
         return null;
     }
 
@@ -162,6 +170,7 @@ public class ArchipelagoClient
             _session.Socket.ErrorReceived -= OnError;
             _session.Socket.SocketClosed -= OnSocketClosed;
             _session.Locations.CheckedLocationsUpdated -= OnLocationReceive;
+            Deathlinkservice.OnDeathLinkReceived -= Deathlink.ProcDeathlink;
             
             APItems.TargetAPDebuffCount = 10;
             APItems.ClearAllFlags();
@@ -228,7 +237,7 @@ public class ArchipelagoClient
 
     private static void OnMessageReceive(LogMessage message)
     {
-        CommandConsole.Log($"[{Servername}] - {message}"); 
+        CommandConsole.Log($"[{Plugin.ClientOptions.Server}] - {message}"); 
     }
     
     public static void Say(string[] args)
@@ -272,7 +281,7 @@ public class ArchipelagoClient
                 foreach (long l in _locationsToSend)
                 {
                     Plugin.Logger.LogInfo("Sent item");
-                    if (infos[l].Player.Name != Username)
+                    if (infos[l].Player.Name != Plugin.ClientOptions.User)
                         CL_ProgressionManager.ShowUnlockPopup(APItems.SpriteFromPath("WKRando/Assets/Archipelago_Icon.png"), 
                             $"Sent <color=green>{infos[l].ItemDisplayName}</color>", 
                             $"for {infos[l].Player} from {infos[l].LocationDisplayName}", 
@@ -336,13 +345,24 @@ public class ArchipelagoClient
         Plugin.Logger.LogInfo(slotDataLogger);
         // done first as otherwise itd not log if there's any error
         // defaults to the value on the right of the conditional if no key is present
+        
+        // Standard options to handle the general stuff
         Plugin.APOptions.StartingDebuffs = slotData.TryGetValue("Starting_Debuffs", out object value) ? Convert.ToInt32(value) : 10;
-        Plugin.APOptions.TrinketSlots = slotData.TryGetValue("Starting_Trinkets_Slots", out object value1) ? Convert.ToInt32(value1) : 10;
+        APItems.TargetAPDebuffCount -= 10 - Plugin.APOptions.StartingDebuffs;
+            
+        Plugin.APOptions.StartingTrinketSlots = slotData.TryGetValue("Starting_Trinkets_Slots", out object value1) ? Convert.ToInt32(value1) : 1;
+        APItems.TrinketSlots += 1-Plugin.APOptions.StartingTrinketSlots;
+        
         Plugin.APOptions.EnableAllTrinkets = slotData.TryGetValue("Enable_Trinket_Randomization", out object value2) && Convert.ToBoolean(value2);
-        Plugin.APOptions.TrinketSlots = slotData.TryGetValue("Starting_Trinkets_Slots", out object value3) ? Convert.ToInt32(value3) : 10;
+        //for the fourth unknown option for now
+        Plugin.APOptions.StartingTrinketSlots = slotData.TryGetValue("Starting_Trinkets_Slots", out object value3) ? Convert.ToInt32(value3) : 10;
         
         if(slotData.TryGetValue("Challenge_Unlocks", out object value4) && (bool) value4)
             Plugin.APOptions.UnlockChallenges();
+        
+        
+        
+        
         
     }
     
@@ -405,6 +425,7 @@ public class ArchipelagoClient
         try
         {
             // why isnt this a switch block?? fuck if i know but it stopped working when i tried it
+            // did it have a default block oh well it shouldn't matter too too much 
             if (Convert.ToInt32(_slotData["deathlink"]) == 0)
             {
                 Plugin.ClientOptions.EnableDeathlink();
@@ -414,17 +435,17 @@ public class ArchipelagoClient
                 Plugin.ClientOptions.DisableDeathlink();
             }
         } catch { Plugin.Logger.LogInfo("Deathlink not found, skipping"); }
-
+        
         try
         {
             if (Convert.ToInt32(_slotData["deathlink_amnesty"]) != 0)
             {
-                Plugin.ClientOptions.deathlink_amnesty = Convert.ToInt32(_slotData["deathlink_amnesty"]);
+                Plugin.ClientOptions.DeathlinkAmnesty = Convert.ToInt32(_slotData["deathlink_amnesty"]);
             }
         } catch { Plugin.Logger.LogInfo("Deathlink amnesty not found, skipping"); }
 
         Plugin.ClientOptions.SaveOptions();
-        if (Plugin.ClientOptions.deathlink) {Deathlinkservice.EnableDeathLink();}
+        if (Plugin.ClientOptions.Deathlink) {Deathlinkservice.EnableDeathLink();}
     }
 
     public event DeathLinkService.DeathLinkReceivedHandler OnDeathLinkReceived { add { } remove { } }

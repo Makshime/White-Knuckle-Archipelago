@@ -27,7 +27,7 @@ namespace WKRando
             // uses the amnesty option
 
             DeathLinksSentSinceLast++;
-            if (DeathLinksSentSinceLast >= Plugin.ClientOptions.deathlink_amnesty)
+            if (DeathLinksSentSinceLast >= Plugin.ClientOptions.DeathlinkAmnesty)
             {
                 deathlinkbusy = true;
                 ArchipelagoClient.DeathMessage = DeathlinkObject.Cause;

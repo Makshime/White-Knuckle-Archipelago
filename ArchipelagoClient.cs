@@ -273,18 +273,17 @@ public class ArchipelagoClient
         
     }
 
+    public static void Goal()
+    {
+        _session.SetGoalAchieved();
+    }
+
     private static void CheckLocationsToSend()
     {
         if (_locationsToSend.Any() & Connected)
         {
             try
             {
-                if (_locationsToSend.Any(l => l == 0xAB50108))
-                {
-                    //TODO: Get a dynamic goal condition through settings instead
-                    _session.SetGoalAchieved();
-                    return;
-                }
                 _session.Locations.CompleteLocationChecksAsync(_locationsToSend.ToArray());
                 Dictionary<long, ScoutedItemInfo> infos = Task.Run(async () => _session.Locations.ScoutLocationsAsync(_locationsToSend.ToArray())).GetAwaiter().GetResult().Result;
                 foreach (long l in _locationsToSend)
@@ -352,107 +351,99 @@ public class ArchipelagoClient
             slotDataLogger += $"{I}: {slotData[I]}\n"; 
         }
         Plugin.Logger.LogInfo(slotDataLogger);
+        Plugin.Logger.LogInfo(Convert.ToString((bool)_session.DataStorage[Scope.Slot, "ConnectedOnce"]));
+
+        _session.DataStorage[Scope.Slot, "ConnectedOnce"].Initialize(false); // sets it to be SOMETHING
         // done first as otherwise itd not log if there's any error
         // defaults to the value on the right of the conditional if no key is present
         
         // Standard options to handle the general stuff
         Plugin.APOptions.StartingDebuffs = slotData.TryGetValue("Starting_Debuffs", out object value) ? Convert.ToInt32(value) : 10;
         APItems.TargetAPDebuffCount -= 10 - Plugin.APOptions.StartingDebuffs;
-            
-        Plugin.APOptions.StartingTrinketSlots = slotData.TryGetValue("Starting_Trinkets_Slots", out object value1) ? Convert.ToInt32(value1) : 1;
+        Plugin.APOptions.StartingTrinketSlots = slotData.TryGetValue("Starting_Trinket_Slots", out object value1) ? Convert.ToInt32(value1) : 1;
         APItems.TrinketSlots += 1-Plugin.APOptions.StartingTrinketSlots;
-        
+        //Currently unimplemented option to enable all trinkets
         Plugin.APOptions.EnableAllTrinkets = slotData.TryGetValue("Enable_Trinket_Randomization", out object value2) && Convert.ToBoolean(value2);
-        //for the fourth unknown option for now ngl i think a lot of things here don't need to be in the APOptions simply because they're one off changes to existing variables that'll get reset later anyways
-        Plugin.APOptions.StartingTrinketSlots = slotData.TryGetValue("Starting_Trinkets_Slots", out object value3) ? Convert.ToInt32(value3) : 10;
-        
-        if(slotData.TryGetValue("Challenge_Unlocks", out object value4) && (bool) value4)
+        Plugin.APOptions.SetGoalArea(slotData.TryGetValue("Goal_Region", out object value3) ? Convert.ToInt32(value3) : 3);
+        if(slotData.TryGetValue("Include_Challenge_Modes", out object value4) && (int) value4 == 1)
             Plugin.APOptions.UnlockChallenges();
         
-        
-        
-        
-        
-    }
-    
-
-
-    public static async Task<List<string>> ScoutItemDescriptionFromID(long[] ids)
-    {
-        List<string> output = new List<string>();
-        Dictionary<long, ScoutedItemInfo> scouted = await _session.Locations.ScoutLocationsAsync(false, ids);
-
-        foreach (ScoutedItemInfo info in scouted.Values)
-        {
-            switch (info.Flags)
-            {
-                case ItemFlags.Advancement:
-                    output.Add($"<color=blue>Progression Item</color>__This item is classified as progression to some player in this multiworld");
-                    break;
-                case ItemFlags.NeverExclude:
-                    output.Add($"<color=purple>Useful Item</color>__This item is classified as useful to some player in this multiworld");
-                    break;
-                case ItemFlags.None:
-                    output.Add($"<color=grey>Filler Item</color>__This item is classified as filler for some player in this multiworld");
-                    break;
-                case ItemFlags.Trap:
-                    output.Add($"<color=red>Trap Item</color>__This item is classified as a trap for some player in this multiworld");
-                    break;
-            }
-        }
-
-        return output;
-    }
-    
-
-    // writes all options from the ap server into variables accessible here
-    private static void FillOptions()
-    {
-        string slotDataLogger = "";
-        foreach (string I in _slotData.Keys)
-        {
-            slotDataLogger += $"{I}: {_slotData[I]} ({_slotData[I].GetType()})\n"; 
-        }
-        Plugin.Logger.LogInfo(slotDataLogger);
-        Plugin.Logger.LogInfo(Convert.ToString((bool)_session.DataStorage[Scope.Slot, "ConnectedOnce"]));
-
-        _session.DataStorage[Scope.Slot, "ConnectedOnce"].Initialize(false); // sets it to be SOMETHING
 
         Plugin.ClientOptions.LoadOptions();
 
         if (!_session.DataStorage[Scope.Slot, "ConnectedOnce"])
         {
             Plugin.Logger.LogInfo("First connection detecting, setting any client data");
-            SetClientOptions(new string[1]); // feels like evil coding, im sure this wont cause weird shit right?
+            SetClientOptions(slotData); 
         }
 
         _session.DataStorage[Scope.Slot, "ConnectedOnce"] = true; //causes client settings to not be changed upon future connections
+        
+        
     }
     
+
+
+    public static async Task<List<ScoutedItemInfo>> ScoutItemDescriptionFromID(long[] ids)
+    {
+        Dictionary<long, ScoutedItemInfo> scouted = await _session.Locations.ScoutLocationsAsync(false, ids);
+        return scouted.Values.ToList();
+    }
+    
+
+    // writes all options from the ap server into variables accessible here
+    private static void FillOptions()
+    {
+
+    }
+
     public static void SetClientOptions(string[] args)
     {
+        SetClientOptions(_slotData);
+    }
+    
+    public static void SetClientOptions(Dictionary<string, object> slotData)
+    {
+        //Deathlink
         try
         {
             // why isnt this a switch block?? fuck if i know but it stopped working when i tried it
             // did it have a default block oh well it shouldn't matter too too much 
-            if (Convert.ToInt32(_slotData["deathlink"]) == 0)
+            if (Convert.ToInt32(slotData["Deathlink"]) == 0)
             {
                 Plugin.ClientOptions.EnableDeathlink();
             }
-            else if (Convert.ToInt32(_slotData["deathlink"]) == 1)
+            else if (Convert.ToInt32(slotData["Deathlink"]) == 1)
             {
                 Plugin.ClientOptions.DisableDeathlink();
             }
         } catch { Plugin.Logger.LogInfo("Deathlink not found, skipping"); }
         
+        //Deathlink Amnesty
         try
         {
-            if (Convert.ToInt32(_slotData["deathlink_amnesty"]) != 0)
+            if (Convert.ToInt32(slotData["Deathlink_Amnesty"]) != 0)
             {
-                Plugin.ClientOptions.DeathlinkAmnesty = Convert.ToInt32(_slotData["deathlink_amnesty"]);
+                Plugin.ClientOptions.DeathlinkAmnesty = Convert.ToInt32(slotData["deathlink_amnesty"]);
             }
         } catch { Plugin.Logger.LogInfo("Deathlink amnesty not found, skipping"); }
-
+        
+        //Free Disk Vendors
+        try
+        {
+            if (Convert.ToBoolean(slotData["Include_Challenge_Modes"]))
+            {
+                Plugin.ClientOptions.FreeDiskVendors = true;
+            }
+            else
+            {
+                Plugin.ClientOptions.FreeDiskVendors = false;
+            }
+        } catch { Plugin.Logger.LogInfo("Disk Vendor Cost not found, skipping"); }
+        
+        //Sets Seed value for the save
+        Plugin.ClientOptions.ServerSeed = _session.RoomState.Seed;
+        
         Plugin.ClientOptions.SaveOptions();
         if (Plugin.ClientOptions.Deathlink) {Deathlinkservice.EnableDeathLink();}
     }

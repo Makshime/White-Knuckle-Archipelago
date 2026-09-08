@@ -64,7 +64,6 @@ class TestDefaultLogic(WKTestBase):
             self.assertTrue(abyss_02.can_reach(self.multiworld.state))
 
             self.collect(regions[3])
-            self.collect(regions[4])
 
             self.assertTrue(self.multiworld)
 

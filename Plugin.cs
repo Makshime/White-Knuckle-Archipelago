@@ -7,6 +7,8 @@ using System.Reflection.Emit;
 using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
+using Archipelago.MultiClient.Net.Enums;
+using Archipelago.MultiClient.Net.Models;
 using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
@@ -15,6 +17,7 @@ using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Yoga;
+using Color = UnityEngine.Color;
 using Logger = UnityEngine.Logger;
 using Object = System.Object;
 
@@ -25,10 +28,12 @@ namespace WKRando;
 [BepInProcess("White Knuckle.exe")]
 public class Plugin : BaseUnityPlugin
 {
-    internal static new ManualLogSource Logger;
+    internal new static ManualLogSource Logger;
     
     public static int LoanAmount = 0;
     public static bool Loaded;
+
+    public static CLoptions ClientOptions;
     
 
     private void Awake()
@@ -43,15 +48,25 @@ public class Plugin : BaseUnityPlugin
         {
             Directory.CreateDirectory(Path.Combine(Application.persistentDataPath, "Archipelago"));
         }
-
+        
+        
         if (!File.Exists($"{Application.persistentDataPath}\\Archipelago\\ClientOptions.json"))
         {
             File.Create($"{Application.persistentDataPath}\\Archipelago\\ClientOptions.json");
+            ClientOptions = new CLoptions();
+            ClientOptions.SaveOptions();
         }
         else
         {
-            
+            ClientOptions = new CLoptions();
+            ClientOptions.LoadOptions();
+            if (ClientOptions?.ServerSeed != null && !ClientOptions.ServerSeed.IsNullOrWhiteSpace())
+            {
+                AlterStats.UpdateSaveLocationNames(ClientOptions.ServerSeed);
+            }
+
         }
+
 
         harmony.PatchAll(Assembly.GetExecutingAssembly());
 
@@ -68,6 +83,11 @@ public class Plugin : BaseUnityPlugin
             
             try
             {
+                if (ArchipelagoClient.Connected && WorldLoader.instance != null && WorldLoader.instance.GetCurrentLevel().GetLevel().levelName == APOptions.GoalArea)
+                {
+                    ArchipelagoClient.Goal();
+                }
+                
                 if (WorldLoader.instance != null &&
                     APItems.RoomNameToAP.TryGetValue(WorldLoader.instance.GetCurrentLevel().GetLevel().levelName, out var roomID))
                 {
@@ -77,6 +97,8 @@ public class Plugin : BaseUnityPlugin
                         ArchipelagoClient.TryQueueLocation(roomID);
                     }
                 }
+
+                
             }
             catch
             {
@@ -195,9 +217,13 @@ public class Plugin : BaseUnityPlugin
 
         private static async void TryConnectCommand(string[] args)
         {
-            if (args.Length < 2 || args[0] == "")
+            if (args.Length == 0)
             {
-                CommandConsole.Log("Incorrect format: Requires server, username, and optional password, separated by spaces");
+                await ArchipelagoClient.Connect();
+            }
+            else if (args.Length == 1)
+            {
+                await ArchipelagoClient.Connect(args[0]);
             }
             else if(args.Length == 2)
             {
@@ -210,16 +236,11 @@ public class Plugin : BaseUnityPlugin
             
         }
 
-        private static async void TryReconnectCommand(string[] args)
-        {
-           await ArchipelagoClient.Connect();
-        }
-
         private static void ResetAPSaveData(string[] args)
         {
             //Creates a fresh save
             CommandConsole.Log("Resetting Save...");
-            File.Create(Path.Combine(Application.persistentDataPath, "rando_save.json"));
+            File.Create(Path.Combine(Application.persistentDataPath, $"{ClientOptions.ServerSeed ?? "rando"}_save.json" ));
         }
 
         private static async void DisconnectCommand(string[] args)
@@ -268,16 +289,23 @@ public class Plugin : BaseUnityPlugin
                             {
                                 if (Convert.ToBoolean(args[i + 1])) { ClientOptions.EnableDeathlink(); }
                                 else if (!Convert.ToBoolean(args[i + 1])) { ClientOptions.DisableDeathlink(); }
-                                Logger.LogInfo($"setting deathlink to {args[i + 1]}");
-                                CommandConsole.Log($"setting deathlink to {args[i + 1]}");
+                                Logger.LogInfo($"Setting Deathlink to {args[i + 1]}");
+                                CommandConsole.Log($"Setting Deathlink to {args[i + 1]}");
                             }
                             break;
                             
                         case "deathlink_amnesty":
                             ClientOptions.DeathlinkAmnesty = Convert.ToInt32(args[i + 1]);
-                            Logger.LogInfo($"setting deathlink amnesty to {args[i + 1]}");
-                            CommandConsole.Log($"setting deathlink amnesty to {args[i + 1]}");
+                            Logger.LogInfo($"Setting Deathlink-amnesty to {args[i + 1]}");
+                            CommandConsole.Log($"Setting Deathlink-amnesty to {args[i + 1]}");
                             break;
+                        
+                        case "free_disk_vendors":
+                            ClientOptions.FreeDiskVendors = Convert.ToBoolean(args[i + 1]);
+                            Logger.LogInfo($"Setting Free-disk-vendors to {args[i + 1]}");
+                            CommandConsole.Log($"Setting Free-disk-vendors to {args[i + 1]}");
+                            break;
+                        
                     }
                 } catch { }
             }
@@ -299,18 +327,43 @@ public class Plugin : BaseUnityPlugin
                 "Sets the number of archipelago debuffs to the specified integer. Using a negative integer will apply buffs instead.");
             CommandConsole.BuildCommand("setloan", ChangeLoanCommand).Description("Sets the starting roach loan value to the specified value");
             CommandConsole.BuildCommand("connect", TryConnectCommand).NotCheat().Description("Attempts to connect to Archipelago Server \n")
-                .OverValue((Func<object>) (() => (object) $"\n<color=yellow>Servername:</color> {(ClientOptions.Server.IsNullOrWhiteSpace() ? "none" : ClientOptions.Server)} " +
-                                                 $"\n<color=yellow>Username:</color> {(ClientOptions.User.IsNullOrWhiteSpace() ? "none" : ClientOptions.User)} " +
-                                                 $"\n<color=yellow>Password:</color> {(ClientOptions.Password.IsNullOrWhiteSpace() ? "none" : new string('*', ClientOptions.Password.Length))}\n"));
-            CommandConsole.BuildCommand("reconnect", TryReconnectCommand).NotCheat().Description("Reconnects to Archipelago server in case of disconnect");
-            CommandConsole.BuildCommand("resetapsave", ResetAPSaveData).NotCheat().Description("Deletes the current APSave's data for starting a new archipelago game");
+                .OverValue(() => (object) $"\n    <color=yellow>Servername:</color> {(ClientOptions.Server.IsNullOrWhiteSpace() ? "none" : ClientOptions.Server)} " +
+                                                 $"\n    <color=yellow>Username:</color> {(ClientOptions.User.IsNullOrWhiteSpace() ? "none" : ClientOptions.User)} " +
+                                                 $"\n    <color=yellow>Password:</color> {(ClientOptions.Password.IsNullOrWhiteSpace() ? "none" : new string('*', ClientOptions.Password.Length))}");
+            CommandConsole.BuildCommand("resetapsave", ResetAPSaveData).Description("Deprecated command");
             CommandConsole.BuildCommand("say", ArchipelagoClient.Say).NotCheat().Description("Sends a message to the archipelago client.");
-            CommandConsole.BuildCommand("disconnect", DisconnectCommand).NotCheat();
+            CommandConsole.BuildCommand("disconnect", DisconnectCommand).NotCheat().Description("Disconnects from the Archipelago Server");
             CommandConsole.BuildCommand("testpopup", TestPopup).NotCheat();
             CommandConsole.BuildCommand("ResetClientOptions", ArchipelagoClient.SetClientOptions).NotCheat().Description("Resets your client options back to what is listed in the yaml");
-            CommandConsole.BuildCommand("ListClientOptions", ClientOptions.ListClientSettings).NotCheat().Description("Lists all options in the client settings, that can be set by the player in the client");
-            CommandConsole.BuildCommand("ChangeClientOptions", ChangeClientSettings).NotCheat().Description("Changes options, use ListOptions to get a list of the ones you can change, spaces and both dashes work");
+            CommandConsole.BuildCommand("ListClientOptions", CLoptions.ListClientSettings).NotCheat().Description("Lists all options in the client settings, that can be set by the player in the client");
+            CommandConsole.BuildCommand("ChangeClientOptions", ChangeClientSettings).NotCheat().Description("Changes options, use ListOptions to get a list of the ones you can change, spaces and both dashes work").AutocompleteCustom(
+                autocomplete =>
+                {
+                    if (autocomplete.activeArg < 0 || autocomplete.activeArg > 1)
+                    {
+                        autocomplete.Reject();
+                    } 
+                    else if(autocomplete.activeArg == 0)
+                    {
+                        autocomplete.FromArrayWithDesc(new List<(string name, string desc)>
+                        {
+                            ("deathlink",$"Sets deathlink with true or false: {ClientOptions.Deathlink}"),
+                            ("deathlink-amnesty",$"Sets receive amnesty with integer: {ClientOptions.DeathlinkAmnesty}"),
+                            ("free-disk-vendors",$"Sets whether or not disk vendors are free: {ClientOptions.FreeDiskVendors}")
+                        });
+                    } 
+                    else if (autocomplete.activeArg == 1)
+                    {
+                        string n = autocomplete.args[0];
+                        if (n == "deathlink" || n == "free-disk-vendors")
+                        {
+                            autocomplete.FromArray(["true", "false"]);
+                        }
+                    }
+                });
             CommandConsole.BuildCommand("TestArchipelagoDeath", TestArchipelagoDeath).Description("Kills the player with the specified death message");
+            
+            Logger.LogInfo("Successfully Injected Commands");
         }
     }
     
@@ -352,6 +405,8 @@ public class Plugin : BaseUnityPlugin
     {
         static void Postfix(UI_FacilityMenu_Button __instance)
         {
+            if (__instance == null)
+                return;
             Logger.LogInfo(__instance.upgrade.name);
             if (!ArchipelagoClient.Connected)
             {
@@ -606,7 +661,7 @@ public class Plugin : BaseUnityPlugin
         }
     }
 
-    private static Dictionary<string, string> _nameToDescription;
+    private static Dictionary<string, ScoutedItemInfo> _nameToScoutedItem;
     [HarmonyPatch(typeof(App_Facility_Card), "CheckLock")]
     class PatchPerkRefresh
     {
@@ -622,17 +677,33 @@ public class Plugin : BaseUnityPlugin
             {
                 __instance.lockedObject.SetActive(false);
                 __instance.locked = false;
-                if (_nameToDescription != null && _nameToDescription.TryGetValue($"{__instance.facility.id} {__instance.upgrade.id}", out string description))
+                if (_nameToScoutedItem != null && _nameToScoutedItem.TryGetValue($"{__instance.facility.id} {__instance.upgrade.id}", out ScoutedItemInfo info))
                 {
-                    __instance.tooltip.tip = description.Split("__")[1];
-                    __instance.titleText.SetText(description.Split("__")[0]);
                     __instance.art.gameObject.SetActive(true);
-                    __instance.art.sprite = APItems.SpriteFromPath("WKRando/Assets/Archipelago_Icon.png");
+                    switch (info.Flags)
+                    {
+                        case ItemFlags.Advancement:
+                            __instance.tooltip.tip = "<color=blue>Progression Item</color>\nThis item is classified as progression to some player in this multiworld.";
+                            __instance.art.sprite = APItems.SpriteFromPath("WKRando/Assets/Archipelago_Progression_Icon.png");
+                            break;
+                        case ItemFlags.NeverExclude:
+                            __instance.tooltip.tip = "<color=purple>Useful Item</color>\nThis item is classified as useful to some player in this multiworld.";
+                            __instance.art.sprite = APItems.SpriteFromPath("WKRando/Assets/Archipelago_Icon.png");
+                            break;
+                        case ItemFlags.None:
+                            __instance.tooltip.tip = "<color=grey>Filler Item</color>\nThis item is classified as useful to some player in this multiworld.";
+                            __instance.art.sprite = APItems.SpriteFromPath("WKRando/Assets/Archipelago_Filler_Icon.png");
+                            break;
+                        case ItemFlags.Trap:
+                            __instance.tooltip.tip = "<color=red>Trap Item</color>\nThis item is classified as a trap to some player in this multiworld.";
+                            __instance.art.sprite = APItems.SpriteFromPath("WKRando/Assets/Archipelago_Trap_Icon.png");
+                            break;
+                    }
                     
                 }
                 else
                 {
-                    __instance.tooltip.tip = "Some archipelago item probably";
+                    __instance.tooltip.tip = "Some archipelago item probably (scouting failed :( )";
                 }
             }
             return false;
@@ -645,7 +716,7 @@ public class Plugin : BaseUnityPlugin
         //Makes the archipelago client request all 
         static void Prefix(App_FacilitySlotHolder __instance)
         {
-            if (!ArchipelagoClient.Connected && __instance.window == null)
+            if (!ArchipelagoClient.Connected || __instance.window == null)
                 return;
             Logger.LogInfo("Attempting to scout facility upgrades");
             Facility facilityAsset = CL_AssetManager.GetFacilityAsset(__instance.window.os.worldInterface.facilityID);
@@ -659,8 +730,21 @@ public class Plugin : BaseUnityPlugin
                     upgradeNames.Add($"{facilityAsset.id} {n.id}");
                 }
             }
-            List<string> descriptions = Task.Run(async () => await ArchipelagoClient.ScoutItemDescriptionFromID(locationsToScout.ToArray())).GetAwaiter().GetResult();
-            _nameToDescription = upgradeNames.Zip(descriptions, (k,v) => new {k,v}).ToDictionary(x => x.k, x => x.v);
+            List<ScoutedItemInfo> descriptions = Task.Run(async () => await ArchipelagoClient.ScoutItemDescriptionFromID(locationsToScout.ToArray())).GetAwaiter().GetResult();
+            
+            _nameToScoutedItem = upgradeNames.Zip(descriptions, (k,v) => new {k,v}).ToDictionary(x => x.k, x => x.v);
+        }
+    }
+
+    [HarmonyPatch(typeof(ENV_Vendor_Disk), "Update")]
+    class PatchDiskVendorCost
+    {
+        static void Prefix(ENV_Vendor_Disk __instance)
+        {
+            if (ClientOptions.FreeDiskVendors && __instance.cost != 0)
+            {
+                __instance.cost = 0;
+            }
         }
     }
 
@@ -718,6 +802,34 @@ public class Plugin : BaseUnityPlugin
         }
     }
     
+    //Removes almost all base game unlock popups
+    [HarmonyPatch]
+    class PatchUnlockPopups()
+    {
+        [HarmonyPatch(typeof(Item), "SendUnlockMessage")]
+        [HarmonyPrefix]
+        static bool RemoveItemProgressPopup()
+        {
+            return false;
+        }
+
+        [HarmonyPatch(typeof(CL_ProgressionManager), "UpdateUnlocks")]
+        [HarmonyPrefix]
+        static bool RemoveProgressionPopups()
+        {
+            return false;
+        }
+    }
+    
+    //Prevents any scores from being uploaded to steam
+    [HarmonyPatch(typeof(SteamManager), "UploadGamemodeResults")]
+    class PatchSteamUpload
+    {
+        static bool Prefix()
+        {
+            return false;
+        }
+    }
     
     
     
@@ -728,7 +840,28 @@ public class Plugin : BaseUnityPlugin
         public static int StartingTrinketSlots = 1;
         public static bool EnableAllTrinkets;
         public static string GoalArea = "M5_Nest_Trough_Ending_01";
-        
+
+        public static void SetGoalArea(int i)
+        {
+            switch (i)
+            {
+                case 1:
+                    GoalArea = "Campaign_Interlude_Silo_To_Pipeworks_01";
+                    return;
+                case 2: 
+                    GoalArea = "M3_Habitation_Shaft_Intro";
+                    return;
+                case 3:
+                    GoalArea = "Campaign_Interlude_Habitation_To_Abyss_01";
+                    return;
+                case 4:
+                    GoalArea = "Campaign_Interlude_Abyss_To_Nest_01_SafeArea";
+                    return;
+                case 5:
+                    GoalArea = "M5_Nest_Trough_Ending_01";
+                    return;
+            }
+        }
         public static void UnlockChallenges()
         {
             foreach (string mode in APItems.ModeUnlocks.Keys.ToList())
@@ -747,14 +880,19 @@ public class Plugin : BaseUnityPlugin
     // C:\Users\X\AppData\LocalLow\Dark Machine\White Knuckle\Archipelago\ClientOptions.json
     // file only appears if its detected to be missing during awake
 
-    public static CLoptions ClientOptions = new();
+    
     public class CLoptions
     {
-        public bool Deathlink; // need to be simple fields for jsonutility to work
-        public int DeathlinkAmnesty; // if you need to change that they have get/set youd need to move to a different json library
-        public string Server;
-        public string User;
-        public string Password;
+        
+        
+        public bool Deathlink = false; // need to be simple fields for jsonutility to work
+        public int DeathlinkAmnesty = 0; // if you need to change that they have get/set youd need to move to a different json library
+        public bool FreeDiskVendors = false;
+        public string ServerSeed; // this one here is always checked for being null
+        public string Server = "";
+        public string User = "";
+        public string Password = "";
+
 
         public void EnableDeathlink()
         {
@@ -770,18 +908,18 @@ public class Plugin : BaseUnityPlugin
         public void SaveOptions()
         {
             File.WriteAllText($"{Application.persistentDataPath}\\Archipelago\\ClientOptions.json", JsonUtility.ToJson(ClientOptions));
-            Logger.LogInfo($"saving client options as {JsonUtility.ToJson(ClientOptions)}");
+            Logger.LogInfo($"Saving client options as {JsonUtility.ToJson(ClientOptions)}");
         }
         public void LoadOptions()
         {
             string jsonString = File.ReadAllText($"{Application.persistentDataPath}\\Archipelago\\ClientOptions.json");
-            Logger.LogInfo($"loading client options as: {jsonString}");
+            Logger.LogInfo($"Loading client options as: {jsonString}");
             ClientOptions = JsonUtility.FromJson<CLoptions>(jsonString);
         }
         // left here so people dont forget to update it
-        public void ListClientSettings(string[] args)
+        public static void ListClientSettings(string[] args)
         {
-            CommandConsole.Log($"Deathlink: {Deathlink} \nDeathlink Amnesty: {DeathlinkAmnesty}");
+            CommandConsole.Log($"Deathlink: {ClientOptions.Deathlink} \nDeathlink Amnesty: {ClientOptions.DeathlinkAmnesty}");
         }
     }   
 }

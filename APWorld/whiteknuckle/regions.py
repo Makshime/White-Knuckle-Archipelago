@@ -17,8 +17,22 @@ def create_and_connect_regions(world: WKWorld) -> None:
 def create_all_regions(world: WKWorld) -> None:
     global_shop = Region("Global Shop", world.player, world.multiworld)
 
+
+
     sink = Region("Sink", world.player, world.multiworld)
     chute = Region("Chute", world.player, world.multiworld)
+
+    challenge_modes = Region("Challenge Modes", world.player, world.multiworld)
+    chal_1 = Region("Challenge 1", world.player, world.multiworld)
+    chal_2 = Region("Challenge 2", world.player, world.multiworld)
+    chal_3 = Region("Challenge 3", world.player, world.multiworld)
+    chal_4 = Region("Challenge 4", world.player, world.multiworld)
+    chal_5 = Region("Challenge 5", world.player, world.multiworld)
+    chal_6 = Region("Challenge 6", world.player, world.multiworld)
+
+
+    training_sector = Region("Training Sector", world.player, world.multiworld)
+
     silos_1 = Region("Silos 1", world.player, world.multiworld)
     silos_2 = Region("Silos 2", world.player, world.multiworld) ## Shattered
     silos_3 = Region("Silos 3", world.player, world.multiworld) ## Air Exchange
@@ -40,7 +54,7 @@ def create_all_regions(world: WKWorld) -> None:
     nest_3 = Region("Nest 3", world.player, world.multiworld)
     core_1 = Region("Core 1", world.player, world.multiworld)
 
-    regions = [sink, chute, global_shop, silos_1, silos_2, silos_3, interlude_1, pipeworks_1, pipeworks_2, pipeworks_3, interlude_2, hab_1, hab_2, hab_3, interlude_3, abyss_1, abyss_2, abyss_3, interlude_4, nest_1, nest_2, nest_3, core_1]
+    regions = [challenge_modes, chal_1, chal_2, chal_3, chal_4, chal_5, chal_6, training_sector, sink, chute, global_shop, silos_1, silos_2, silos_3, interlude_1, pipeworks_1, pipeworks_2, pipeworks_3, interlude_2, hab_1, hab_2, hab_3, interlude_3, abyss_1, abyss_2, abyss_3, interlude_4, nest_1, nest_2, nest_3, core_1]
 
     world.multiworld.regions += regions
 
@@ -48,6 +62,8 @@ def create_all_regions(world: WKWorld) -> None:
 def connect_regions(world: WKWorld) -> None:
     global_shop = world.get_region("Global Shop")
 
+    challenge_modes = world.get_region("Challenge Modes")
+    training_sector = world.get_region("Training Sector")
     sink = world.get_region("Sink")
     chute = world.get_region("Chute")
     silos_1 = world.get_region("Silos 1")
@@ -71,7 +87,10 @@ def connect_regions(world: WKWorld) -> None:
     nest_3 = world.get_region("Nest 3")
     core_1 = world.get_region("Core 1")
 
-    silos_1.connect(global_shop, "Global Shop Access")
+    challenge_modes.connect(silos_1, "Main Menu Challenge Modes")
+    training_sector.connect(silos_1, "Training Sector Access")
+
+    silos_1.connect(global_shop, "Main Menu Global Shop")
 
     silos_1.connect(silos_2, "Silos 1 to Silos 2")
     silos_1.connect(silos_3, "Silos 1 to Silos 3")
@@ -105,5 +124,12 @@ def connect_regions(world: WKWorld) -> None:
     nest_1.connect(nest_3, "Nest 1 to Nest 3")
     nest_2.connect(nest_3, "Nest 2 to Nest 3")
     nest_3.connect(core_1, "Nest 3 to Core 1")
+
+    challenge_modes.connect(world.get_region("Challenge 1"), "Challenge 1 Access")
+    challenge_modes.connect(world.get_region("Challenge 2"), "Challenge 2 Access")
+    challenge_modes.connect(world.get_region("Challenge 3"), "Challenge 3 Access")
+    challenge_modes.connect(world.get_region("Challenge 4"), "Challenge 4 Access")
+    challenge_modes.connect(world.get_region("Challenge 5"), "Challenge 5 Access")
+    challenge_modes.connect(world.get_region("Challenge 6"), "Challenge 6 Access")
 
 

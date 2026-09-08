@@ -222,6 +222,37 @@ LOCATION_NAME_TO_ID = {
     "Training Sector: Sector Mastery 01": 0xAB8000B,
     "Training Sector: Sector Mastery 02": 0xAB8000C,
 
+
+    "Advanced Course 1": 0xAF00000,
+    "Advanced Course 2": 0xAF00001,
+    "Advanced Course 3": 0xAF00002,
+    "Advanced Course 4": 0xAF00003,
+
+    "Fractured Territory 1": 0xAF00010,
+    "Fractured Territory 2": 0xAF00011,
+    "Fractured Territory 3": 0xAF00012,
+    "Fractured Territory 4": 0xAF00013,
+
+    "Roach Run 1": 0xAF00020,
+    "Roach Run 2": 0xAF00021,
+    "Roach Run 3": 0xAF00022,
+    "Roach Run 4": 0xAF00023,
+
+    "Comms Array 1": 0xAF00030,
+    "Comms Array 2": 0xAF00031,
+    "Comms Array 3": 0xAF00032,
+    "Comms Array 4": 0xAF00033,
+
+    "Shuttered Rift 1": 0xAF00040,
+    "Shuttered Rift 2": 0xAF00041,
+    "Shuttered Rift 3": 0xAF00042,
+    "Shuttered Rift 4": 0xAF00043,
+
+    "Boost Course 1": 0xAF00050,
+    "Boost Course 2": 0xAF00051,
+    "Boost Course 3": 0xAF00052,
+    "Boost Course 4": 0xAF00053
+
 }
 
 class WKLocation(Location):
@@ -241,6 +272,8 @@ def create_all_locations(world: WKWorld) -> None:
 def create_regular_locations(world: WKWorld) -> None:
 
     global_shop = world.get_region("Global Shop")
+    challenge_modes = world.get_region("Challenge Modes")
+    training_sector = world.get_region("Training Sector")
 
     sink = world.get_region("Sink")
     chute = world.get_region("Chute")
@@ -335,34 +368,101 @@ def create_regular_locations(world: WKWorld) -> None:
         ), WKLocation
     )
 
-    sink.add_locations(get_ids_with_location_names(list(range(0xAB60000, 0xAB60005))), WKLocation)
-    chute.add_locations(get_ids_with_location_names(list(range(0xAB70000, 0xAB70008))), WKLocation)
+    if world.options.Include_Challenge_Modes > 0:
+
+        world.get_region("Challenge 1").add_locations(
+            get_location_names_with_ids(
+                ["Advanced Course 1",
+                 "Advanced Course 2",
+                 "Advanced Course 3",
+                 "Advanced Course 4",
+                 ]), WKLocation)
+        world.get_region("Challenge 2").add_locations(
+            get_location_names_with_ids(
+                ["Fractured Territory 1",
+                "Fractured Territory 2",
+                "Fractured Territory 3",
+                "Fractured Territory 4",
+                ]), WKLocation)
+        world.get_region("Challenge 3").add_locations(
+            get_location_names_with_ids(
+                ["Roach Run 1",
+                "Roach Run 2",
+                "Roach Run 3",
+                "Roach Run 4",
+                 ]), WKLocation)
+        world.get_region("Challenge 4").add_locations(
+            get_location_names_with_ids(
+                ["Comms Array 1",
+                "Comms Array 2",
+                "Comms Array 3",
+                "Comms Array 4",
+                 ]), WKLocation)
+        world.get_region("Challenge 5").add_locations(
+            get_location_names_with_ids(
+                ["Shuttered Rift 1",
+                "Shuttered Rift 2",
+                "Shuttered Rift 3",
+                "Shuttered Rift 4",
+                 ]), WKLocation)
+        world.get_region("Challenge 6").add_locations(
+            get_location_names_with_ids(
+                ["Boost Course 1",
+                "Boost Course 2",
+                "Boost Course 3",
+                "Boost Course 4",
+                 ]), WKLocation)
+
+    if world.options.Include_Training_Sector:
+        training_sector.add_locations(
+            get_location_names_with_ids([ "Training Sector: Foundations 01",
+                "Training Sector: Foundations 02",
+                "Training Sector: Foundations 03",
+                "Training Sector: Foundations 04",
+                "Training Sector: Foundations 05",
+                "Training Sector: Basic Climbing 01",
+                "Training Sector: Basic Climbing 02",
+                "Training Sector: Basic Climbing 03",
+                "Training Sector: Basic Climbing 04",
+                "Training Sector: Basic Climbing 05",
+                "Training Sector: Basic Climbing 06",
+                "Training Sector: Sector Mastery 01",
+                "Training Sector: Sector Mastery 02",
+            ]), WKLocation
+        )
+
 
     deep_storage.add_locations(get_location_names_with_ids([f"Silos: Deep Storage {i:02d}" for i in range(1,18)]), WKLocation)
     shattered_chambers.add_locations(get_location_names_with_ids([f"Silos: Shattered Chambers {i:02d}" for i in range(1,12)]), WKLocation)
     air_exchange.add_locations(get_location_names_with_ids([f"Silos: Air Exchange {i:02d}" for i in range(1,12)]), WKLocation)
+    sink.add_locations(get_ids_with_location_names(list(range(0xAB60000, 0xAB60005))), WKLocation)
 
-    drainage_system.add_locations(get_location_names_with_ids([f"Pipeworks: Drainage {i:02d}" for i in range(1,11)]), WKLocation)
-    waste_heap.add_locations(get_location_names_with_ids([f"Pipeworks: Waste Heap {i:02d}" for i in range(1,6)]), WKLocation)
-    pipe_organ.add_locations(get_location_names_with_ids([f"Pipeworks: Pipe Organ {i:02d}" for i in range(1,10)]), WKLocation)
+    if world.options.Goal_Region > 1:
+        chute.add_locations(get_ids_with_location_names(list(range(0xAB70000, 0xAB70008))), WKLocation)
+        drainage_system.add_locations(get_location_names_with_ids([f"Pipeworks: Drainage {i:02d}" for i in range(1,11)]), WKLocation)
+        waste_heap.add_locations(get_location_names_with_ids([f"Pipeworks: Waste Heap {i:02d}" for i in range(1,6)]), WKLocation)
+        pipe_organ.add_locations(get_location_names_with_ids([f"Pipeworks: Pipe Organ {i:02d}" for i in range(1,10)]), WKLocation)
 
-    s = [f"Habitation: Service Shaft {i:02d}" for i in range(1,8)]
-    s.append("Habitation: Service Shaft Exit")
-    shaft.add_locations(get_location_names_with_ids(s), WKLocation)
-    pier.add_locations(get_location_names_with_ids([f"Habitation: Haunted Pier {i:02d}" for i in range(1,5)]), WKLocation)
-    s = [f"Habitation: Delta Labs {i:02d}" for i in range(1,9)]
-    s.extend(["Habitation: Delta Labs Lobby", "Habitation: Delta Labs Exit"])
-    delta_labs.add_locations(get_location_names_with_ids(s), WKLocation)
+    if world.options.Goal_Region > 2:
+        s = [f"Habitation: Service Shaft {i:02d}" for i in range(1,8)]
+        s.append("Habitation: Service Shaft Exit")
+        shaft.add_locations(get_location_names_with_ids(s), WKLocation)
+        pier.add_locations(get_location_names_with_ids([f"Habitation: Haunted Pier {i:02d}" for i in range(1,5)]), WKLocation)
+        s = [f"Habitation: Delta Labs {i:02d}" for i in range(1,9)]
+        s.extend(["Habitation: Delta Labs Lobby", "Habitation: Delta Labs Exit"])
+        delta_labs.add_locations(get_location_names_with_ids(s), WKLocation)
 
-    s = list(range(0xAB40101, 0xAB40107))
-    s.append(0xAB40000)
-    transit.add_locations(get_ids_with_location_names(s), WKLocation)
-    handle.add_locations(get_ids_with_location_names([0xAB40200,0xAB40400]), WKLocation)
-    gardens.add_locations(get_ids_with_location_names([0xAB40300,0xAB40301,0xAB40302,0xAB40303,0xAB40001]), WKLocation)
+    if world.options.Goal_Region > 3:
+        s = list(range(0xAB40101, 0xAB40107))
+        s.append(0xAB40000)
+        transit.add_locations(get_ids_with_location_names(s), WKLocation)
+        handle.add_locations(get_ids_with_location_names([0xAB40200,0xAB40400]), WKLocation)
+        gardens.add_locations(get_ids_with_location_names([0xAB40300,0xAB40301,0xAB40302,0xAB40303,0xAB40001]), WKLocation)
 
-    lambda_labs.add_locations(get_ids_with_location_names(list(range(0xAB50000,0xAB50008))), WKLocation)
-    feeding_trough.add_locations(get_ids_with_location_names(list(range(0xAB50100,0xAB50108))), WKLocation)
-    hot_zone.add_locations(get_ids_with_location_names(list(range(0xAB50200,0xAB50206))), WKLocation)
+    if world.options.Goal_Region > 4:
+        lambda_labs.add_locations(get_ids_with_location_names(list(range(0xAB50000,0xAB50008))), WKLocation)
+        feeding_trough.add_locations(get_ids_with_location_names(list(range(0xAB50100,0xAB50108))), WKLocation)
+        hot_zone.add_locations(get_ids_with_location_names(list(range(0xAB50200,0xAB50206))), WKLocation)
 
 
 

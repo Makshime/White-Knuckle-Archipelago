@@ -15,6 +15,8 @@ class WKWorld(World):
 
     game = "White Knuckle"
 
+    web = wk_options.WKWebWorld()
+
     options_dataclass = wk_options.WKOptions
 
     options: wk_options.WKOptions

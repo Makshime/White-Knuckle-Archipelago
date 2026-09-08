@@ -52,32 +52,67 @@ def set_all_entrance_rules(world: WKWorld) -> None:
     n3_to_c1 = world.get_entrance("Nest 3 to Core 1")
 
     #i1 logic rules
-    world.set_rule(s2_to_i1, Has("Progressive Buff", count=world.options.Starting_Debuffs - 8))
-    world.set_rule(s3_to_i1, Has("Progressive Buff", count=world.options.Starting_Debuffs - 8))
-    world.set_rule(sink_to_i1, Has("Progressive Buff", count=world.options.Starting_Debuffs - 5))
-    world.set_rule(s1_to_sink, HasAllCounts({"Progressive Buff": world.options.Starting_Debuffs - 8, "Tangled Sink Access": 1}))
-
-    world.set_rule(p1_to_chute, HasAllCounts({"Progressive Buff": (world.options.Starting_Debuffs - 5), "Expulsion Chute Access": 1}) | HasAllCounts({"Progressive Buff": (world.options.Starting_Debuffs - 7), "Progressive Perk Machine": 1, "Expulsion Chute Access":1}))
-    world.set_rule(chute_to_i2, Has("Progressive Buff", count=(world.options.Starting_Debuffs - 3)) | HasAllCounts({"Progressive Buff": (world.options.Starting_Debuffs - 5), "Progressive Perk Machine": 1}))
-    world.set_rule(p3_to_i2, Has("Progressive Buff", count=(world.options.Starting_Debuffs - 5)) | HasAllCounts({"Progressive Buff": (world.options.Starting_Debuffs - 7), "Progressive Perk Machine": 1}))
-
-    world.set_rule(h3_to_i3, Has("Progressive Buff", count=(world.options.Starting_Debuffs - 3)) | HasAllCounts({"Progressive Buff": (world.options.Starting_Debuffs - 5), "Progressive Perk Machine": 1}) | HasAllCounts({"Progressive Buff": (world.options.Starting_Debuffs - 6), "Progressive Perk Machine": 2}))
-
-    world.set_rule(a3_to_i4, Has("Progressive Buff", count=(world.options.Starting_Debuffs + 0)) | HasAllCounts({"Progressive Buff": (world.options.Starting_Debuffs - 2), "Progressive Perk Machine": 1}) | HasAllCounts({"Progressive Buff": (world.options.Starting_Debuffs - 4), "Progressive Perk Machine": 2}))
+    world.set_rule(s2_to_i1, Has("Progressive Buff", 2))
+    world.set_rule(s3_to_i1, Has("Progressive Buff", 2))
+    world.set_rule(sink_to_i1, Has("Progressive Buff", 5))
+    world.set_rule(s1_to_sink, HasAllCounts({"Progressive Buff": 2, "Tangled Sink Access": 1}))
 
 
-    world.set_rule(n2_to_n3, Has("Progressive Buff", count=(world.options.Starting_Debuffs + 5)) | HasAllCounts({"Progressive Buff": (world.options.Starting_Debuffs + 2), "Progressive Perk Machine": 1}) | HasAllCounts({"Progressive Buff": (world.options.Starting_Debuffs + 0), "Progressive Perk Machine": 2}) | HasAllCounts({"Progressive Buff": (world.options.Starting_Debuffs - 2), "Progressive Perk Machine": 3}))
-    world.set_rule(n2_to_n3, Has("Progressive Buff", count=(world.options.Starting_Debuffs + 3)) | HasAllCounts({"Progressive Buff": (world.options.Starting_Debuffs + 1), "Progressive Perk Machine":1}) | HasAllCounts({"Progressive Buff": (world.options.Starting_Debuffs + 0), "Progressive Perk Machine": 2}) | HasAllCounts({"Progressive Buff": (world.options.Starting_Debuffs - 2), "Progressive Perk Machine": 3}))
 
-    world.set_rule(i1_to_p1, Has("Progressive Region", 1))
-    world.set_rule(i2_to_h1, Has("Progressive Region", 2))
-    world.set_rule(i3_to_a1, Has("Progressive Region", 3))
-    world.set_rule(i4_to_n1, Has("Progressive Region", 4))
-    world.set_rule(i4_to_n2, Has("Progressive Region", 4))
+    if world.options.Goal_Region > 1:
+        world.set_rule(i1_to_p1, Has("Progressive Region", 1))
+        world.set_rule(p1_to_chute, HasAllCounts(
+            {"Progressive Buff": 5, "Expulsion Chute Access": 1}) | HasAllCounts(
+            {"Progressive Buff": 3, "Progressive Perk Machine": 1,
+             "Expulsion Chute Access": 1}))
+        world.set_rule(chute_to_i2, Has("Progressive Buff", 7) | HasAllCounts(
+            {"Progressive Buff": 5, "Progressive Perk Machine": 1}))
+        world.set_rule(p3_to_i2, Has("Progressive Buff", 5) | HasAllCounts(
+            {"Progressive Buff": 3, "Progressive Perk Machine": 1}))
+
+
+    if world.options.Goal_Region > 2:
+        world.set_rule(i2_to_h1, Has("Progressive Region", 2))
+        world.set_rule(h2_to_h3, Has("Progressive Buff", 6) | HasAllCounts(
+            {"Progressive Buff": 4, "Progressive Perk Machine": 1}) | HasAllCounts(
+            {"Progressive Buff": 2, "Progressive Perk Machine": 2}))
+        world.set_rule(h3_to_i3, Has("Progressive Buff", 7) | HasAllCounts(
+            {"Progressive Buff": 5, "Progressive Perk Machine": 1}) | HasAllCounts(
+            {"Progressive Buff": 3, "Progressive Perk Machine": 2}))
+
+
+    if world.options.Goal_Region > 3:
+        world.set_rule(i3_to_a1, Has("Progressive Region", 3))
+        world.set_rule(a2_to_a3, Has("Progressive Buff", 9) | HasAllCounts(
+            {"Progressive Buff": 7, "Progressive Perk Machine": 1}) | HasAllCounts(
+            {"Progressive Buff": 6, "Progressive Perk Machine": 2}))
+        world.set_rule(a3_to_i4, Has("Progressive Buff", 10) | HasAllCounts(
+            {"Progressive Buff": 8, "Progressive Perk Machine": 1}) | HasAllCounts(
+            {"Progressive Buff": 6, "Progressive Perk Machine": 2}))
+
+
+
+    if world.options.Goal_Region > 4:
+        world.set_rule(i4_to_n2, Has("Progressive Region", 4))
+        world.set_rule(i4_to_n1, Has("Progressive Region", 4))
+        world.set_rule(n2_to_n3, Has("Progressive Buff", (world.options.Starting_Debuffs + 5)) | HasAllCounts(
+            {"Progressive Buff": 12, "Progressive Perk Machine": 1}) | HasAllCounts(
+            {"Progressive Buff": 10, "Progressive Perk Machine": 2}) | HasAllCounts(
+            {"Progressive Buff": 8, "Progressive Perk Machine": 3}))
+        world.set_rule(n2_to_n3, Has("Progressive Buff", (world.options.Starting_Debuffs + 3)) | HasAllCounts(
+            {"Progressive Buff": 13, "Progressive Perk Machine": 1}) | HasAllCounts(
+            {"Progressive Buff": 10, "Progressive Perk Machine": 2}) | HasAllCounts(
+            {"Progressive Buff": 8, "Progressive Perk Machine": 3}))
+
+    set_challenge_region_rules(world)
+
+
 
 def set_all_location_rules(world: WKWorld) -> None:
 
-    can_be_rich: Rule = HasAll("I1: Recycler Upgrade", "Trinket: Gold Nugget") | (HasAll("I1: Recycler Upgrade", "I2: Recycler Upgrade", "I3: Recycler Upgrade") & Has("Progressive Region", count = 2) & Has("Progressive Buff", count = 8))
+    can_be_rich: Rule = (HasAll("I1: Recycler Upgrade", "Trinket: Gold Nugget") |
+                         (HasAll("I1: Recycler Upgrade", "I2: Recycler Upgrade", "I3: Recycler Upgrade")
+                          & Has("Progressive Region", count = 2) & Has("Progressive Buff", count = 8)))
 
     expensive_items = [
         world.get_location("Global: Ornamental Hammer Purchase"),
@@ -96,11 +131,28 @@ def set_all_location_rules(world: WKWorld) -> None:
     set_silos_unlock_rules(world)
     set_pipeworks_unlock_rules(world)
     set_habitation_abyss_unlock_rules(world)
+    set_challenge_medal_rules(world)
 
 
 def set_completion_condition(world: WKWorld) -> None:
-
-    world.set_completion_rule(HasAllCounts({"Progressive Region":4, "Progressive Perk Machine": 1, "Progressive Buff": (world.options.Starting_Debuffs + 2)})) #this is like not rules builder... but i cant figure out how the fromoption works, soooooo
+    match world.options.Goal_Region:
+        case 1:
+            world.set_completion_rule(Has("Progressive Buff", 2))
+        case 2:
+            world.set_completion_rule(Has("Progressive Region", 1) & (Has("Progressive Buff", 5) | HasAllCounts({"Progressive Buff": 3, "Progressive Perk Machine": 1})))
+        case 3:
+            world.set_completion_rule(Has("Progressive Region", 2) & (Has("Progressive Buff", 7) | HasAllCounts(
+            {"Progressive Buff": 5, "Progressive Perk Machine": 1}) | HasAllCounts(
+            {"Progressive Buff": 3, "Progressive Perk Machine": 2})))
+        case 4:
+            world.set_completion_rule(Has("Progressive Region", 3) & (Has("Progressive Buff", 10) | HasAllCounts(
+            {"Progressive Buff": 8, "Progressive Perk Machine": 1}) | HasAllCounts(
+            {"Progressive Buff": 6, "Progressive Perk Machine": 2})))
+        case 5:
+            world.set_completion_rule(Has("Progressive Region", 4) & Has("Progressive Buff", 13) | HasAllCounts(
+            {"Progressive Buff": 12, "Progressive Perk Machine": 1}) | HasAllCounts(
+            {"Progressive Buff": 11, "Progressive Perk Machine": 2}) | HasAllCounts(
+            {"Progressive Buff": 9, "Progressive Perk Machine": 3}))
 
 
 def set_silos_unlock_rules(world: WKWorld) -> None:
@@ -153,6 +205,8 @@ def set_silos_unlock_rules(world: WKWorld) -> None:
 
 
 def set_pipeworks_unlock_rules(world:WKWorld) -> None:
+    if world.options.Goal_Region == 1:
+        return
     pipe_1 = [
         "Pipeworks: Drainage 03",
         "Pipeworks: Drainage 04",
@@ -169,10 +223,12 @@ def set_pipeworks_unlock_rules(world:WKWorld) -> None:
     world.set_rule(world.get_location("Pipeworks: Pipe Organ 09"), Has("Pipeworks Rho Room Access"))
     for name in pipe_1:
         world.set_rule(world.get_location(name), Has("Pipeworks Room Unlocks: 1"))
-    for name in pipe_1:
+    for name in pipe_2:
         world.set_rule(world.get_location(name), Has("Pipeworks Room Unlocks: 2"))
 
 def set_habitation_abyss_unlock_rules(world:WKWorld) -> None:
+    if world.options.Goal_Region > 2:
+        return
     hab_1 = [
         "Habitation: Service Shaft 07",
         "Habitation: Haunted Pier 03",
@@ -182,7 +238,60 @@ def set_habitation_abyss_unlock_rules(world:WKWorld) -> None:
         "Habitation: Delta Labs 07",
         "Habitation: Delta Labs 08"
     ]
+
     for name in hab_1:
         world.set_rule(world.get_location(name), Has("Habitation Room Unlocks"))
 
-    world.set_rule(world.get_location("Abyss: Handle 02"), Has("Abyss Handle 02 Access"))
+    if world.options.Goal_Region > 3:
+        world.set_rule(world.get_location("Abyss: Handle 02"), Has("Abyss Handle 02 Access"))
+
+
+def set_challenge_region_rules(world:WKWorld) -> None:
+    if world.options.Include_Challenge_Modes != 2:
+        return
+    world.set_rule(world.get_entrance("Challenge 1 Access"), Has("Challenge Course: Advanced Course"))
+    world.set_rule(world.get_entrance("Challenge 2 Access"), Has("Challenge Course: Shattered Chambers"))
+    world.set_rule(world.get_entrance("Challenge 3 Access"), Has("Challenge Course: Roach Run"))
+    world.set_rule(world.get_entrance("Challenge 4 Access"), Has("Challenge Course: Comms Array"))
+    world.set_rule(world.get_entrance("Challenge 5 Access"), Has("Challenge Course: Shuttered Rift"))
+    world.set_rule(world.get_entrance("Challenge 6 Access"), Has("Challenge Course: Boost Course"))
+
+
+
+def set_challenge_medal_rules(world:WKWorld) -> None:
+    if world.options.Include_Challenge_Modes == 0:
+        return
+
+    world.set_rule(world.get_location("Advanced Course 1"), Has("Progressive Buff"))
+    world.set_rule(world.get_location("Advanced Course 2"), Has("Progressive Buff", 5))
+    world.set_rule(world.get_location("Advanced Course 3"), Has("Progressive Buff", 8))
+    world.set_rule(world.get_location("Advanced Course 4"), Has("Progressive Buff", 10))
+
+    world.set_rule(world.get_location("Fractured Territory 1"), Has("Progressive Buff", 2))
+    world.set_rule(world.get_location("Fractured Territory 2"), Has("Progressive Buff", 6))
+    world.set_rule(world.get_location("Fractured Territory 3"), Has("Progressive Buff", 8))
+    world.set_rule(world.get_location("Fractured Territory 4"), Has("Progressive Buff", 12))
+
+    world.set_rule(world.get_location("Roach Run 1"), Has("Progressive Buff", 4))
+    world.set_rule(world.get_location("Roach Run 2"), Has("Progressive Buff", 5))
+    world.set_rule(world.get_location("Roach Run 3"), Has("Progressive Buff", 8))
+    world.set_rule(world.get_location("Roach Run 4"), Has("Progressive Buff", 10))
+
+    world.set_rule(world.get_location("Comms Array 1"), Has("Progressive Buff", 5))
+    world.set_rule(world.get_location("Comms Array 2"), Has("Progressive Buff", 7))
+    world.set_rule(world.get_location("Comms Array 3"), Has("Progressive Buff", 9))
+    world.set_rule(world.get_location("Comms Array 4"), Has("Progressive Buff", 12))
+
+    world.set_rule(world.get_location("Shuttered Rift 1"), Has("Progressive Buff", 4))
+    world.set_rule(world.get_location("Shuttered Rift 2"), Has("Progressive Buff", 5))
+    world.set_rule(world.get_location("Shuttered Rift 3"), Has("Progressive Buff", 6))
+    world.set_rule(world.get_location("Shuttered Rift 4"), Has("Progressive Buff", 7))
+
+    world.set_rule(world.get_location("Boost Course 1"), Has("Progressive Buff", 8))
+    world.set_rule(world.get_location("Boost Course 2"), Has("Progressive Buff", 9))
+    world.set_rule(world.get_location("Boost Course 3"), Has("Progressive Buff", 10))
+    world.set_rule(world.get_location("Boost Course 4"), Has("Progressive Buff", 12))
+
+
+
+

@@ -53,6 +53,7 @@ ITEM_NAME_TO_ID = {
     "Progressive Region": 0xA900010,
     "Progressive Buff": 0xA900020,
     "Progressive Perk Machine": 0xA900030,
+    "Progressive Trinket Slot": 0xA900040,
 
     "Perks: Grub": 0xAC00100,
     "Perks: Tier 1": 0xAC00101,
@@ -96,6 +97,25 @@ ITEM_NAME_TO_ID = {
     "Trinket: Climbing Shoes": 0xAD0000B,
     "Trinket: Helmet": 0xAD0000C,
     "Trinket: Calming Buddy": 0xAD0000D,
+
+    #"Mode Selection Button - Tutorial": 0xAD00001,
+    "Mode: Training Sector": 0xAD00001,
+    "Mode: Endless": 0xAD00002,
+    "Mode: Endless Underworks": 0xAD00003,
+    "Mode: Endless Superstructure": 0xAD00004,
+    "Mode: Endless Silos": 0xAD00005,
+    "Mode: Endless Pipeworks": 0xAD00006,
+    "Mode: Endless Habitation": 0xAD00007,
+    "Mode: Endless Abyss": 0xAD00008,
+    "Mode: Endless Nest": 0xAD00009,
+    "Challenge Course: Advanced Course": 0xAD0000A,
+    "Challenge Course: Shattered Chambers": 0xAD0000B,
+    "Challenge Course: Roach Run": 0xAD0000C,
+    "Challenge Course: Comms Array": 0xAD0000E,
+    "Challenge Course: Shuttered Rift": 0xAD0000F,
+    "Challenge Course: Boost Course": 0xAD00010,
+    "Mode: Chimney": 0xAD00011,
+    "Mode: Parasite.01":0xAD00012,
 
 
 }
@@ -144,6 +164,7 @@ DEFAULT_ITEM_CLASSIFICATIONS = {
     "Progressive Region": ItemClassification.progression,
     "Progressive Buff": ItemClassification.progression,
     "Progressive Perk Machine": ItemClassification.progression,
+    "Progressive Trinket Slot": ItemClassification.progression,
 
     "Perks: Grub": ItemClassification.useful,
     "Perks: Tier 1": ItemClassification.useful,
@@ -187,6 +208,27 @@ DEFAULT_ITEM_CLASSIFICATIONS = {
     "Trinket: Climbing Shoes": ItemClassification.useful,
     "Trinket: Helmet": ItemClassification.useful,
     "Trinket: Calming Buddy": ItemClassification.useful,
+
+    "Mode: Training Sector": ItemClassification.progression,
+
+    "Mode: Endless": ItemClassification.useful,
+    "Mode: Endless Underworks": ItemClassification.useful,
+    "Mode: Endless Superstructure": ItemClassification.useful,
+    "Mode: Endless Silos": ItemClassification.useful,
+    "Mode: Endless Pipeworks": ItemClassification.useful,
+    "Mode: Endless Habitation": ItemClassification.useful,
+    "Mode: Endless Abyss": ItemClassification.useful,
+    "Mode: Endless Nest": ItemClassification.useful,
+
+    "Challenge Course: Advanced Course": ItemClassification.progression,
+    "Challenge Course: Shattered Chambers": ItemClassification.progression,
+    "Challenge Course: Roach Run": ItemClassification.progression,
+    "Challenge Course: Comms Array": ItemClassification.progression,
+    "Challenge Course: Shuttered Rift": ItemClassification.progression,
+    "Challenge Course: Boost Course": ItemClassification.progression,
+
+    "Mode: Chimney": ItemClassification.useful,
+    "Mode: Parasite.01": ItemClassification.useful,
 }
 
 class WKItem(Item):
@@ -228,11 +270,15 @@ def create_all_items(world: WKWorld) -> None:
 
 def create_interlude_items(world:WKWorld) -> list[Item]:
     interludes: list[Item] = []
-    interludes += create_global_upgrades(world)
-    interludes += create_i1_upgrades(world)
-    interludes += create_i2_upgrades(world)
-    interludes += create_i3_upgrades(world)
-    interludes += create_i4_upgrades(world)
+    if world.options.Goal_Region > 1:
+        interludes += create_global_upgrades(world)
+        interludes += create_i1_upgrades(world)
+    if world.options.Goal_Region > 2:
+        interludes += create_i2_upgrades(world)
+    if world.options.Goal_Region > 3:
+        interludes += create_i3_upgrades(world)
+    if world.options.Goal_Region > 4:
+        interludes += create_i4_upgrades(world)
     return interludes
 
 def create_global_upgrades(world:WKWorld) -> list[Item]:
@@ -287,13 +333,18 @@ def create_i4_upgrades(world:WKWorld) -> list[Item]:
     ]
 
 def create_perk_unlocks(world:WKWorld) -> list[Item]:
-    return [
-        world.create_item("Perks: Grub"),
-        world.create_item("Perks: Tier 1"),
-        world.create_item("Perks: Tier 2"),
-        world.create_item("Perks: Tier 3"),
-        world.create_item("Perks: Tier 4"),
-        world.create_item("Perks: Tier 5"),
+    perks = []
+
+    if world.options.Goal_Region > 1:
+        perks += [world.create_item("Perks: Grub"),
+                world.create_item("Perks: Tier 1"),
+                world.create_item("Perks: Tier 2"),
+                world.create_item("Perks: Tier 3"),
+                world.create_item("Perks: Tier 4"),
+                world.create_item("Perks: Tier 5")]
+
+    return perks + [
+
 
         world.create_item("Unstable Perk: Adoption Day"),
         world.create_item("Unstable Perks: Delta Perks"),
@@ -303,24 +354,40 @@ def create_perk_unlocks(world:WKWorld) -> list[Item]:
     ]
 
 def create_room_unlocks(world:WKWorld) -> list[Item]:
-    return [
-        world.create_item("Abyss Handle 02 Access"),
-        world.create_item("Habitation Room Unlocks"),
-        world.create_item("Pipeworks Room Unlocks: 1"),
-        world.create_item("Pipeworks Room Unlocks: 2"),
-        world.create_item("Pipeworks Rho Room Access"),
+    items = []
 
-        world.create_item("Expulsion Chute Access"),
-        world.create_item("Tangled Sink Access"),
-
+    items += [
         world.create_item("Silos Room Unlocks: 1"),
         world.create_item("Silos Room Unlocks: 2"),
         world.create_item("Silos Room Unlocks: 3"),
         world.create_item("Silos Room Unlocks: 4"),
         world.create_item("Deep Storage Room Unlocks"),
-    ]
+        world.create_item("Tangled Sink Access")
+        ]
+    if world.options.Goal_Region == 1:
+        return items
+
+    items += [
+        world.create_item("Pipeworks Room Unlocks: 1"),
+        world.create_item("Pipeworks Room Unlocks: 2"),
+        world.create_item("Pipeworks Rho Room Access"),
+        world.create_item("Expulsion Chute Access"),
+        ]
+
+    if world.options.Goal_Region == 2:
+        return items
+
+    items.append(world.create_item("Habitation Room Unlocks"))
+
+    if world.options.Goal_Region == 3:
+        return items
+
+    items.append(world.create_item("Abyss Handle 02 Access"))
+
+    return items
 
 def create_trinket_unlocks(world:WKWorld) -> list[Item]:
+
     return [
         world.create_item("Trinket: The Beta"),
         world.create_item("Trinket: Carabiner"),
@@ -346,13 +413,40 @@ def create_buff_perks(world:WKWorld) -> list[Item]:
 
 def create_perk_terminal_unlocks(world:WKWorld) -> list[Item]:
     out = []
-    for i in range(3):
+
+    if world.options.Goal_Region > 1:
         out.append(world.create_item("Progressive Perk Machine"))
+    if world.options.Goal_Region > 2:
+        out.append(world.create_item("Progressive Perk Machine"))
+    if world.options.Goal_Region > 4:
+        out.append(world.create_item("Progressive Perk Machine"))
+
     return out
 
 def create_progressive_access(world:WKWorld) -> list[Item]:
     out = []
-    for i in range(5):
+    for i in range(world.options.Goal_Region):
         out.append(world.create_item("Progressive Region"))
     return out
+
+def create_trinket_slots(world:WKWorld) -> list[Item]:
+    out = []
+    for i in range(world.options.Total_Trinket_Slots):
+        out.append(world.create_item("Progressive Trinket Slot"))
+    return out
+
+def create_challenge_modes(world:WKWorld) -> list[Item]:
+    if world.options.Include_Challenge_Modes != 2:
+        return []
+
+    return [
+        world.create_item("Challenge Course: Advanced Course"),
+        world.create_item("Challenge Course: Shattered Chambers"),
+        world.create_item("Challenge Course: Roach Run"),
+        world.create_item("Challenge Course: Comms Array"),
+        world.create_item("Challenge Course: Shuttered Rift"),
+        world.create_item("Challenge Course: Boost Course")
+    ]
+
+
 

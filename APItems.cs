@@ -105,6 +105,11 @@ public class APItems
         Color color = new Color(0.3f, 0.3f, 0f);
         long id = item.ItemId;
         Plugin.Logger.LogInfo("Attempting to update from AP Item: " + item.ItemDisplayName);
+        if (!SentLocations.Contains(id))
+        {
+            SentLocations.Add(id);
+        }
+        
         //Facility
         if (0xAAFFFFF >= id & id >= 0xAA11000 || id == 0xAA10000 || id == 0xAA10009)
         {
@@ -147,6 +152,9 @@ public class APItems
                 ProgressivePerkUnlocks += 1;
                 color.g = 0.5f;
                 break;
+            case 0xA900040:
+                TrinketSlots += 1;
+                break;
         }
 
         if (item.Player.Slot != ArchipelagoClient.Slot)
@@ -173,18 +181,7 @@ public class APItems
     {
         return StatManager.saveData.facilities.SelectMany(facility => facility.upgrades, (facility, upgrade) => FullFacilityUpgradetoAP[$"{facility} {upgrade}"]).Where(id => !SentLocations.Contains((long)id)).ToList();
     }
-
-    public static long? CheckRoom()
-    {
-        string room = WorldLoader.instance.GetCurrentLevel().GetLevel().levelName;
-        if (RoomNameToAP.ContainsKey(room) & !SentLocations.Contains(RoomNameToAP[room]))
-        {
-            return RoomNameToAP[room];
-        }
-
-        return null;
-    }
-
+    
     public static List<long> SentLocations = new List<long>();
     
     //Handles AP IDs of facility upgrades
@@ -760,7 +757,7 @@ public class APItems
         ["Trinket_CalmingBuddy"] = false,
     };
 
-    public static Dictionary<long, string> APIDtoTrinketUnlock = new Dictionary<long, string>()
+    public static readonly Dictionary<long, string> APIDtoTrinketUnlock = new Dictionary<long, string>()
     {
         [0xAD00000] = "Trinket_Beta",
         [0xAD00001] = "Trinket_Carabiner",
@@ -778,7 +775,7 @@ public class APItems
         [0xAD0000D] = "Trinket_CalmingBuddy"
     };
     
-    public static Dictionary<long, string> APIDtoModeUnlock = new Dictionary<long, string>()
+    public static readonly Dictionary<long, string> APIDtoModeUnlock = new Dictionary<long, string>()
     {
         [0xAE00000] = "Mode Selection Button - Campaign Variant",
         [0xAE00001] = "Mode Selection Button - Training Sector",

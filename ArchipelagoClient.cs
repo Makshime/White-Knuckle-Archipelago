@@ -38,6 +38,7 @@ public class ArchipelagoClient
 
     private static string Seed;
     private static bool _connectedBefore;
+    public static bool Connecting;
     public static bool Connected;
     private static int _reconnectAttempts = 0;
     public static int Slot = -1;
@@ -119,6 +120,7 @@ public class ArchipelagoClient
             return null;
         }
         
+        Connecting = true;
         Connected = true;
         
         var loginSuccess = (LoginSuccessful)result;
@@ -135,8 +137,18 @@ public class ArchipelagoClient
         {
             Plugin.Logger.LogInfo($"Logged Sent Location ID: {item}");
         }
+        Update();
+        
         
         FillOptions(loginSuccess.SlotData);
+        if(!server.IsNullOrWhiteSpace())
+            Plugin.ClientOptions.Server = server;
+        if(!user.IsNullOrWhiteSpace())
+            Plugin.ClientOptions.User = user;
+        if(!pass.IsNullOrWhiteSpace())
+            Plugin.ClientOptions.Password = pass;
+
+        Connecting = false;
         
         CommandConsole.Log($"Successfully connected to {Plugin.ClientOptions.Server} as {Plugin.ClientOptions.User}!");
         CommandConsole.Log($"   Slot Number: {loginSuccess.Slot}");
@@ -154,10 +166,12 @@ public class ArchipelagoClient
             Plugin.AlterStats.UpdateSaveLocationNames(Seed);
         }
         
+        Plugin.ClientOptions.SaveOptions();
+        
         _connectedBefore = true;
 
         Deathlinkservice = _session.CreateDeathLinkService();
-        Deathlinkservice.OnDeathLinkReceived += Deathlink.ProcDeathlink;
+        Deathlinkservice.OnDeathLinkReceived += DeathLinkHandler.ProcDeathlink;
         
         return null;
     }
@@ -174,8 +188,13 @@ public class ArchipelagoClient
             _session.Socket.ErrorReceived -= OnError;
             _session.Socket.SocketClosed -= OnSocketClosed;
             _session.Locations.CheckedLocationsUpdated -= OnLocationReceive;
-            Deathlinkservice.OnDeathLinkReceived -= Deathlink.ProcDeathlink;
-            
+
+            if (Connected)
+            {
+                Deathlinkservice.OnDeathLinkReceived -= DeathLinkHandler.ProcDeathlink;
+                Deathlinkservice = null;
+            }
+
             APItems.TargetAPDebuffCount = 10;
             APItems.TrinketSlots = 1;
             APItems.ProgressiveRegions = 0;
@@ -289,10 +308,18 @@ public class ArchipelagoClient
                 foreach (long l in _locationsToSend)
                 {
                     Plugin.Logger.LogInfo("Sent item");
-                    if (infos[l].Player.Name != Plugin.ClientOptions.User)
-                        CL_ProgressionManager.ShowUnlockPopup(APItems.SpriteFromPath("WKRando/Assets/Archipelago_Icon.png"), 
-                            $"Sent <color=green>{infos[l].ItemDisplayName}</color>", 
-                            $"for {infos[l].Player} from {infos[l].LocationDisplayName}", 
+                    if (infos[l].Player.Name != Plugin.ClientOptions.User && !Connecting)
+                        CL_ProgressionManager.ShowUnlockPopup(
+                            APItems.SpriteFromPath($"WKRando/Assets/Archipelago_{
+                                infos[l].Flags switch {
+                                    ItemFlags.None => "Filler_Icon",
+                                    ItemFlags.Advancement => "Progression_Icon",
+                                    ItemFlags.NeverExclude => "Icon",
+                                    ItemFlags.Trap => "Trap_Icon",
+                                    _ => throw new ArgumentOutOfRangeException() }
+                            }.png"), 
+                            "Sent Item:", 
+                            $"{infos[l].ItemDisplayName} for {infos[l].Player} from {infos[l].LocationDisplayName}", 
                             infos[l].Flags switch
                             {
                                 ItemFlags.None => new Color(0.2f,0.2f,0.2f),

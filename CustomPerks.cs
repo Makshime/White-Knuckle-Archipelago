@@ -46,7 +46,6 @@ public class CustomPerks
         };
         Texture2D texture = new Texture2D(256, 256);
         var p = Path.Combine(BepInEx.Paths.PluginPath, "WKRando\\Assets\\Archipelago_Perk.png");
-        Plugin.Logger.LogInfo($"Filepath: {p}");
         texture.LoadImage(File.ReadAllBytes(p));
         _apBuff.icon = Sprite.Create(
             texture,
@@ -102,6 +101,30 @@ public class CustomPerks
         return  _apDebuff;
     }
 
+    public static Perk AmnestyStack(int stacks = 1)
+    {
+        _apDebuff = ScriptableObject.CreateInstance<Perk>();
+        _apDebuff.id = "archipelago_amnesty";
+        _apDebuff.name = "perk_ap_amnesty";
+        _apDebuff.title = "Deathlink Amnesty";
+        _apDebuff.description = "Receiving a specified amount of this perk will kill you!";
+        _apDebuff.flavorText = "Obtained whenever someone dies in the multiworld";
+        _apDebuff.stackMax = 100;
+        _apDebuff.useBuff = false;
+        _apDebuff.buffMultiplier = 0;
+        _apDebuff.modules = new List<PerkModule>();
+        _apBuff.multiplierCurve = AnimationCurve.Constant(0, 1, 1);
+        _apDebuff.stackAmount = stacks;
+        Texture2D texture2 = new Texture2D(256, 256);
+        _apDebuff.icon = Sprite.Create(
+            texture2,
+            new Rect(0, 0, texture2.width, texture2.height),
+            new Vector2(0.5f, 0.5f),
+            pixelsPerUnit: 900f
+        );
+        return _apDebuff;
+    }
+    
     private static Buff NewBuff(string id, float amount, float maxAmount)
     {
         Buff buff = new Buff();

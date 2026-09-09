@@ -124,6 +124,12 @@ public class Plugin : BaseUnityPlugin
                 }
                 
             }
+
+            if (ClientOptions.DeathlinkAmnesty != 0 && __instance != null && DeathLinkHandler.DeathLinksSentSinceLast != (__instance?.GetPerk("archipelago_amnesty")?.stackAmount ?? 0))
+            {
+                __instance.RemovePerk("archipelago_amnesty");
+                __instance.AddPerk(CL_AssetManager.GetPerkAsset("archipelago_debuff"), DeathLinkHandler.DeathLinksSentSinceLast);
+            }
         }
         
     }
@@ -146,25 +152,34 @@ public class Plugin : BaseUnityPlugin
             return true;
         }
     }
-    
-    
+    [HarmonyPatch(typeof(SteamManager), "Update")]
+    public class DisableSteamManager
+    {
+        static bool Prefix()
+        {
+            return false;
+        }
+    }
     //This class replaces the directories that the game saves the game to with its own ones
+    [HarmonyPatch]
     public class AlterStats
     {
-        public static string SaveLocation = "rando_save.json";
-        public static string BackupSaveLocation = "rando_save-backup.json";
-        public static string ErrorBackupLocation = "rando_save-error-backup.json";
-        public static string CrashBackupLocation = "rando_save-backup-crash.json";
-        public static string QuitBackupLocation = "rando_save-backup-quit.json";
-
+        public static string SaveLocation = "Archipelago/rando_save.json";
+        public static string BackupSaveLocation = "Archipelago/rando_save-backup.json";
+        public static string ErrorBackupLocation = "Archipelago/rando_save-error-backup.json";
+        public static string CrashBackupLocation = "Archipelago/rando_save-backup-crash.json";
+        public static string QuitBackupLocation = "Archipelago/rando_save-backup-quit.json";
+        
+        
         public static void UpdateSaveLocationNames(string seedID)
         {
-            SaveLocation = $"{seedID}_save.json";
-            StatManager.instance.filePath = SaveLocation;
-            BackupSaveLocation = $"{seedID}_save-backup.json";
-            ErrorBackupLocation = $"{seedID}_save-error-backup.json";
-            CrashBackupLocation = $"{seedID}_save-backup-crash.json";
-            QuitBackupLocation = $"{seedID}_save-backup-quit.json";
+            SaveLocation = $"Archipelago/{seedID}_save.json";
+            if(StatManager.hasLoaded)
+                StatManager.instance.filePath = Path.Combine(Application.persistentDataPath, SaveLocation);
+            BackupSaveLocation = $"Archipelago/{seedID}_save-backup.json";
+            ErrorBackupLocation = $"Archipelago/{seedID}_save-error-backup.json";
+            CrashBackupLocation = $"Archipelago/{seedID}_save-backup-crash.json";
+            QuitBackupLocation = $"Archipelago/{seedID}_save-backup-quit.json";
 
         }
         
@@ -173,16 +188,31 @@ public class Plugin : BaseUnityPlugin
         {
             return new CodeMatcher(instructions).MatchForward(true, new CodeMatch(OpCodes.Ldstr, "wk_save.json"))
                     .Repeat(matcher => matcher.SetInstruction(new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(AlterStats), nameof(SaveLocation)))))
-                .Start().MatchForward(true, new CodeMatch(OpCodes.Ldstr, "wk_save-backup.json"))
-                    .Repeat(matcher => matcher.SetInstruction(new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(AlterStats), nameof(BackupSaveLocation)))))
-                .Start().MatchForward(true, new CodeMatch(OpCodes.Ldstr, "save-error-backup.json"))
-                    .Repeat(matcher => matcher.SetInstruction(new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(AlterStats), nameof(ErrorBackupLocation)))))
-                .Start().MatchForward(true, new CodeMatch(OpCodes.Ldstr, "save-backup-crash.json"))
-                    .Repeat(matcher => matcher.SetInstruction(new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(AlterStats), nameof(CrashBackupLocation)))))
-                .Start().MatchForward(true, new CodeMatch(OpCodes.Ldstr, "save-backup-quit.json"))
-                    .Repeat(matcher => matcher.SetInstruction(new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(AlterStats), nameof(QuitBackupLocation)))))
+                //.Start().MatchForward(true, new CodeMatch(OpCodes.Ldstr, "wk_save-backup.json"))
+                //    .Repeat(matcher => matcher.SetInstruction(new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(AlterStats), nameof(BackupSaveLocation)))))
+                //.Start().MatchForward(true, new CodeMatch(OpCodes.Ldstr, "save-error-backup.json"))
+                //    .Repeat(matcher => matcher.SetInstruction(new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(AlterStats), nameof(ErrorBackupLocation)))))
+                //.Start().MatchForward(true, new CodeMatch(OpCodes.Ldstr, "save-backup-crash.json"))
+                //    .Repeat(matcher => matcher.SetInstruction(new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(AlterStats), nameof(CrashBackupLocation)))))
+                //.Start().MatchForward(true, new CodeMatch(OpCodes.Ldstr, "save-backup-quit.json"))
+                //    .Repeat(matcher => matcher.SetInstruction(new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(AlterStats), nameof(QuitBackupLocation)))))
                 .InstructionEnumeration();
         }
+
+        [HarmonyPatch(typeof(StatManager), "LoadStats")]
+        static void Postfix(StatManager __instance)
+        {
+            Logger.LogInfo($"Save is at: {__instance.filePath}");
+        }
+
+        [HarmonyPatch(typeof(CL_Leaderboard), "CreateUserDataFromCurrentSession")]
+        [HarmonyPrefix]
+        static bool PreventOfflineScores(ref CL_Leaderboard.WK_Leaderboard_UserData __result)
+        {
+            __result = null;
+            return false;
+        }
+        
     }
 
 
@@ -275,7 +305,7 @@ public class Plugin : BaseUnityPlugin
             {
                 try
                 {
-                    switch (args[i].ToLower().Replace('-','_')) //hehe, lil faces
+                    switch (args[i].ToLower().Replace('-', '_')) //hehe, lil faces
                     {
                         case "deathlink":
                             Logger.LogInfo($"deathlink...");
@@ -287,27 +317,44 @@ public class Plugin : BaseUnityPlugin
                             }
                             else
                             {
-                                if (Convert.ToBoolean(args[i + 1])) { ClientOptions.EnableDeathlink(); }
-                                else if (!Convert.ToBoolean(args[i + 1])) { ClientOptions.DisableDeathlink(); }
+                                if (Convert.ToBoolean(args[i + 1]))
+                                {
+                                    ClientOptions.EnableDeathlink();
+                                }
+                                else if (!Convert.ToBoolean(args[i + 1]))
+                                {
+                                    ClientOptions.DisableDeathlink();
+                                }
+
                                 Logger.LogInfo($"Setting Deathlink to {args[i + 1]}");
                                 CommandConsole.Log($"Setting Deathlink to {args[i + 1]}");
                             }
+
                             break;
-                            
+
                         case "deathlink_amnesty":
                             ClientOptions.DeathlinkAmnesty = Convert.ToInt32(args[i + 1]);
                             Logger.LogInfo($"Setting Deathlink-amnesty to {args[i + 1]}");
                             CommandConsole.Log($"Setting Deathlink-amnesty to {args[i + 1]}");
                             break;
-                        
+
                         case "free_disk_vendors":
                             ClientOptions.FreeDiskVendors = Convert.ToBoolean(args[i + 1]);
                             Logger.LogInfo($"Setting Free-disk-vendors to {args[i + 1]}");
                             CommandConsole.Log($"Setting Free-disk-vendors to {args[i + 1]}");
                             break;
-                        
+
+                        case "unlock_all_endless":
+                            ClientOptions.UnlockAllEndlessModes = Convert.ToBoolean(args[i + 1]);
+                            Logger.LogInfo($"Setting Unlock-all-endless to {args[i + 1]}");
+                            CommandConsole.Log($"Setting Unlock-all-endless to {args[i + 1]}");
+                            break;
                     }
-                } catch { }
+                }
+                catch
+                {
+                    CommandConsole.Log("Invalid command arguments");
+                }
             }
             ClientOptions.SaveOptions();
         }
@@ -335,7 +382,7 @@ public class Plugin : BaseUnityPlugin
             CommandConsole.BuildCommand("disconnect", DisconnectCommand).NotCheat().Description("Disconnects from the Archipelago Server");
             CommandConsole.BuildCommand("testpopup", TestPopup).NotCheat();
             CommandConsole.BuildCommand("ResetClientOptions", ArchipelagoClient.SetClientOptions).NotCheat().Description("Resets your client options back to what is listed in the yaml");
-            CommandConsole.BuildCommand("ListClientOptions", CLoptions.ListClientSettings).NotCheat().Description("Lists all options in the client settings, that can be set by the player in the client");
+            //Deprecated CommandConsole.BuildCommand("ListClientOptions", CLoptions.ListClientSettings).NotCheat().Description("Lists all options in the client settings, that can be set by the player in the client");
             CommandConsole.BuildCommand("ChangeClientOptions", ChangeClientSettings).NotCheat().Description("Changes options, use ListOptions to get a list of the ones you can change, spaces and both dashes work").AutocompleteCustom(
                 autocomplete =>
                 {
@@ -349,7 +396,8 @@ public class Plugin : BaseUnityPlugin
                         {
                             ("deathlink",$"Sets deathlink with true or false: {ClientOptions.Deathlink}"),
                             ("deathlink-amnesty",$"Sets receive amnesty with integer: {ClientOptions.DeathlinkAmnesty}"),
-                            ("free-disk-vendors",$"Sets whether or not disk vendors are free: {ClientOptions.FreeDiskVendors}")
+                            ("free-disk-vendors",$"Sets whether or not disk vendors are free: {ClientOptions.FreeDiskVendors}"),
+                            ("unlock-all-endless",$"Unlocks all endless modes: {ClientOptions.UnlockAllEndlessModes}")
                         });
                     } 
                     else if (autocomplete.activeArg == 1)
@@ -370,10 +418,27 @@ public class Plugin : BaseUnityPlugin
     [HarmonyPatch(typeof(UI_CapsuleButton), "CheckAchievement")]
     class PatchModeUIButtons
     {
+        private static Dictionary<string, string> areaChecker = new Dictionary<string, string>()
+        {
+            ["Mode Selection Button - Endless"] = "none",
+            ["Mode Selection Button - Endless Underworks"] = "none",
+            ["Mode Selection Button - Endless Superstructure"] = "none",
+            ["Mode Selection Button - Silos"] = "ldc-silos-breakroom-totaltimesreached",
+            ["Mode Selection Button - Pipeworks"] = "ldc-interlude-lockdown-totaltimesreached",
+            ["Mode Selection Button - Habitation"] = "ldc-m3_shaft_safearea-totaltimesreached",
+            ["Mode Selection Button - Abyss"] = "ldc-interlude-evacuation-totaltimesreached",
+            ["Mode Selection Button - Nest"] = "ldc-interlude-symbiosis-start-totaltimesreached",
+        };
+        
         static bool Prefix(UI_CapsuleButton __instance)
         {
+            
             if (APItems.ModeUnlocks.TryGetValue(__instance.name, out var flag))
             {
+                if (areaChecker.TryGetValue(__instance.name, out var area) && (StatManager.GetTotalStatisticInt(area) > 0 || ClientOptions.UnlockAllEndlessModes))
+                {
+                    flag = true;
+                }
                 if ((Object) __instance.unlockIcon != (Object) null)
                     __instance.unlockIcon.gameObject.SetActive(!flag);
                 if ((Object) __instance.group != (Object) null)
@@ -470,7 +535,7 @@ public class Plugin : BaseUnityPlugin
                     type = "default",
                     closeText = "Quit",
                     closeFunction = __instance.window.CloseApp,
-                    message = "Perks for this sector are disabled by Archipelago!",
+                    message = $"Perks for this sector are disabled by Archipelago!\nCurrent progressive perk count is {APItems.ProgressivePerkUnlocks}",
                     screenPos = new Vector2(0.0f, 0.0f)
                 });
                 return false;
@@ -657,7 +722,7 @@ public class Plugin : BaseUnityPlugin
     {
         static void Postfix()
         {
-            CL_AssetManager.baseDatabase.perkAssets.AddRange([CustomPerks.ApBuff(), CustomPerks.ApDebuff()]);
+            CL_AssetManager.baseDatabase.perkAssets.AddRange([CustomPerks.ApBuff(), CustomPerks.ApDebuff(), CustomPerks.AmnestyStack()]);
         }
     }
 
@@ -753,6 +818,8 @@ public class Plugin : BaseUnityPlugin
     {
         static void Prefix()
         {
+            if (!ArchipelagoClient.Connected)
+                return;
             ChallengeQueue();
         }
 
@@ -798,13 +865,18 @@ public class Plugin : BaseUnityPlugin
                 __result = ArchipelagoClient.DeathMessage;
                 return false;
             }
+
+            if ((string)__args[0] == "deathmessages")
+            {
+                DeathLinkHandler.LocalSendDeathLink(CL_LocalizationManager.currentLocalization.GetLine((string)__args[0], (string)__args[1]));
+            }
             return true;
         }
     }
     
     //Removes almost all base game unlock popups
     [HarmonyPatch]
-    class PatchUnlockPopups()
+    class PatchUnlockPopups
     {
         [HarmonyPatch(typeof(Item), "SendUnlockMessage")]
         [HarmonyPrefix]
@@ -888,6 +960,7 @@ public class Plugin : BaseUnityPlugin
         public bool Deathlink = false; // need to be simple fields for jsonutility to work
         public int DeathlinkAmnesty = 0; // if you need to change that they have get/set youd need to move to a different json library
         public bool FreeDiskVendors = false;
+        public bool UnlockAllEndlessModes = false;
         public string ServerSeed; // this one here is always checked for being null
         public string Server = "";
         public string User = "";
@@ -914,9 +987,9 @@ public class Plugin : BaseUnityPlugin
         {
             string jsonString = File.ReadAllText($"{Application.persistentDataPath}\\Archipelago\\ClientOptions.json");
             Logger.LogInfo($"Loading client options as: {jsonString}");
-            ClientOptions = JsonUtility.FromJson<CLoptions>(jsonString);
+            ClientOptions = JsonUtility.FromJson<CLoptions>(jsonString) ?? new CLoptions();
         }
-        // left here so people dont forget to update it
+        // deprecated after implementation of autocomplete
         public static void ListClientSettings(string[] args)
         {
             CommandConsole.Log($"Deathlink: {ClientOptions.Deathlink} \nDeathlink Amnesty: {ClientOptions.DeathlinkAmnesty}");

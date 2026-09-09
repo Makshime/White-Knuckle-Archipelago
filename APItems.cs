@@ -101,7 +101,7 @@ public class APItems
 
     public static void UpdateFromItem(ItemInfo item)
     {
-        Sprite image = SpriteFromPath("WKRando/Asstes/Archipelago_Icon.png");
+        Sprite image = SpriteFromPath("WKRando/Assets/Archipelago_Icon.png");
         Color color = new Color(0.3f, 0.3f, 0f);
         long id = item.ItemId;
         Plugin.Logger.LogInfo("Attempting to update from AP Item: " + item.ItemDisplayName);
@@ -157,12 +157,14 @@ public class APItems
                 break;
         }
 
+        if (ArchipelagoClient.Connecting) return;
+        
         if (item.Player.Slot != ArchipelagoClient.Slot)
         {
             CL_ProgressionManager.ShowUnlockPopup(
                 image,
-                $"Received {item.ItemDisplayName}",
-                $"from game {item.LocationGame} at {item.LocationDisplayName}",
+                "Received Item:",
+                $"{item.ItemDisplayName} from game {item.LocationGame} at {item.LocationDisplayName}",
                 color
             );
         }
@@ -170,8 +172,8 @@ public class APItems
         {
             CL_ProgressionManager.ShowUnlockPopup(
                 image,
-                $"Found your {item.ItemDisplayName}",
-                $"At location {item.LocationDisplayName}",
+                "Found your item!",
+                $"{item.ItemDisplayName} from location {item.LocationDisplayName}",
                 color
             );
         }

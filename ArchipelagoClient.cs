@@ -125,6 +125,21 @@ public class ArchipelagoClient
         
         var loginSuccess = (LoginSuccessful)result;
         Slot = loginSuccess.Slot;
+        
+        Seed = _session.RoomState.Seed;
+        if (!File.Exists(Path.Combine(Application.persistentDataPath, $"{Seed}_save.json")))
+        {
+            File.Create(Path.Combine(Application.persistentDataPath, $"{Seed}_save.json"));
+            Plugin.AlterStats.UpdateSaveLocationNames(Seed);
+            CommandConsole.hasCheated = true;
+            CL_GameManager.runRoaches = 0;
+            CL_GameManager.globalRoaches = 0;
+            CL_GameManager.gMan.Restart([]);
+        }
+        else
+        {
+            Plugin.AlterStats.UpdateSaveLocationNames(Seed);
+        }
 
         APItems.SentLocations.AddRange(_session.Locations.AllLocationsChecked);
         FixSendQueue();
@@ -152,21 +167,6 @@ public class ArchipelagoClient
         
         CommandConsole.Log($"Successfully connected to {Plugin.ClientOptions.Server} as {Plugin.ClientOptions.User}!");
         CommandConsole.Log($"   Slot Number: {loginSuccess.Slot}");
-
-        Seed = _session.RoomState.Seed;
-        if (!File.Exists(Path.Combine(Application.persistentDataPath, $"{Seed}_save.json")))
-        {
-            File.Create(Path.Combine(Application.persistentDataPath, $"{Seed}_save.json"));
-            Plugin.AlterStats.UpdateSaveLocationNames(Seed);
-            CommandConsole.hasCheated = true;
-            CL_GameManager.SetRoaches(0);
-            CL_GameManager.SetRoaches(0, true);
-            CL_GameManager.gMan.Restart([]);
-        }
-        else
-        {
-            Plugin.AlterStats.UpdateSaveLocationNames(Seed);
-        }
         
         Plugin.ClientOptions.SaveOptions();
         
@@ -207,6 +207,8 @@ public class ArchipelagoClient
             Plugin.LoanAmount = 0;
             APItems.ClearAllFlags();
             APItems.SentLocations.Clear();
+            CL_GameManager.globalRoaches -= APItems.TotalCreditsReceived;
+            CL_GameManager.runRoaches -= APItems.TotalRoachesReceived;
         }
         
         Connected = false;

@@ -14,6 +14,8 @@ public class APItems
     public static int ProgressivePerkUnlocks;
     public static int TargetAPDebuffCount = 10;
     public static int TrinketSlots = 3;
+    public static int TotalRoachesReceived;
+    public static int TotalCreditsReceived;
     
     // Stores flags for facility data to override ingame
     public static Dictionary<string, Dictionary<string, bool>> FacilityDict =
@@ -138,9 +140,11 @@ public class APItems
             case 0xA900001:
                 Plugin.LoanAmount += 1;
                 CL_GameManager.runRoaches += 1;
+                TotalRoachesReceived += 1;
                 break;
             case 0xA900002:
                 CL_GameManager.globalRoaches += 10;
+                TotalCreditsReceived += 10;
                 break;
             case 0xA900010:
                 ProgressiveRegions += 1;

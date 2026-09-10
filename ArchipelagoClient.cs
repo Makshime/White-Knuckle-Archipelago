@@ -42,6 +42,7 @@ public class ArchipelagoClient
     public static bool Connected;
     private static int _reconnectAttempts = 0;
     public static int Slot = -1;
+    private static bool _goaled;
 
     private static Dictionary<string, object> _slotData; // might be needed later, who knows? i do, i need it later
 
@@ -66,18 +67,17 @@ public class ArchipelagoClient
             return null;
         }
         
-        
+            
         Plugin.Logger.LogInfo("Connecting to " + server);
 
         if (server != null && server != Plugin.ClientOptions.Server)
-        {
-            NewSession(server);
-        }
+            Plugin.ClientOptions.Server = server;
         if (user != null && user != Plugin.ClientOptions.User) 
             Plugin.ClientOptions.User = user;
         if (pass != null && pass != Plugin.ClientOptions.Password) 
             Plugin.ClientOptions.Password = pass;
         
+        NewSession(Plugin.ClientOptions.Server);
         
         _session.Items.ItemReceived += OnItemReceive;
         _session.MessageLog.OnMessageReceived += OnMessageReceive;
@@ -116,7 +116,7 @@ public class ArchipelagoClient
                 CommandConsole.Log($"    {error}");
             }
             
-            await Disconnect();
+            await Disconnect(true);
             return null;
         }
         
@@ -159,6 +159,8 @@ public class ArchipelagoClient
             File.Create(Path.Combine(Application.persistentDataPath, $"{Seed}_save.json"));
             Plugin.AlterStats.UpdateSaveLocationNames(Seed);
             CommandConsole.hasCheated = true;
+            CL_GameManager.SetRoaches(0);
+            CL_GameManager.SetRoaches(0, true);
             CL_GameManager.gMan.Restart([]);
         }
         else
@@ -175,7 +177,7 @@ public class ArchipelagoClient
         {
             Deathlinkservice.EnableDeathLink();
         }
-
+        
         return null;
     }
 
@@ -197,9 +199,9 @@ public class ArchipelagoClient
                 Deathlinkservice.OnDeathLinkReceived -= DeathLinkHandler.ProcDeathlink;
                 Deathlinkservice = null;
             }
-
+            
             APItems.TargetAPDebuffCount = 10;
-            APItems.TrinketSlots = 1;
+            APItems.TrinketSlots = 3;
             APItems.ProgressiveRegions = 0;
             APItems.ProgressivePerkUnlocks = 0;
             Plugin.LoanAmount = 0;
@@ -208,7 +210,7 @@ public class ArchipelagoClient
         }
         
         Connected = false;
-        
+        _goaled = false;
         
         if (_connectedBefore & tryReconnect)
         {
@@ -272,7 +274,7 @@ public class ArchipelagoClient
     
     public static void Say(string[] args)
     {
-        if(Connected) {_session.Say(args[0]);}
+        if(Connected) {_session.Say(string.Join(" ", args));}
         else {CommandConsole.Log("Not currently connected to server");}
     }
 
@@ -297,7 +299,10 @@ public class ArchipelagoClient
 
     public static void Goal()
     {
+        if (_goaled)
+            return;
         _session.SetGoalAchieved();
+        _goaled = true;
     }
 
     private static void CheckLocationsToSend()
@@ -307,42 +312,53 @@ public class ArchipelagoClient
             try
             {
                 _session.Locations.CompleteLocationChecksAsync(_locationsToSend.ToArray());
-                Dictionary<long, ScoutedItemInfo> infos = Task.Run(async () => _session.Locations.ScoutLocationsAsync(_locationsToSend.ToArray())).GetAwaiter().GetResult().Result;
-                foreach (long l in _locationsToSend)
+                List<long> locationsToSend = _locationsToSend;
+                _locationsToSend.Clear();
+                foreach (long l in locationsToSend)
                 {
-                    Plugin.Logger.LogInfo("Sent item");
-                    if (infos[l].Player.Name != Plugin.ClientOptions.User && !Connecting)
-                        CL_ProgressionManager.ShowUnlockPopup(
-                            APItems.SpriteFromPath($"WKRando/Assets/Archipelago_{
-                                infos[l].Flags switch {
-                                    ItemFlags.None => "Filler_Icon",
-                                    ItemFlags.Advancement => "Progression_Icon",
-                                    ItemFlags.NeverExclude => "Icon",
-                                    ItemFlags.Trap => "Trap_Icon",
-                                    _ => throw new ArgumentOutOfRangeException() }
-                            }.png"), 
-                            "Sent Item:", 
-                            $"{infos[l].ItemDisplayName} for {infos[l].Player} from {infos[l].LocationDisplayName}", 
-                            infos[l].Flags switch
-                            {
-                                ItemFlags.None => new Color(0.2f,0.2f,0.2f),
-                                ItemFlags.Advancement => new Color(0.5f,0.5f,0f),
-                                ItemFlags.NeverExclude => new Color(0.3f,0f,0.5f),
-                                ItemFlags.Trap => new Color(0.5f,0f,0f),
-                                _ => throw new ArgumentOutOfRangeException()
-                            });
+                    Plugin.Logger.LogInfo("Sent item ID: " + l);
                     if (!APItems.SentLocations.Contains(l))
                     {
                         APItems.SentLocations.Add(l);
                     }
                 }
-                _locationsToSend.Clear();
+                ShowSentItemPopup(locationsToSend);
+                
             }
             catch (ArchipelagoSocketClosedException e)
             {
                 Plugin.Logger.LogError(e.ToString());
                 Disconnect();
             }
+            
+        }
+    }
+
+    private static async Task ShowSentItemPopup(List<long> locationsToSend)
+    {
+        Dictionary<long, ScoutedItemInfo> infos = await _session.Locations.ScoutLocationsAsync(_locationsToSend.ToArray());
+        foreach (long l in locationsToSend)
+        {
+            if (infos[l].Player.Name != Plugin.ClientOptions.User && !Connecting)
+                CL_ProgressionManager.ShowUnlockPopup(
+                    APItems.SpriteFromPath($"WKRando/Assets/Archipelago_{
+                        infos[l].Flags switch {
+                            ItemFlags.None => "Filler_Icon",
+                            ItemFlags.Advancement => "Progression_Icon",
+                            ItemFlags.NeverExclude => "Icon",
+                            ItemFlags.Trap => "Trap_Icon",
+                            _ => throw new ArgumentOutOfRangeException() }
+                    }.png"), 
+                    "Sent Item:", 
+                    $"{infos[l].ItemDisplayName} for {infos[l].Player} from {infos[l].LocationDisplayName}", 
+                    infos[l].Flags switch
+                    {
+                        ItemFlags.None => new Color(0.2f,0.2f,0.2f),
+                        ItemFlags.Advancement => new Color(0.5f,0.5f,0f),
+                        ItemFlags.NeverExclude => new Color(0.3f,0f,0.5f),
+                        ItemFlags.Trap => new Color(0.5f,0f,0f),
+                        _ => throw new ArgumentOutOfRangeException()
+                    });
         }
     }
 
@@ -391,7 +407,7 @@ public class ArchipelagoClient
         Plugin.APOptions.StartingDebuffs = slotData.TryGetValue("Starting_Debuffs", out object value) ? Convert.ToInt32(value) : 10;
         APItems.TargetAPDebuffCount -= 10 - Plugin.APOptions.StartingDebuffs;
         Plugin.APOptions.StartingTrinketSlots = slotData.TryGetValue("Starting_Trinket_Slots", out object value1) ? Convert.ToInt32(value1) : 1;
-        APItems.TrinketSlots += 1-Plugin.APOptions.StartingTrinketSlots;
+        APItems.TrinketSlots += 3-Plugin.APOptions.StartingTrinketSlots;
         //Currently unimplemented option to enable all trinkets
         Plugin.APOptions.EnableAllTrinkets = slotData.TryGetValue("Enable_Trinket_Randomization", out object value2) && Convert.ToBoolean(value2);
         Plugin.APOptions.SetGoalArea(slotData.TryGetValue("Goal_Region", out object value3) ? Convert.ToInt32(value3) : 3);

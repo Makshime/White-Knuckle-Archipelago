@@ -52,7 +52,6 @@ public class Plugin : BaseUnityPlugin
         
         if (!File.Exists($"{Application.persistentDataPath}\\Archipelago\\ClientOptions.json"))
         {
-            File.Create($"{Application.persistentDataPath}\\Archipelago\\ClientOptions.json");
             ClientOptions = new CLoptions();
             ClientOptions.SaveOptions();
         }
@@ -60,6 +59,7 @@ public class Plugin : BaseUnityPlugin
         {
             ClientOptions = new CLoptions();
             ClientOptions.LoadOptions();
+            ClientOptions ??= new CLoptions();
             if (ClientOptions?.ServerSeed != null && !ClientOptions.ServerSeed.IsNullOrWhiteSpace())
             {
                 AlterStats.UpdateSaveLocationNames(ClientOptions.ServerSeed);
@@ -151,8 +151,11 @@ public class Plugin : BaseUnityPlugin
                  __result = value;
                  return false;
             }
+            
             return true;
         }
+        
+        
     }
     [HarmonyPatch(typeof(SteamManager), "Update")]
     public class DisableSteamManager
@@ -252,7 +255,7 @@ public class Plugin : BaseUnityPlugin
             if (args.Length == 0)
             {
                 await ArchipelagoClient.Connect();
-            }
+            }   
             else if (args.Length == 1)
             {
                 await ArchipelagoClient.Connect(args[0]);
@@ -449,9 +452,8 @@ public class Plugin : BaseUnityPlugin
             
             if (APItems.ModeUnlocks.TryGetValue(__instance.name, out var flag))
             {
-                if (ClientOptions.UnlockAllEndlessModes || 
-                    (areaChecker.TryGetValue(__instance.name, out var area) && StatManager.GetTotalStatisticInt(area) > 0 && 
-                     progressiveReqs.TryGetValue(__instance.name, out var req) && APItems.ProgressiveRegions >= req))
+                if (areaChecker.TryGetValue(__instance.name, out var area) && progressiveReqs.TryGetValue(__instance.name, out var req) && 
+                        ((StatManager.GetTotalStatisticInt(area) > 0 &&  APItems.ProgressiveRegions >= req) || ClientOptions.UnlockAllEndlessModes))
                 {
                     flag = true;
                 }
@@ -500,13 +502,104 @@ public class Plugin : BaseUnityPlugin
                 __instance.lockRoot.SetActive(false);
                 __instance.isLocked = false;
                 __instance.icon.gameObject.SetActive(true);
-                __instance.tooltip.tip = "This is an unknown archipelago item!";
-                __instance.icon.sprite = APItems.SpriteFromPath("WKRando/Assets/Archipelago_Icon.png");
-                
+                if (_nameToScoutedItem.TryGetValue("GLOBAL " + __instance.upgrade.name, out var scoutedItem))
+                {
+                    switch (scoutedItem.Flags)
+                    {
+                        case ItemFlags.Advancement:
+                            __instance.tooltip.tip = "<color=blue>Progression Item</color>\nThis item is classified as progression to some player in this multiworld.";
+                            __instance.icon.sprite = APItems.SpriteFromPath("WKRando/Assets/Archipelago_Progression_Icon.png");
+                            break;
+                        case ItemFlags.NeverExclude:
+                            __instance.tooltip.tip = "<color=purple>Useful Item</color>\nThis item is classified as useful to some player in this multiworld.";
+                            __instance.icon.sprite = APItems.SpriteFromPath("WKRando/Assets/Archipelago_Icon.png");
+                            break;
+                        case ItemFlags.None:
+                            __instance.tooltip.tip = "<color=grey>Filler Item</color>\nThis item is classified as useful to some player in this multiworld.";
+                            __instance.icon.sprite = APItems.SpriteFromPath("WKRando/Assets/Archipelago_Filler_Icon.png");
+                            break;
+                        case ItemFlags.Trap:
+                            __instance.tooltip.tip = "<color=red>Trap Item</color>\nThis item is classified as a trap to some player in this multiworld.";
+                            __instance.icon.sprite = APItems.SpriteFromPath("WKRando/Assets/Archipelago_Trap_Icon.png");
+                            break;
+                    }
+                    
+                    __instance.purchasedRoot.SetActive(APItems.SentLocations.Contains(scoutedItem.LocationId));
+                    
+                }
+                else
+                {
+                    __instance.tooltip.tip = "This is an unknown archipelago item!";
+                    __instance.icon.sprite = APItems.SpriteFromPath("WKRando/Assets/Archipelago_Icon.png");
+                }
+                if (StatManager.saveData.GetFacility(__instance.facility.id).GetUpgrade(__instance.upgrade.id)?.owned ?? false)
+                {
+                    __instance.isSelected = true;
+                    __instance.purchasedRoot.SetActive(true);
+                }
+                else
+                {
+                    __instance.isSelected = false;
+                    __instance.purchasedRoot.SetActive(false);
+                    if (!__instance.isLocked &&
+                        __instance.upgrade.cost > StatManager.saveData.GetRoachBankByID("campaign").value)
+                    {
+                        __instance.tooltip.tip = "<color=red>CANNOT AFFORD\n</color>\n" + __instance.tooltip.tip;
+                        __instance.expensiveRoot.gameObject.SetActive(true);
+                        __instance.icon.gameObject.SetActive(false);
+                        __instance.isLocked = true;
+                    }
+                }
             }
         }
         
 
+    }
+
+    [HarmonyPatch(typeof(FacilityMenu), "FillUpgrades")]
+    class PatchScoutFromFacilityMenu
+    {
+        static void Prefix(FacilityMenu __instance)
+        {
+            if (!ArchipelagoClient.Connected)
+                return;
+            
+            List<long> locationsToScout = new();
+            List<string> upgradeNames = new();
+            foreach (FacilityUpgrade n in __instance.globalFacility.upgrades)
+            {
+                Logger.LogInfo("Detected Global Upgrade " + n.id);
+                if (APItems.FullFacilityUpgradetoAP.TryGetValue($"GLOBAL {n.id}", out long location))
+                {
+                    locationsToScout.Add(location);
+                    upgradeNames.Add($"GLOBAL {n.id}");
+                }
+            }
+            
+            UpdateScoutedItems(locationsToScout, upgradeNames);
+        }
+    }
+
+    public static async void UpdateScoutedItems(List<long> locationsToScout, List<string> upgradeNames)
+    {
+        try
+        {
+            List<ScoutedItemInfo> descriptions = await ArchipelagoClient.ScoutItemDescriptionFromID(locationsToScout.ToArray());
+            for (int i = 0; i < upgradeNames.Count; i++)
+            {
+                if(!_nameToScoutedItem.TryGetValue(upgradeNames[i], out ScoutedItemInfo info))
+                    _nameToScoutedItem.Add(upgradeNames[i], descriptions[i]);
+                else if(info != descriptions[i])
+                {
+                    _nameToScoutedItem.Remove(upgradeNames[i]);
+                    _nameToScoutedItem.Add(upgradeNames[i], descriptions[i]);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Logger.LogError(e.ToString());
+        }
     }
     
 
@@ -790,7 +883,8 @@ public class Plugin : BaseUnityPlugin
                             __instance.art.sprite = APItems.SpriteFromPath("WKRando/Assets/Archipelago_Trap_Icon.png");
                             break;
                     }
-                    
+
+                    __instance.purchasedObject.SetActive(APItems.SentLocations.Contains(info.LocationId));
                 }
                 else
                 {

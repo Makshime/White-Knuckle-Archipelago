@@ -50,7 +50,6 @@ internal static class DeathLinkHandler
         Plugin.Logger.LogInfo("Successfully sent DeathLink");
     }
 
-
     
     public static bool deathlinkbusy = false;
     public static int DeathLinksSentSinceLast = 0;

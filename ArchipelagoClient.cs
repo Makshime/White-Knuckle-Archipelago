@@ -169,10 +169,13 @@ public class ArchipelagoClient
         Plugin.ClientOptions.SaveOptions();
         
         _connectedBefore = true;
-
         Deathlinkservice = _session.CreateDeathLinkService();
         Deathlinkservice.OnDeathLinkReceived += DeathLinkHandler.ProcDeathlink;
-        
+        if (Plugin.ClientOptions.Deathlink)
+        {
+            Deathlinkservice.EnableDeathLink();
+        }
+
         return null;
     }
 
@@ -189,7 +192,7 @@ public class ArchipelagoClient
             _session.Socket.SocketClosed -= OnSocketClosed;
             _session.Locations.CheckedLocationsUpdated -= OnLocationReceive;
 
-            if (Connected)
+            if (Deathlinkservice != null)
             {
                 Deathlinkservice.OnDeathLinkReceived -= DeathLinkHandler.ProcDeathlink;
                 Deathlinkservice = null;

@@ -66,6 +66,8 @@ public class Plugin : BaseUnityPlugin
             }
 
         }
+        
+        DeathLinkHandler.Awake();
 
 
         harmony.PatchAll(Assembly.GetExecutingAssembly());
@@ -105,10 +107,10 @@ public class Plugin : BaseUnityPlugin
                 // ignored
             }
 
-            int perkCount = __instance?.GetPerk("archipelago_debuff")?.stackAmount ?? -__instance?.GetPerk("archipelago_buff")?.stackAmount ?? 0;
+            int perkCount = __instance?.GetPerk("archipelago_debuff")?.stackAmount ?? - __instance?.GetPerk("archipelago_buff")?.stackAmount ?? 0;
 
 
-            if (perkCount != APItems.TargetAPDebuffCount && __instance != null)
+            if (perkCount != APItems.TargetAPDebuffCount && __instance != null && !__instance.IsDead())
             {
                 Logger.LogInfo("Amount, Target: " + perkCount + ", " + APItems.TargetAPDebuffCount);
 
@@ -120,15 +122,15 @@ public class Plugin : BaseUnityPlugin
                 }
                 else if (APItems.TargetAPDebuffCount != 0)
                 {
-                    __instance.AddPerk(CL_AssetManager.GetPerkAsset("archipelago_buff"), APItems.TargetAPDebuffCount);
+                    __instance.AddPerk(CL_AssetManager.GetPerkAsset("archipelago_buff"), -APItems.TargetAPDebuffCount);
                 }
                 
             }
 
-            if (ClientOptions.DeathlinkAmnesty != 0 && __instance != null && DeathLinkHandler.DeathLinksSentSinceLast != (__instance?.GetPerk("archipelago_amnesty")?.stackAmount ?? 0))
+            if (ClientOptions.DeathlinkAmnesty != 0 && __instance != null && !__instance.IsDead() && DeathLinkHandler.DeathLinksSentSinceLast != (__instance?.GetPerk("archipelago_amnesty")?.stackAmount ?? 0))
             {
                 __instance.RemovePerk("archipelago_amnesty");
-                __instance.AddPerk(CL_AssetManager.GetPerkAsset("archipelago_debuff"), DeathLinkHandler.DeathLinksSentSinceLast);
+                __instance.AddPerk(CL_AssetManager.GetPerkAsset("archipelago_amnesty"), DeathLinkHandler.DeathLinksSentSinceLast);
             }
         }
         
@@ -429,13 +431,27 @@ public class Plugin : BaseUnityPlugin
             ["Mode Selection Button - Abyss"] = "ldc-interlude-evacuation-totaltimesreached",
             ["Mode Selection Button - Nest"] = "ldc-interlude-symbiosis-start-totaltimesreached",
         };
+
+        private static Dictionary<string, int> progressiveReqs = new Dictionary<string, int>()
+        {
+            ["Mode Selection Button - Endless"] = 4,
+            ["Mode Selection Button - Endless Underworks"] = 1,
+            ["Mode Selection Button - Endless Superstructure"] = 2,
+            ["Mode Selection Button - Silos"] = 0,
+            ["Mode Selection Button - Pipeworks"] = 1,
+            ["Mode Selection Button - Habitation"] = 2,
+            ["Mode Selection Button - Abyss"] = 3,
+            ["Mode Selection Button - Nest"] = 4,
+        };
         
         static bool Prefix(UI_CapsuleButton __instance)
         {
             
             if (APItems.ModeUnlocks.TryGetValue(__instance.name, out var flag))
             {
-                if (areaChecker.TryGetValue(__instance.name, out var area) && (StatManager.GetTotalStatisticInt(area) > 0 || ClientOptions.UnlockAllEndlessModes))
+                if (ClientOptions.UnlockAllEndlessModes || 
+                    (areaChecker.TryGetValue(__instance.name, out var area) && StatManager.GetTotalStatisticInt(area) > 0 && 
+                     progressiveReqs.TryGetValue(__instance.name, out var req) && APItems.ProgressiveRegions >= req))
                 {
                     flag = true;
                 }
@@ -484,6 +500,7 @@ public class Plugin : BaseUnityPlugin
                 __instance.lockRoot.SetActive(false);
                 __instance.isLocked = false;
                 __instance.icon.gameObject.SetActive(true);
+                __instance.tooltip.tip = "This is an unknown archipelago item!";
                 __instance.icon.sprite = APItems.SpriteFromPath("WKRando/Assets/Archipelago_Icon.png");
                 
             }
@@ -502,16 +519,26 @@ public class Plugin : BaseUnityPlugin
         }
     }
     
-    [HarmonyPatch(typeof(ProgressionUnlock), "CheckUnlock")]
+    [HarmonyPatch]
     class PatchUnlocks
     {
+        [HarmonyPatch(typeof(ProgressionUnlock), "CheckUnlock")]
         static bool Prefix(ProgressionUnlock __instance, ref bool __result)
         {
             bool state = APItems.ProgressionUnlocks[__instance.id];
+            state = true;
             __instance.state = state;
-            if ((UnityEngine.Object) CL_GameManager.gMan != (UnityEngine.Object) null)
+            if (CL_GameManager.gMan != null)
                 CL_GameManager.SetGameFlag("unlock_" + __instance.name, state);
             __result = state;
+            return false;
+        }
+
+        [HarmonyPatch(typeof(CL_ProgressionManager), "HasProgressionUnlock")]
+        [HarmonyPrefix]
+        static bool Prefix(CL_ProgressionManager __instance, ref bool __result, object[] __args)
+        {
+            __result = CL_ProgressionManager.progressionDict != null && CL_ProgressionManager.progressionDict.ContainsKey((string) __args[0]) && CL_ProgressionManager.progressionDict[(string) __args[0]].CheckUnlock();
             return false;
         }
         
@@ -519,7 +546,7 @@ public class Plugin : BaseUnityPlugin
     
     [HarmonyPatch(typeof(App_PerkPage), "CheckIronKnuckle")]
     class PatchPerksPage
-    {
+    { 
 
         static bool Prefix(App_PerkPage __instance)
         {
@@ -726,7 +753,7 @@ public class Plugin : BaseUnityPlugin
         }
     }
 
-    private static Dictionary<string, ScoutedItemInfo> _nameToScoutedItem;
+    private static Dictionary<string, ScoutedItemInfo> _nameToScoutedItem = new();
     [HarmonyPatch(typeof(App_Facility_Card), "CheckLock")]
     class PatchPerkRefresh
     {
@@ -785,6 +812,7 @@ public class Plugin : BaseUnityPlugin
                 return;
             Logger.LogInfo("Attempting to scout facility upgrades");
             Facility facilityAsset = CL_AssetManager.GetFacilityAsset(__instance.window.os.worldInterface.facilityID);
+            Facility globalFacility = __instance.globalFacility;
             List<long> locationsToScout = [];
             List<string> upgradeNames = [];
             foreach (FacilityUpgrade n in facilityAsset.GetUpgrades())
@@ -795,9 +823,28 @@ public class Plugin : BaseUnityPlugin
                     upgradeNames.Add($"{facilityAsset.id} {n.id}");
                 }
             }
+            foreach (FacilityUpgrade n in globalFacility.GetUpgrades())
+            {
+                Logger.LogInfo("Detected Global Upgrade " + n.id);
+                if (APItems.FullFacilityUpgradetoAP.TryGetValue($"GLOBAL {n.id}", out long location))
+                {
+                    locationsToScout.Add(location);
+                    upgradeNames.Add($"GLOBAL {n.id}");
+                }
+            }
+
             List<ScoutedItemInfo> descriptions = Task.Run(async () => await ArchipelagoClient.ScoutItemDescriptionFromID(locationsToScout.ToArray())).GetAwaiter().GetResult();
-            
-            _nameToScoutedItem = upgradeNames.Zip(descriptions, (k,v) => new {k,v}).ToDictionary(x => x.k, x => x.v);
+
+            for (int i = 0; i < upgradeNames.Count; i++)
+            {
+                if(!_nameToScoutedItem.TryGetValue(upgradeNames[i], out ScoutedItemInfo info))
+                    _nameToScoutedItem.Add(upgradeNames[i], descriptions[i]);
+                else if(info != descriptions[i])
+                {
+                    _nameToScoutedItem.Remove(upgradeNames[i]);
+                    _nameToScoutedItem.Add(upgradeNames[i], descriptions[i]);
+                }
+            }
         }
     }
 
@@ -969,6 +1016,11 @@ public class Plugin : BaseUnityPlugin
 
         public void EnableDeathlink()
         {
+            if (ArchipelagoClient.Deathlinkservice == null)
+            {
+                CommandConsole.Log("No deathlink object present");
+                return;
+            } 
             Deathlink = true;
             ArchipelagoClient.Deathlinkservice.EnableDeathLink();
         }

@@ -1,16 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using BepInEx;
 using UnityEngine;
 using static BuffContainer;
 
 namespace WKRando;
 
-public class CustomPerks
+public static class CustomPerks
 {
 
     private static Perk _apDebuff;
     private static Perk _apBuff;
+    private static Perk _apAmnesty;
 
     public static Perk ApBuff(int stacks = 1)
     {
@@ -67,7 +69,7 @@ public class CustomPerks
         _apDebuff.stackMax = 100;
         _apDebuff.useBuff = true;
         _apDebuff.buffMultiplier = 1;
-        _apDebuff.multiplierCurve = CreateExponentialDecayCurve(0.96f);
+        _apDebuff.multiplierCurve = CreateExponentialDecayCurve(0.98f);
         _apDebuff.modules = new List<PerkModule>();
         _apDebuff.stackAmount = stacks;
         _apDebuff.buff = new BuffContainer
@@ -103,26 +105,28 @@ public class CustomPerks
 
     public static Perk AmnestyStack(int stacks = 1)
     {
-        _apDebuff = ScriptableObject.CreateInstance<Perk>();
-        _apDebuff.id = "archipelago_amnesty";
-        _apDebuff.name = "perk_ap_amnesty";
-        _apDebuff.title = "Deathlink Amnesty";
-        _apDebuff.description = "Receiving a specified amount of this perk will kill you!";
-        _apDebuff.flavorText = "Obtained whenever someone dies in the multiworld";
-        _apDebuff.stackMax = 100;
-        _apDebuff.useBuff = false;
-        _apDebuff.buffMultiplier = 0;
-        _apDebuff.modules = new List<PerkModule>();
-        _apBuff.multiplierCurve = AnimationCurve.Constant(0, 1, 1);
-        _apDebuff.stackAmount = stacks;
+        _apAmnesty = ScriptableObject.CreateInstance<Perk>();
+        _apAmnesty.id = "archipelago_amnesty";
+        _apAmnesty.name = "perk_ap_amnesty";
+        _apAmnesty.title = "Deathlink Amnesty";
+        _apAmnesty.description = "Receiving a specified amount of this perk will kill you!";
+        _apAmnesty.flavorText = "Obtained whenever someone dies in the multiworld";
+        _apAmnesty.stackMax = 100;
+        _apAmnesty.useBuff = false;
+        _apAmnesty.buffMultiplier = 0;
+        _apAmnesty.modules = new List<PerkModule>();
+        _apAmnesty.multiplierCurve = AnimationCurve.Constant(0, 1, 1);
+        _apAmnesty.stackAmount = stacks;
         Texture2D texture2 = new Texture2D(256, 256);
-        _apDebuff.icon = Sprite.Create(
+        texture2.LoadImage(File.ReadAllBytes(Path.Combine(Paths.PluginPath, "WKRando\\Assets\\Archipelago_Amnesty_Perk.png")));
+        _apAmnesty.icon = Sprite.Create(
             texture2,
             new Rect(0, 0, texture2.width, texture2.height),
             new Vector2(0.5f, 0.5f),
             pixelsPerUnit: 900f
         );
-        return _apDebuff;
+        _apAmnesty.iconMat = CL_AssetManager.baseDatabase.perkAssets[10].iconMat;
+        return _apAmnesty;
     }
     
     private static Buff NewBuff(string id, float amount, float maxAmount)

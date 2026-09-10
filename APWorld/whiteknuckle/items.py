@@ -99,30 +99,30 @@ ITEM_NAME_TO_ID = {
     "Trinket: Calming Buddy": 0xAD0000D,
 
     #"Mode Selection Button - Tutorial": 0xAD00001,
-    "Mode: Training Sector": 0xAD00001,
-    "Mode: Endless": 0xAD00002,
-    "Mode: Endless Underworks": 0xAD00003,
-    "Mode: Endless Superstructure": 0xAD00004,
-    "Mode: Endless Silos": 0xAD00005,
-    "Mode: Endless Pipeworks": 0xAD00006,
-    "Mode: Endless Habitation": 0xAD00007,
-    "Mode: Endless Abyss": 0xAD00008,
-    "Mode: Endless Nest": 0xAD00009,
-    "Challenge Course: Advanced Course": 0xAD0000A,
-    "Challenge Course: Shattered Chambers": 0xAD0000B,
-    "Challenge Course: Roach Run": 0xAD0000C,
-    "Challenge Course: Comms Array": 0xAD0000E,
-    "Challenge Course: Shuttered Rift": 0xAD0000F,
-    "Challenge Course: Boost Course": 0xAD00010,
-    "Mode: Chimney": 0xAD00011,
-    "Mode: Parasite.01":0xAD00012,
+    "Mode: Training Sector": 0xAE00001,
+    "Mode: Endless": 0xAE00002,
+    "Mode: Endless Underworks": 0xAE00003,
+    "Mode: Endless Superstructure": 0xAE00004,
+    "Mode: Endless Silos": 0xAE00005,
+    "Mode: Endless Pipeworks": 0xAE00006,
+    "Mode: Endless Habitation": 0xAE00007,
+    "Mode: Endless Abyss": 0xAE00008,
+    "Mode: Endless Nest": 0xAE00009,
+    "Challenge Course: Advanced Course": 0xAE0000A,
+    "Challenge Course: Shattered Chambers": 0xAE0000B,
+    "Challenge Course: Roach Run": 0xAE0000C,
+    "Challenge Course: Comms Array": 0xAE0000E,
+    "Challenge Course: Shuttered Rift": 0xAE0000F,
+    "Challenge Course: Boost Course": 0xAE00010,
+    "Mode: Chimney": 0xAE00011,
+    "Mode: Parasite.01":0xAE00012,
 
 
 }
 
 DEFAULT_ITEM_CLASSIFICATIONS = {
     "Interlude Ascent: Bazaar Access": ItemClassification.useful,
-    "Global: Biomod Oversupply": ItemClassification.progression,
+    "Global: Perk Reroll": ItemClassification.useful,
 
     "I1: Recycler Upgrade": ItemClassification.progression,
     "I1: Sector Maintenance": ItemClassification.useful,
@@ -147,7 +147,7 @@ DEFAULT_ITEM_CLASSIFICATIONS = {
     "I3: Locker 2": ItemClassification.useful,
     "I3: ATM Install": ItemClassification.useful,
     "I3: Vendor Upgrade": ItemClassification.useful,
-    "I3: Rho Altar": ItemClassification.progression,
+    "I3: Rho Altar": ItemClassification.useful,
 
     "I4: Recycler Upgrade": ItemClassification.useful,
     "I4: Locker 1": ItemClassification.useful,
@@ -253,6 +253,7 @@ def create_all_items(world: WKWorld) -> None:
 
     itempool += create_perk_unlocks(world)
     itempool += create_room_unlocks(world)
+    itempool += create_challenge_modes(world)
     itempool += create_trinket_unlocks(world)
 
     itempool += create_buff_perks(world)
@@ -436,17 +437,18 @@ def create_trinket_slots(world:WKWorld) -> list[Item]:
     return out
 
 def create_challenge_modes(world:WKWorld) -> list[Item]:
-    if world.options.Include_Challenge_Modes != 2:
-        return []
 
-    return [
-        world.create_item("Challenge Course: Advanced Course"),
-        world.create_item("Challenge Course: Shattered Chambers"),
-        world.create_item("Challenge Course: Roach Run"),
-        world.create_item("Challenge Course: Comms Array"),
-        world.create_item("Challenge Course: Shuttered Rift"),
-        world.create_item("Challenge Course: Boost Course")
-    ]
+    if world.options.Include_Challenge_Modes == 2:
+        return [
+            world.create_item("Challenge Course: Advanced Course"),
+            world.create_item("Challenge Course: Shattered Chambers"),
+            world.create_item("Challenge Course: Roach Run"),
+            world.create_item("Challenge Course: Comms Array"),
+            world.create_item("Challenge Course: Shuttered Rift"),
+            world.create_item("Challenge Course: Boost Course")
+        ]
+    else:
+        return []
 
 
 

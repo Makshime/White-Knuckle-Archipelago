@@ -87,7 +87,7 @@ def connect_regions(world: WKWorld) -> None:
     nest_3 = world.get_region("Nest 3")
     core_1 = world.get_region("Core 1")
 
-    challenge_modes.connect(silos_1, "Main Menu Challenge Modes")
+    silos_1.connect(challenge_modes, "Main Menu Challenge Modes")
     training_sector.connect(silos_1, "Training Sector Access")
 
     silos_1.connect(global_shop, "Main Menu Global Shop")

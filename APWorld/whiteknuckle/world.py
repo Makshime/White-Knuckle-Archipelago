@@ -9,8 +9,8 @@ from . import options as wk_options
 
 class WKWorld(World):
     """
-    White Knuckle is a funny and silly climbing game about escaping a dangerous facility \n
-    Class 7 fluid detected.
+    White Knuckle is a horror roguelike speed climbing game by Dark Machine\n
+    Escape from the class 7 fluid
     """
 
     game = "White Knuckle"
@@ -45,5 +45,5 @@ class WKWorld(World):
 
     def fill_slot_data(self) -> Mapping[str, Any]:
         return self.options.as_dict(
-            "deathlink", "deathlink_amnesty", "Starting_Debuffs"
+            "Deathlink", "Deathlink_Amnesty", "Starting_Debuffs", "Goal_Region", "Free_Disk_Vendors"
         )

@@ -13,10 +13,10 @@ public class APItems
     public static int ProgressiveRegions;
     public static int ProgressivePerkUnlocks;
     public static int TargetAPDebuffCount = 10;
-    public static int TrinketSlots = 5;
+    public static int TrinketSlots = 3;
     
-    // Stores flags for facility data to override ingame 
-    public static Dictionary<string, Dictionary<string, bool>> FacilityDict { get; set; } =
+    // Stores flags for facility data to override ingame
+    public static Dictionary<string, Dictionary<string, bool>> FacilityDict =
         new Dictionary<string, Dictionary<string, bool>>()
     {
         ["GLOBAL"] = new() 
@@ -493,14 +493,14 @@ public class APItems
     
     public static Dictionary<string, bool> ProgressionUnlocks = new Dictionary<string, bool>()
     {
-        //overridden here to prevent binding unlock popups
+        //overridden here to prevent bindings from displaying
         ["binding_abyss"] = false,
         ["binding_core"] = false,
         ["binding_habitation"] = false,
         ["binding_nest"] = false,
         ["binding_roach"] = false,
             
-        //Overrides popups
+        //Doesn't do anything but why not put this here
         ["challenge_advancedcourse"] = false,
         ["challenge_boostcourse"] = false,
         ["challenge_commsarray"] = false,
@@ -508,7 +508,7 @@ public class APItems
         ["challenge_roachrun"] = false,
         ["challenge_shutteredrift"] = false,
         
-        //Set some of these to be off by default (specifically to prevent any popups)
+        //Set some of these to be off by default (for some reason)
         ["cosmetic_bloodied"] = false,
         ["cosmetic_crowbar"] = false,
         ["cosmetic_denizen"] = false,
@@ -561,8 +561,8 @@ public class APItems
         ["r_pipeworks_t1"] = false,
         ["r_pipeworks_t2"] = false,
         ["r_pipeworks_t3"] = false,
-        ["r_shortcut_expulsionchute"] = true,
-        ["r_shortcut_tangledsink"] = true,
+        ["r_shortcut_expulsionchute"] = false,
+        ["r_shortcut_tangledsink"] = false,
         ["r_silos_t1"] = false,
         ["r_silos_t2"] = false,
         ["r_silos_t3"] = false,
@@ -720,7 +720,7 @@ public class APItems
         ["Mode Selection Button - Campaign Variant"] = true,
         ["Mode Selection Button - Tutorial"] = true,
         ["Mode Selection Button - Training Sector"] = false,
-        //TODO: Add some settings options on how to unlock these endless modes as qol for getting those rooms you just can't find
+        
         ["Mode Selection Button - Endless"] = false,
         ["Mode Selection Button - Endless Underworks"] = false,
         ["Mode Selection Button - Endless Superstructure"] = false,
@@ -743,9 +743,9 @@ public class APItems
     
     public static Dictionary<string, bool> TrinketUnlocks = new Dictionary<string, bool>()
     {
-        ["Trinket_Beta"] = true,
-        ["Trinket_Carabiner"] = true,
-        ["Trinket_Chalk"] = true,
+        ["Trinket_Beta"] = false,
+        ["Trinket_Carabiner"] = false,
+        ["Trinket_Chalk"] = false,
         ["Trinket_EmployeeID"] = false,
         ["Trinket_GoldNugget"] = false,
         ["Trinket_MassDamper"] = false,

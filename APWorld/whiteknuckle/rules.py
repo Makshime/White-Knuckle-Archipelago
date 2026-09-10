@@ -227,8 +227,7 @@ def set_pipeworks_unlock_rules(world:WKWorld) -> None:
         world.set_rule(world.get_location(name), Has("Pipeworks Room Unlocks: 2"))
 
 def set_habitation_abyss_unlock_rules(world:WKWorld) -> None:
-    if world.options.Goal_Region > 2:
-        return
+
     hab_1 = [
         "Habitation: Service Shaft 07",
         "Habitation: Haunted Pier 03",
@@ -238,59 +237,56 @@ def set_habitation_abyss_unlock_rules(world:WKWorld) -> None:
         "Habitation: Delta Labs 07",
         "Habitation: Delta Labs 08"
     ]
-
-    for name in hab_1:
-        world.set_rule(world.get_location(name), Has("Habitation Room Unlocks"))
+    if world.options.Goal_Region > 2:
+        for name in hab_1:
+            world.set_rule(world.get_location(name), Has("Habitation Room Unlocks"))
 
     if world.options.Goal_Region > 3:
         world.set_rule(world.get_location("Abyss: Handle 02"), Has("Abyss Handle 02 Access"))
 
 
 def set_challenge_region_rules(world:WKWorld) -> None:
-    if world.options.Include_Challenge_Modes != 2:
-        return
-    world.set_rule(world.get_entrance("Challenge 1 Access"), Has("Challenge Course: Advanced Course"))
-    world.set_rule(world.get_entrance("Challenge 2 Access"), Has("Challenge Course: Shattered Chambers"))
-    world.set_rule(world.get_entrance("Challenge 3 Access"), Has("Challenge Course: Roach Run"))
-    world.set_rule(world.get_entrance("Challenge 4 Access"), Has("Challenge Course: Comms Array"))
-    world.set_rule(world.get_entrance("Challenge 5 Access"), Has("Challenge Course: Shuttered Rift"))
-    world.set_rule(world.get_entrance("Challenge 6 Access"), Has("Challenge Course: Boost Course"))
+    if world.options.Include_Challenge_Modes == 2:
+        world.set_rule(world.get_entrance("Challenge 1 Access"), Has("Challenge Course: Advanced Course"))
+        world.set_rule(world.get_entrance("Challenge 2 Access"), Has("Challenge Course: Shattered Chambers"))
+        world.set_rule(world.get_entrance("Challenge 3 Access"), Has("Challenge Course: Roach Run"))
+        world.set_rule(world.get_entrance("Challenge 4 Access"), Has("Challenge Course: Comms Array"))
+        world.set_rule(world.get_entrance("Challenge 5 Access"), Has("Challenge Course: Shuttered Rift"))
+        world.set_rule(world.get_entrance("Challenge 6 Access"), Has("Challenge Course: Boost Course"))
 
 
 
 def set_challenge_medal_rules(world:WKWorld) -> None:
-    if world.options.Include_Challenge_Modes == 0:
-        return
+    if world.options.Include_Challenge_Modes != 0:
+        world.set_rule(world.get_location("Advanced Course 1"), Has("Progressive Buff"))
+        world.set_rule(world.get_location("Advanced Course 2"), Has("Progressive Buff", 5))
+        world.set_rule(world.get_location("Advanced Course 3"), Has("Progressive Buff", 8))
+        world.set_rule(world.get_location("Advanced Course 4"), Has("Progressive Buff", 10))
 
-    world.set_rule(world.get_location("Advanced Course 1"), Has("Progressive Buff"))
-    world.set_rule(world.get_location("Advanced Course 2"), Has("Progressive Buff", 5))
-    world.set_rule(world.get_location("Advanced Course 3"), Has("Progressive Buff", 8))
-    world.set_rule(world.get_location("Advanced Course 4"), Has("Progressive Buff", 10))
+        world.set_rule(world.get_location("Fractured Territory 1"), Has("Progressive Buff", 2))
+        world.set_rule(world.get_location("Fractured Territory 2"), Has("Progressive Buff", 6))
+        world.set_rule(world.get_location("Fractured Territory 3"), Has("Progressive Buff", 8))
+        world.set_rule(world.get_location("Fractured Territory 4"), Has("Progressive Buff", 12))
 
-    world.set_rule(world.get_location("Fractured Territory 1"), Has("Progressive Buff", 2))
-    world.set_rule(world.get_location("Fractured Territory 2"), Has("Progressive Buff", 6))
-    world.set_rule(world.get_location("Fractured Territory 3"), Has("Progressive Buff", 8))
-    world.set_rule(world.get_location("Fractured Territory 4"), Has("Progressive Buff", 12))
+        world.set_rule(world.get_location("Roach Run 1"), Has("Progressive Buff", 4))
+        world.set_rule(world.get_location("Roach Run 2"), Has("Progressive Buff", 5))
+        world.set_rule(world.get_location("Roach Run 3"), Has("Progressive Buff", 8))
+        world.set_rule(world.get_location("Roach Run 4"), Has("Progressive Buff", 10))
 
-    world.set_rule(world.get_location("Roach Run 1"), Has("Progressive Buff", 4))
-    world.set_rule(world.get_location("Roach Run 2"), Has("Progressive Buff", 5))
-    world.set_rule(world.get_location("Roach Run 3"), Has("Progressive Buff", 8))
-    world.set_rule(world.get_location("Roach Run 4"), Has("Progressive Buff", 10))
+        world.set_rule(world.get_location("Comms Array 1"), Has("Progressive Buff", 5))
+        world.set_rule(world.get_location("Comms Array 2"), Has("Progressive Buff", 7))
+        world.set_rule(world.get_location("Comms Array 3"), Has("Progressive Buff", 9))
+        world.set_rule(world.get_location("Comms Array 4"), Has("Progressive Buff", 12))
 
-    world.set_rule(world.get_location("Comms Array 1"), Has("Progressive Buff", 5))
-    world.set_rule(world.get_location("Comms Array 2"), Has("Progressive Buff", 7))
-    world.set_rule(world.get_location("Comms Array 3"), Has("Progressive Buff", 9))
-    world.set_rule(world.get_location("Comms Array 4"), Has("Progressive Buff", 12))
+        world.set_rule(world.get_location("Shuttered Rift 1"), Has("Progressive Buff", 4))
+        world.set_rule(world.get_location("Shuttered Rift 2"), Has("Progressive Buff", 5))
+        world.set_rule(world.get_location("Shuttered Rift 3"), Has("Progressive Buff", 6))
+        world.set_rule(world.get_location("Shuttered Rift 4"), Has("Progressive Buff", 7))
 
-    world.set_rule(world.get_location("Shuttered Rift 1"), Has("Progressive Buff", 4))
-    world.set_rule(world.get_location("Shuttered Rift 2"), Has("Progressive Buff", 5))
-    world.set_rule(world.get_location("Shuttered Rift 3"), Has("Progressive Buff", 6))
-    world.set_rule(world.get_location("Shuttered Rift 4"), Has("Progressive Buff", 7))
-
-    world.set_rule(world.get_location("Boost Course 1"), Has("Progressive Buff", 8))
-    world.set_rule(world.get_location("Boost Course 2"), Has("Progressive Buff", 9))
-    world.set_rule(world.get_location("Boost Course 3"), Has("Progressive Buff", 10))
-    world.set_rule(world.get_location("Boost Course 4"), Has("Progressive Buff", 12))
+        world.set_rule(world.get_location("Boost Course 1"), Has("Progressive Buff", 8))
+        world.set_rule(world.get_location("Boost Course 2"), Has("Progressive Buff", 9))
+        world.set_rule(world.get_location("Boost Course 3"), Has("Progressive Buff", 10))
+        world.set_rule(world.get_location("Boost Course 4"), Has("Progressive Buff", 12))
 
 
 

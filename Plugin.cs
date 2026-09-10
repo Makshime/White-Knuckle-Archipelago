@@ -526,7 +526,6 @@ public class Plugin : BaseUnityPlugin
         static bool Prefix(ProgressionUnlock __instance, ref bool __result)
         {
             bool state = APItems.ProgressionUnlocks[__instance.id];
-            state = true;
             __instance.state = state;
             if (CL_GameManager.gMan != null)
                 CL_GameManager.SetGameFlag("unlock_" + __instance.name, state);

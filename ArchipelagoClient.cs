@@ -132,9 +132,10 @@ public class ArchipelagoClient
             File.Create(Path.Combine(Application.persistentDataPath, $"{Seed}_save.json"));
             Plugin.AlterStats.UpdateSaveLocationNames(Seed);
             CommandConsole.hasCheated = true;
+            CL_GameManager.gMan.Restart([]);
             CL_GameManager.runRoaches = 0;
             CL_GameManager.globalRoaches = 0;
-            CL_GameManager.gMan.Restart([]);
+            StatManager.instance.LoadStats();
         }
         else
         {
@@ -288,7 +289,7 @@ public class ArchipelagoClient
     private static void CheckReceivedItems()
     {
         
-        while(_items.Any() && Connected)
+        if(_items.Any() && Connected)
         {
             ItemInfo item = _items.Dequeue();
             
@@ -413,8 +414,10 @@ public class ArchipelagoClient
         //Currently unimplemented option to enable all trinkets
         Plugin.APOptions.EnableAllTrinkets = slotData.TryGetValue("Enable_Trinket_Randomization", out object value2) && Convert.ToBoolean(value2);
         Plugin.APOptions.SetGoalArea(slotData.TryGetValue("Goal_Region", out object value3) ? Convert.ToInt32(value3) : 3);
-        if(slotData.TryGetValue("Include_Challenge_Modes", out object value4) && (int) value4 == 1)
-            Plugin.APOptions.UnlockChallenges();
+        Plugin.APOptions.ShowScoutedItemNames = slotData.TryGetValue("Show_Scouted_Item_Names", out object value5) && Convert.ToBoolean(value5);
+        
+        if(slotData.TryGetValue("Include_Challenge_Modes", out object value4))
+            Plugin.APOptions.ChallengesEnabled = (int) value4 == 1;
         
 
         Plugin.ClientOptions.LoadOptions();
@@ -432,17 +435,10 @@ public class ArchipelagoClient
     
 
 
-    public static async Task<List<ScoutedItemInfo>> ScoutItemDescriptionFromID(long[] ids)
+    public static async Task<List<ScoutedItemInfo>> ScoutItemDescriptionFromID(long[] ids, bool hint)
     {
-        Dictionary<long, ScoutedItemInfo> scouted = await _session.Locations.ScoutLocationsAsync(false, ids);
+        Dictionary<long, ScoutedItemInfo> scouted = await _session.Locations.ScoutLocationsAsync(hint, ids);
         return scouted.Values.ToList();
-    }
-    
-
-    // writes all options from the ap server into variables accessible here
-    private static void FillOptions()
-    {
-
     }
 
     public static void SetClientOptions(string[] args)
@@ -488,6 +484,10 @@ public class ArchipelagoClient
                 Plugin.ClientOptions.FreeDiskVendors = false;
             }
         } catch { Plugin.Logger.LogInfo("Disk Vendor Cost not found, skipping"); }
+        
+        try { Plugin.ClientOptions.UnsentRoomWeightMultiplier = Convert.ToSingle(slotData["Room_Weight_Multiplier"]); } 
+        catch { Plugin.Logger.LogInfo("Room Weight Multiplier not found, skipping"); }
+        
         
         //Sets Seed value for the save
         Plugin.ClientOptions.ServerSeed = _session.RoomState.Seed;

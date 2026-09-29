@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
 using Archipelago.MultiClient.Net.Enums;
 using Archipelago.MultiClient.Net.Models;
+using Archipelago.MultiClient.Net.Packets;
 using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
@@ -33,7 +34,7 @@ public class Plugin : BaseUnityPlugin
     public static int LoanAmount = 0;
     public static bool Loaded;
 
-    public static CLoptions ClientOptions;
+    public static CLOptions ClientOptions;
     
 
     private void Awake()
@@ -52,14 +53,14 @@ public class Plugin : BaseUnityPlugin
         
         if (!File.Exists($"{Application.persistentDataPath}\\Archipelago\\ClientOptions.json"))
         {
-            ClientOptions = new CLoptions();
+            ClientOptions = new CLOptions();
             ClientOptions.SaveOptions();
         }
         else
         {
-            ClientOptions = new CLoptions();
+            ClientOptions = new CLOptions();
             ClientOptions.LoadOptions();
-            ClientOptions ??= new CLoptions();
+            ClientOptions ??= new CLOptions();
             if (ClientOptions?.ServerSeed != null && !ClientOptions.ServerSeed.IsNullOrWhiteSpace())
             {
                 AlterStats.UpdateSaveLocationNames(ClientOptions.ServerSeed);
@@ -185,7 +186,6 @@ public class Plugin : BaseUnityPlugin
             ErrorBackupLocation = $"Archipelago/{seedID}_save-error-backup.json";
             CrashBackupLocation = $"Archipelago/{seedID}_save-backup-crash.json";
             QuitBackupLocation = $"Archipelago/{seedID}_save-backup-quit.json";
-
         }
         
         [HarmonyPatch(typeof(StatManager), "Awake")]
@@ -354,6 +354,18 @@ public class Plugin : BaseUnityPlugin
                             Logger.LogInfo($"Setting Unlock-all-endless to {args[i + 1]}");
                             CommandConsole.Log($"Setting Unlock-all-endless to {args[i + 1]}");
                             break;
+                        
+                        case "unlock_all_challenge":
+                            APOptions.ChallengesEnabled = Convert.ToBoolean(args[i + 1]);
+                            Logger.LogInfo($"Setting Unlock-all-challenge to {args[i + 1]}");
+                            CommandConsole.Log($"Setting Unlock-all-challenge to {args[i + 1]}");
+                            break;
+                        
+                        case "set_unsent_room_weights":
+                            ClientOptions.UnsentRoomWeightMultiplier = float.Parse(args[i + 1]);
+                            Logger.LogInfo($"Setting Unseen-room-weights to {args[i + 1]}");
+                            CommandConsole.Log($"Setting Unseen-room-weights to {args[i + 1]}");
+                            break;
                     }
                 }
                 catch
@@ -402,13 +414,15 @@ public class Plugin : BaseUnityPlugin
                             ("deathlink",$"Sets deathlink with true or false: {ClientOptions.Deathlink}"),
                             ("deathlink-amnesty",$"Sets receive amnesty with integer: {ClientOptions.DeathlinkAmnesty}"),
                             ("free-disk-vendors",$"Sets whether or not disk vendors are free: {ClientOptions.FreeDiskVendors}"),
-                            ("unlock-all-endless",$"Unlocks all endless modes: {ClientOptions.UnlockAllEndlessModes}")
+                            ("unlock-all-endless",$"Unlocks all endless modes: {ClientOptions.UnlockAllEndlessModes}"),
+                            ("unlock-all-challenge",$"Unlocks all challenge modes: {APOptions.ChallengesEnabled}"),
+                            ("set-unsent-room-weights",$"Sets the spawn chance multiplier for unsent rooms (uses decimal): {ClientOptions.UnsentRoomWeightMultiplier}"),
                         });
                     } 
                     else if (autocomplete.activeArg == 1)
                     {
                         string n = autocomplete.args[0];
-                        if (n == "deathlink" || n == "free-disk-vendors")
+                        if (n == "deathlink" || n == "free-disk-vendors" || n == "unlock-all-endless" || n == "unlock-all-challenge")
                         {
                             autocomplete.FromArray(["true", "false"]);
                         }
@@ -482,10 +496,27 @@ public class Plugin : BaseUnityPlugin
             return false;
         }
     }
+    
+    
 
     [HarmonyPatch(typeof(UI_FacilityMenu_Button), "Refresh")]
     class PatchMainMenuFacilityButtons
     {
+        static string toDescription(ScoutedItemInfo item, bool flag, string defaultClassification)
+        {
+            if (flag)
+            {
+                if (item.Player.Slot == ArchipelagoClient.Slot)
+                {
+                    return $"This is {item.ItemName} for {item.Player.Name} playing {item.ItemGame}";
+                }
+
+                return $"This is your {item.ItemName}";
+            }
+
+            return $"This item is classified as {defaultClassification} for some player in this multiworld";
+        }
+        
         static void Postfix(UI_FacilityMenu_Button __instance)
         {
             if (__instance == null)
@@ -502,24 +533,25 @@ public class Plugin : BaseUnityPlugin
                 __instance.lockRoot.SetActive(false);
                 __instance.isLocked = false;
                 __instance.icon.gameObject.SetActive(true);
+                bool flag = APOptions.ShowScoutedItemNames;
                 if (_nameToScoutedItem.TryGetValue("GLOBAL " + __instance.upgrade.name, out var scoutedItem))
                 {
                     switch (scoutedItem.Flags)
                     {
                         case ItemFlags.Advancement:
-                            __instance.tooltip.tip = "<color=blue>Progression Item</color>\nThis item is classified as progression to some player in this multiworld.";
+                            __instance.tooltip.tip = $"<color=blue>Progression Item</color>\n{toDescription(scoutedItem, flag, "progression")}";
                             __instance.icon.sprite = APItems.SpriteFromPath("WKRando/Assets/Archipelago_Progression_Icon.png");
                             break;
                         case ItemFlags.NeverExclude:
-                            __instance.tooltip.tip = "<color=purple>Useful Item</color>\nThis item is classified as useful to some player in this multiworld.";
+                            __instance.tooltip.tip = $"<color=purple>Useful Item</color>\n{toDescription(scoutedItem, flag, "useful")}";
                             __instance.icon.sprite = APItems.SpriteFromPath("WKRando/Assets/Archipelago_Icon.png");
                             break;
                         case ItemFlags.None:
-                            __instance.tooltip.tip = "<color=grey>Filler Item</color>\nThis item is classified as useful to some player in this multiworld.";
+                            __instance.tooltip.tip = $"<color=grey>Filler Item</color>\n{toDescription(scoutedItem, flag, "filler")}";
                             __instance.icon.sprite = APItems.SpriteFromPath("WKRando/Assets/Archipelago_Filler_Icon.png");
                             break;
                         case ItemFlags.Trap:
-                            __instance.tooltip.tip = "<color=red>Trap Item</color>\nThis item is classified as a trap to some player in this multiworld.";
+                            __instance.tooltip.tip = $"<color=red>Trap Item</color>\n{toDescription(scoutedItem, flag, "a trap")}";
                             __instance.icon.sprite = APItems.SpriteFromPath("WKRando/Assets/Archipelago_Trap_Icon.png");
                             break;
                     }
@@ -584,7 +616,7 @@ public class Plugin : BaseUnityPlugin
     {
         try
         {
-            List<ScoutedItemInfo> descriptions = await ArchipelagoClient.ScoutItemDescriptionFromID(locationsToScout.ToArray());
+            List<ScoutedItemInfo> descriptions = await ArchipelagoClient.ScoutItemDescriptionFromID(locationsToScout.ToArray(), APOptions.ShowScoutedItemNames);
             for (int i = 0; i < upgradeNames.Count; i++)
             {
                 if(!_nameToScoutedItem.TryGetValue(upgradeNames[i], out ScoutedItemInfo info))
@@ -697,7 +729,7 @@ public class Plugin : BaseUnityPlugin
             if (APItems.TrinketUnlocks.TryGetValue(__instance.name, out var unlock))
             {
                 __result = APOptions.EnableAllTrinkets || unlock;
-                return false;
+                
             }
             return true;
         }
@@ -725,6 +757,21 @@ public class Plugin : BaseUnityPlugin
         static void Prefix(object[] __args)
         {
             __args[0] = APItems.TrinketSlots;
+        }
+
+        [HarmonyPatch("ReloadTrinkets")]
+        [HarmonyTranspiler]
+        static IEnumerable<CodeInstruction> DisableBindingRenders(IEnumerable<CodeInstruction> instructions)
+        {
+            return new CodeMatcher(instructions).MatchForward(false,
+                    new CodeMatch(OpCodes.Ldarg_0),
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Ldfld),
+                    new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(TrinketList), "bindings")))
+                .Advance(1)
+                .SetInstruction(new CodeInstruction(OpCodes.Ldnull))
+                .RemoveInstructions(2)
+                .InstructionEnumeration();
         }
     }
 
@@ -770,16 +817,7 @@ public class Plugin : BaseUnityPlugin
         
         
     }
-
-    [HarmonyPatch(typeof(CL_GameManager), "Awake")]
-    class PatchCommandConsole
-    {
-
-        static void Prefix()
-        {
-
-        }
-    }
+    
     
     [HarmonyPatch(typeof(CL_GameManager), "LoadIn", MethodType.Enumerator)]
     class PatchCommands
@@ -815,12 +853,16 @@ public class Plugin : BaseUnityPlugin
         }
     }
     
-    [HarmonyPatch(typeof(CL_GameManager), "OnDestroy")]
+    [HarmonyPatch(typeof(CL_GameManager), "Win")]
     class UnloadgMan
     {
-        static void Prefix()
+        static void Prefix(CL_GameManager __instance)
         {
-            Loaded = false;
+            //TODO: Check what the gametype actually does
+            if (ArchipelagoClient.Connected && CL_GameManager.gameType == "campaign")
+            {
+                ArchipelagoClient.Goal();
+            }
         }
     }
     
@@ -849,6 +891,22 @@ public class Plugin : BaseUnityPlugin
     [HarmonyPatch(typeof(App_Facility_Card), "CheckLock")]
     class PatchPerkRefresh
     {
+        static string toDescription(ScoutedItemInfo item, bool flag, string defaultClassification)
+        {
+            if (flag)
+            {
+                if (item.Player.Slot == ArchipelagoClient.Slot)
+                {
+                    return $"This is {item.ItemName} for {item.Player.Name} playing {item.ItemGame}";
+                }
+
+                return $"This is your {item.ItemName}";
+            }
+
+            return $"This item is classified as {defaultClassification} for some player in this multiworld";
+        }
+        
+        
         static bool Prefix(App_Facility_Card __instance)
         {
             if (!ArchipelagoClient.Connected)
@@ -864,22 +922,23 @@ public class Plugin : BaseUnityPlugin
                 if (_nameToScoutedItem != null && _nameToScoutedItem.TryGetValue($"{__instance.facility.id} {__instance.upgrade.id}", out ScoutedItemInfo info))
                 {
                     __instance.art.gameObject.SetActive(true);
+                    bool flag = APOptions.ShowScoutedItemNames;
                     switch (info.Flags)
                     {
                         case ItemFlags.Advancement:
-                            __instance.tooltip.tip = "<color=blue>Progression Item</color>\nThis item is classified as progression to some player in this multiworld.";
+                            __instance.tooltip.tip = $"<color=blue>Progression Item</color>\n{toDescription(info, flag, "progression")}";
                             __instance.art.sprite = APItems.SpriteFromPath("WKRando/Assets/Archipelago_Progression_Icon.png");
                             break;
                         case ItemFlags.NeverExclude:
-                            __instance.tooltip.tip = "<color=purple>Useful Item</color>\nThis item is classified as useful to some player in this multiworld.";
+                            __instance.tooltip.tip = $"<color=purple>Useful Item</color>\n{toDescription(info, flag, "useful")}";
                             __instance.art.sprite = APItems.SpriteFromPath("WKRando/Assets/Archipelago_Icon.png");
                             break;
                         case ItemFlags.None:
-                            __instance.tooltip.tip = "<color=grey>Filler Item</color>\nThis item is classified as useful to some player in this multiworld.";
+                            __instance.tooltip.tip = $"<color=grey>Filler Item</color>\n{toDescription(info, flag, "filler")}";
                             __instance.art.sprite = APItems.SpriteFromPath("WKRando/Assets/Archipelago_Filler_Icon.png");
                             break;
                         case ItemFlags.Trap:
-                            __instance.tooltip.tip = "<color=red>Trap Item</color>\nThis item is classified as a trap to some player in this multiworld.";
+                            __instance.tooltip.tip = $"<color=red>Trap Item</color>\n{toDescription(info, flag, "a trap")}";
                             __instance.art.sprite = APItems.SpriteFromPath("WKRando/Assets/Archipelago_Trap_Icon.png");
                             break;
                     }
@@ -926,7 +985,7 @@ public class Plugin : BaseUnityPlugin
                 }
             }
 
-            List<ScoutedItemInfo> descriptions = Task.Run(async () => await ArchipelagoClient.ScoutItemDescriptionFromID(locationsToScout.ToArray())).GetAwaiter().GetResult();
+            List<ScoutedItemInfo> descriptions = Task.Run(async () => await ArchipelagoClient.ScoutItemDescriptionFromID(locationsToScout.ToArray(), APOptions.ShowScoutedItemNames)).GetAwaiter().GetResult();
 
             for (int i = 0; i < upgradeNames.Count; i++)
             {
@@ -1042,6 +1101,21 @@ public class Plugin : BaseUnityPlugin
             return false;
         }
     }
+
+    [HarmonyPatch(typeof(M_Level), "GetSpawnChance")]
+    class PatchRoomSpawnChances
+    {
+        static void Postfix(M_Level __instance, ref float __result)
+        {
+            foreach (long l in APItems.SentLocations)
+            {
+                if (APItems.RoomNameToAP[__instance.levelName] == l)
+                    return;
+            }
+            __result *= ClientOptions.UnsentRoomWeightMultiplier;
+            
+        }
+    }
     
     
     
@@ -1052,6 +1126,8 @@ public class Plugin : BaseUnityPlugin
         public static int StartingTrinketSlots = 1;
         public static bool EnableAllTrinkets;
         public static string GoalArea = "M5_Nest_Trough_Ending_01";
+        public static bool ChallengesEnabled;
+        public static bool ShowScoutedItemNames;
 
         public static void SetGoalArea(int i)
         {
@@ -1076,11 +1152,7 @@ public class Plugin : BaseUnityPlugin
         }
         public static void UnlockChallenges()
         {
-            foreach (string mode in APItems.ModeUnlocks.Keys.ToList())
-            {
-                if (mode.Contains("Challenge"))
-                    APItems.ModeUnlocks[mode] = true;
-            }
+            ChallengesEnabled = true;
         }
         
     }
@@ -1093,7 +1165,7 @@ public class Plugin : BaseUnityPlugin
     // file only appears if its detected to be missing during awake
 
     
-    public class CLoptions
+    public class CLOptions
     {
         
         
@@ -1105,6 +1177,7 @@ public class Plugin : BaseUnityPlugin
         public string Server = "";
         public string User = "";
         public string Password = "";
+        public float UnsentRoomWeightMultiplier = 1f;
 
 
         public void EnableDeathlink()
@@ -1132,7 +1205,7 @@ public class Plugin : BaseUnityPlugin
         {
             string jsonString = File.ReadAllText($"{Application.persistentDataPath}\\Archipelago\\ClientOptions.json");
             Logger.LogInfo($"Loading client options as: {jsonString}");
-            ClientOptions = JsonUtility.FromJson<CLoptions>(jsonString) ?? new CLoptions();
+            ClientOptions = JsonUtility.FromJson<CLOptions>(jsonString) ?? new CLOptions();
         }
         // deprecated after implementation of autocomplete
         public static void ListClientSettings(string[] args)

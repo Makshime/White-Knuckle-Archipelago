@@ -14,10 +14,11 @@ internal static class DeathLinkHandler
     /* now, i know its not a big part of it, and this can go into the archipelagoclient.cs
     but also, that file is getting really big and annoying to navigate
     now i know its not that big
-    but also like... its more navigatable to find what you want if i go to a new file??
+    but also like... its more navigable to find what you want if i go to a new file??
     why am i tryna justify myself lmao, i made this decision and you can change it if you dont like it */
     
     //TODO: FIX THIS MESS!!!!!
+    // i forgot what i meant by mess oh yeah the buggy nature of this system
     private static Sprite _amnestyIcon;
 
     public static void Awake()
@@ -55,7 +56,10 @@ internal static class DeathLinkHandler
     public static int DeathLinksSentSinceLast = 0;
     private static void DeathlinkDeath(DeathLink DeathlinkObject)
     {
-        if (!Plugin.ClientOptions.Deathlink || Plugin.ClientOptions.DeathlinkAmnesty == 0)
+        if (Plugin.ClientOptions.DeathlinkAmnesty < 1)
+            Plugin.ClientOptions.DeathlinkAmnesty = 1;
+        
+        if (!Plugin.ClientOptions.Deathlink)
             return;
         
         Plugin.Logger.LogInfo("Starting Deathlink");

@@ -47,7 +47,13 @@ public static class CustomPerks
             }
         };
         Texture2D texture = new Texture2D(256, 256);
-        var p = Path.Combine(BepInEx.Paths.PluginPath, "WKRando\\Assets\\Archipelago_Perk.png");
+        var p = Path.Combine(
+#if RELEASE
+            Path.Combine(BepInEx.Paths.PluginPath, "ConcreteConsumer-WhiteKnuckleArchipelago")
+#else
+            Paths.PluginPath
+#endif
+            , "WKRando\\Assets\\Archipelago_Perk.png");
         texture.LoadImage(File.ReadAllBytes(p));
         _apBuff.icon = Sprite.Create(
             texture,
@@ -91,8 +97,15 @@ public static class CustomPerks
                 NewBuff("addSpeed", -0.03f, -0.03f)
             }
         };
+        
         Texture2D texture1 = new Texture2D(256, 256);
-        texture1.LoadImage(File.ReadAllBytes(Path.Combine(BepInEx.Paths.PluginPath, "WKRando\\Assets\\Broken_Archipelago_Perk.png")));
+        texture1.LoadImage(File.ReadAllBytes(Path.Combine(
+        #if RELEASE
+                    Path.Combine(BepInEx.Paths.PluginPath, "ConcreteConsumer-WhiteKnuckleArchipelago")
+        #else
+                    BepInEx.Paths.PluginPath
+        #endif
+                    , "WKRando\\Assets\\Broken_Archipelago_Perk.png")));
         _apDebuff.icon = Sprite.Create(
             texture1,
             new Rect(0, 0, texture1.width, texture1.height),
@@ -118,7 +131,13 @@ public static class CustomPerks
         _apAmnesty.multiplierCurve = AnimationCurve.Constant(0, 1, 1);
         _apAmnesty.stackAmount = stacks;
         Texture2D texture2 = new Texture2D(256, 256);
-        texture2.LoadImage(File.ReadAllBytes(Path.Combine(Paths.PluginPath, "WKRando\\Assets\\Archipelago_Amnesty_Perk.png")));
+        texture2.LoadImage(File.ReadAllBytes(Path.Combine(
+            #if RELEASE
+            Path.Combine(BepInEx.Paths.PluginPath, "ConcreteConsumer-WhiteKnuckleArchipelago")
+            #else
+            BepInEx.Paths.PluginPath
+            #endif
+            , "WKRando\\Assets\\Archipelago_Amnesty_Perk.png")));
         _apAmnesty.icon = Sprite.Create(
             texture2,
             new Rect(0, 0, texture2.width, texture2.height),
@@ -153,4 +172,5 @@ public static class CustomPerks
         
         return new AnimationCurve(keyframes);
     }
+    
 }

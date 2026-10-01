@@ -413,7 +413,7 @@ public class APItems
         ["M3_Habitation_Lab_08"] = 0xAB31203,
         
         //Abyss Rooms
-        ["M4_Abyss_Intro_01"] =  0xAB40000,
+        ["Campaign_Interlude_Habitation_To_Abyss_01"] = 0xAB40000,
         ["M4_Abyss_Outro_01"] = 0xAB40001,
         
         ["M4_Abyss_Transit_01"] = 0xAB40101,
@@ -565,12 +565,15 @@ public class APItems
         ["r_pipeworks_t1"] = false,
         ["r_pipeworks_t2"] = false,
         ["r_pipeworks_t3"] = false,
+        ["r_shortcut_hadaldiver"] = false,
+        ["r_shortcut_rottenduct"] = false,
         ["r_shortcut_expulsionchute"] = false,
         ["r_shortcut_tangledsink"] = false,
         ["r_silos_t1"] = false,
         ["r_silos_t2"] = false,
         ["r_silos_t3"] = false,
         ["r_silos_t4"] = false,
+        
         
         //Also to disable the popups
         ["trinket_calmingbuddy"] = false,
@@ -838,11 +841,17 @@ public class APItems
         ["Boost Course 3"] = 0xAF00052,
         ["Boost Course 4"] = 0xAF00053,
     };
-
+    
     public static Sprite SpriteFromPath(string localPath)
     {
         Texture2D texture = new Texture2D(256, 256);
-        texture.LoadImage(File.ReadAllBytes(Path.Combine(BepInEx.Paths.PluginPath, localPath)));
+        texture.LoadImage(File.ReadAllBytes(Path.Combine(
+            #if RELEASE
+            Path.Combine(BepInEx.Paths.PluginPath, "ConcreteConsumer-WhiteKnuckleArchipelago")
+            #else 
+            BepInEx.Paths.PluginPath
+            #endif
+            , localPath)));
         return Sprite.Create(
             texture,
             new Rect(0, 0, texture.width, texture.height),

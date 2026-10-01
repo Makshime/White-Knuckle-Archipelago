@@ -784,6 +784,16 @@ public class Plugin : BaseUnityPlugin
             return false;
         }
     }
+
+    [HarmonyPatch(typeof(CL_GameManager), "PlayerDistance")]
+    class PatchDoor
+    {
+        static void Prefix(CL_GameManager __instance)
+        {
+            Logger.LogInfo(__instance.name);
+            //return WorldLoader.instance.GetCurrentLevel().GetLevel().levelName != "Campaign_Interlude_Diver_To_Nest_SafeArea_01";
+        }
+    }
     
     //Blocks the buttons of these regions from being interacted with if their region is not found
     [HarmonyPatch(typeof(CL_Button), "Interact", [])]
@@ -1053,7 +1063,7 @@ public class Plugin : BaseUnityPlugin
         }
     }
 
-    [HarmonyPatch(typeof(CL_LocalizationManager), "GetLocalization")]
+    [HarmonyPatch(typeof(CL_LocalizationManager), "GetLocalization", new Type[] {typeof(string), typeof(string)})]
     class PatchDeathmessage
     {
 

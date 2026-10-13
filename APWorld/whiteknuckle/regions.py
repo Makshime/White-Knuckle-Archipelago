@@ -22,6 +22,12 @@ def create_all_regions(world: WKWorld) -> None:
     sink = Region("Sink", world.player, world.multiworld)
     chute = Region("Chute", world.player, world.multiworld)
 
+    endless_silos = Region("Endless Silos", world.player, world.multiworld)
+    endless_pipeworks = Region("Endless Pipeworks", world.player, world.multiworld)
+    endless_habitation = Region("Endless Habitation", world.player, world.multiworld)
+    endless_abyss = Region("Endless Abyss", world.player, world.multiworld)
+    endless_nest = Region("Endless Nest", world.player, world.multiworld)
+
     challenge_modes = Region("Challenge Modes", world.player, world.multiworld)
     chal_1 = Region("Challenge 1", world.player, world.multiworld)
     chal_2 = Region("Challenge 2", world.player, world.multiworld)
@@ -29,7 +35,6 @@ def create_all_regions(world: WKWorld) -> None:
     chal_4 = Region("Challenge 4", world.player, world.multiworld)
     chal_5 = Region("Challenge 5", world.player, world.multiworld)
     chal_6 = Region("Challenge 6", world.player, world.multiworld)
-
 
     training_sector = Region("Training Sector", world.player, world.multiworld)
 
@@ -62,6 +67,11 @@ def create_all_regions(world: WKWorld) -> None:
 def connect_regions(world: WKWorld) -> None:
     global_shop = world.get_region("Global Shop")
 
+    endless_silos = world.get_region("Endless Silos")
+    endless_pipeworks = world.get_region("Endless Pipeworks")
+    endless_habitation = world.get_region("Endless Habitation")
+    endless_abyss = world.get_region("Endless Abyss")
+    endless_nest = world.get_region("Endless Nest")
     challenge_modes = world.get_region("Challenge Modes")
     training_sector = world.get_region("Training Sector")
     sink = world.get_region("Sink")
@@ -87,6 +97,7 @@ def connect_regions(world: WKWorld) -> None:
     nest_3 = world.get_region("Nest 3")
     core_1 = world.get_region("Core 1")
 
+    silos_1.connect(endless_silos, "Endless Silos Access")
     silos_1.connect(challenge_modes, "Main Menu Challenge Modes")
     training_sector.connect(silos_1, "Training Sector Access")
 
@@ -102,6 +113,7 @@ def connect_regions(world: WKWorld) -> None:
 
     interlude_1.connect(pipeworks_1, "Interlude 1 to Pipeworks 1")
 
+    pipeworks_1.connect(endless_pipeworks, "Endless Pipeworks Access")
     pipeworks_1.connect(chute, "Pipeworks 1 to Chute")
     chute.connect(interlude_2, "Chute to Interlude 2")
 
@@ -110,17 +122,23 @@ def connect_regions(world: WKWorld) -> None:
     pipeworks_3.connect(interlude_2, "Pipeworks 3 to Interlude 2")
 
     interlude_2.connect(hab_1, "Interlude 2 to Habitation 1")
+
+    hab_1.connect(endless_habitation, "Endless Habitation Access")
     hab_1.connect(hab_2, "Habitation 1 to Habitation 2")
     hab_2.connect(hab_3, "Habitation 2 to Habitation 3")
     hab_3.connect(interlude_3, "Habitation 3 to Interlude 3")
 
     interlude_3.connect(abyss_1, "Interlude 3 to Abyss 1")
+
+    abyss_1.connect(endless_abyss, "Endless Abyss Access")
     abyss_1.connect(abyss_2, "Abyss 1 to Abyss 2")
     abyss_2.connect(abyss_3, "Abyss 2 to Abyss 3")
     abyss_3.connect(interlude_4, "Abyss 3 to Interlude 4")
 
     interlude_4.connect(nest_1, "Interlude 4 to Nest 1")
     interlude_4.connect(nest_2, "Interlude 4 to Nest 2")
+
+    nest_1.connect(endless_nest, "Endless Nest Access")
     nest_1.connect(nest_3, "Nest 1 to Nest 3")
     nest_2.connect(nest_3, "Nest 2 to Nest 3")
     nest_3.connect(core_1, "Nest 3 to Core 1")

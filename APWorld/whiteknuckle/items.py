@@ -47,6 +47,37 @@ ITEM_NAME_TO_ID = {
     "I4: ATM Install": 0xAA14006,
     "I4: Vendor Upgrade": 0xAA14007,
 
+    "Endless Silos: Recycler Upgrade": 0xAA20000,
+    "Endless Silos: ATM Install": 0xAA20001,
+    "Endless Silos: Locker 1": 0xAA20002,
+    "Endless Silos: Vendor Install": 0xAA20003,
+
+    "Endless Pipeworks: Recycler Upgrade": 0xAA21000,
+    "Endless Pipeworks: ATM Install": 0xAA21001,
+    "Endless Pipeworks: Locker 1": 0xAA21002,
+    "Endless Pipeworks: Ration Vendor 1": 0xAA21003,
+    "Endless Pipeworks: Ration Vendor 2": 0xAA21004,
+    "Endless Pipeworks: Install Vendor T2": 0xAA21005,
+
+    "Endless Habitation: Recycler Upgrade": 0xAA22000,
+    "Endless Habitation: ATM Install": 0xAA22001,
+    "Endless Habitation: Locker 1": 0xAA22002,
+    "Endless Habitation: Ration Vendor 1": 0xAA22003,
+    "Endless Habitation: Ration Vendor 2": 0xAA22004,
+    "Endless Habitation: Install Vendor T2": 0xAA22005,
+
+    "Endless Abyss: Recycler Upgrade": 0xAA23000,
+    "Endless Abyss: ATM Install": 0xAA23001,
+    "Endless Abyss: Install Vendor T2": 0xAA23002,
+
+    "Endless Nest: Recycler Upgrade": 0xAA24000,
+    "Endless Nest: ATM Install": 0xAA24001,
+    "Endless Nest: Vendor T2 Upgrade": 0xAA24002,
+    "Endless Nest: Ration Vendor 1": 0xAA24003,
+    "Endless Nest: Ration Vendor 2": 0xAA24004,
+    "Endless Nest: Wine Vendor": 0xAA24005,
+    "Endless Nest: Locker 1": 0xAA24006,
+
     "Permanent Extra Roach": 0xA900001,
     "10 Facility Credits": 0xA900002,
 
@@ -158,6 +189,37 @@ DEFAULT_ITEM_CLASSIFICATIONS = {
     "I4: ATM Install": ItemClassification.useful,
     "I4: Vendor Upgrade": ItemClassification.useful,
 
+    "Endless Silos: Recycler Upgrade": ItemClassification.useful,
+    "Endless Silos: ATM Install": ItemClassification.useful,
+    "Endless Silos: Locker 1": ItemClassification.useful,
+    "Endless Silos: Vendor Install": ItemClassification.useful,
+
+    "Endless Pipeworks: Recycler Upgrade": ItemClassification.useful,
+    "Endless Pipeworks: ATM Install": ItemClassification.useful,
+    "Endless Pipeworks: Locker 1": ItemClassification.useful,
+    "Endless Pipeworks: Ration Vendor 1": ItemClassification.useful,
+    "Endless Pipeworks: Ration Vendor 2": ItemClassification.useful,
+    "Endless Pipeworks: Install Vendor T2": ItemClassification.useful,
+
+    "Endless Habitation: Recycler Upgrade": ItemClassification.useful,
+    "Endless Habitation: ATM Install": ItemClassification.useful,
+    "Endless Habitation: Locker 1": ItemClassification.useful,
+    "Endless Habitation: Ration Vendor 1": ItemClassification.useful,
+    "Endless Habitation: Ration Vendor 2": ItemClassification.useful,
+    "Endless Habitation: Install Vendor T2": ItemClassification.useful,
+
+    "Endless Abyss: Recycler Upgrade": ItemClassification.useful,
+    "Endless Abyss: ATM Install": ItemClassification.useful,
+    "Endless Abyss: Install Vendor T2": ItemClassification.useful,
+
+    "Endless Nest: Recycler Upgrade": ItemClassification.useful,
+    "Endless Nest: ATM Install": ItemClassification.useful,
+    "Endless Nest: Vendor T2 Upgrade": ItemClassification.useful,
+    "Endless Nest: Ration Vendor 1": ItemClassification.useful,
+    "Endless Nest: Ration Vendor 2": ItemClassification.useful,
+    "Endless Nest: Wine Vendor": ItemClassification.useful,
+    "Endless Nest: Locker 1": ItemClassification.useful,
+
     "Permanent Extra Roach": ItemClassification.filler,
     "10 Facility Credits": ItemClassification.filler,
 
@@ -250,6 +312,7 @@ def create_all_items(world: WKWorld) -> None:
     itempool: list[Item] = []
 
     itempool += create_interlude_items(world)
+    itempool += create_endless_upgrades(world)
 
     itempool += create_perk_unlocks(world)
     itempool += create_room_unlocks(world)
@@ -281,6 +344,19 @@ def create_interlude_items(world:WKWorld) -> list[Item]:
     if world.options.Goal_Region > 4:
         interludes += create_i4_upgrades(world)
     return interludes
+
+def create_endless_upgrades(world:WKWorld) -> list[Item]:
+    upgrades: list[Item] = []
+    upgrades += create_endless_silos_upgrades(world)
+    if world.options.Goal_Region > 1:
+        upgrades += create_endless_pipeworks_upgrades(world)
+    if world.options.Goal_Region > 2:
+        upgrades += create_endless_habitation_upgrades(world)
+    if world.options.Goal_Region > 3:
+        upgrades += create_endless_abyss_upgrades(world)
+    if world.options.Goal_Region > 4:
+        upgrades += create_endless_nest_upgrades(world)
+    return upgrades
 
 def create_global_upgrades(world:WKWorld) -> list[Item]:
     return [
@@ -332,6 +408,67 @@ def create_i4_upgrades(world:WKWorld) -> list[Item]:
         world.create_item("I4: ATM Install"),
         world.create_item("I4: Vendor Upgrade")
     ]
+
+def create_endless_silos_upgrades(world:WKWorld) -> list[Item]:
+    if world.options.Include_Endless_Facilities == 1:
+        return [
+            world.create_item("Endless Silos: Recycler Upgrade"),
+            world.create_item("Endless Silos: ATM Install"),
+            world.create_item("Endless Silos: Locker 1"),
+            world.create_item("Endless Silos: Vendor Install")
+        ]
+    else:
+        return []
+
+def create_endless_pipeworks_upgrades(world:WKWorld) -> list[Item]:
+    if world.options.Include_Endless_Facilities == 1:
+        return [
+            world.create_item("Endless Pipeworks: Recycler Upgrade"),
+            world.create_item("Endless Pipeworks: ATM Install"),
+            world.create_item("Endless Pipeworks: Locker 1"),
+            world.create_item("Endless Pipeworks: Ration Vendor 1"),
+            world.create_item("Endless Pipeworks: Ration Vendor 2"),
+            world.create_item("Endless Pipeworks: Install Vendor T2")
+        ]
+    else:
+        return []
+
+def create_endless_habitation_upgrades(world:WKWorld) -> list[Item]:
+    if world.options.Include_Endless_Facilities == 1:
+        return [
+            world.create_item("Endless Habitation: Recycler Upgrade"),
+            world.create_item("Endless Habitation: ATM Install"),
+            world.create_item("Endless Habitation: Locker 1"),
+            world.create_item("Endless Habitation: Ration Vendor 1"),
+            world.create_item("Endless Habitation: Ration Vendor 2"),
+            world.create_item("Endless Habitation: Install Vendor T2")
+        ]
+    else:
+        return []
+
+def create_endless_abyss_upgrades(world:WKWorld) -> list[Item]:
+    if world.options.Include_Endless_Facilities == 1:
+        return [
+            world.create_item("Endless Abyss: Recycler Upgrade"),
+            world.create_item("Endless Abyss: ATM Install"),
+            world.create_item("Endless Abyss: Install Vendor T2")
+        ]
+    else:
+        return []
+
+def create_endless_nest_upgrades(world:WKWorld) -> list[Item]:
+    if world.options.Include_Endless_Facilities == 1:
+        return [
+            world.create_item("Endless Nest: Recycler Upgrade"),
+            world.create_item("Endless Nest: ATM Install"),
+            world.create_item("Endless Nest: Vendor T2 Upgrade"),
+            world.create_item("Endless Nest: Ration Vendor 1"),
+            world.create_item("Endless Nest: Ration Vendor 2"),
+            world.create_item("Endless Nest: Wine Vendor"),
+            world.create_item("Endless Nest: Locker 1")
+        ]
+    else:
+        return []
 
 def create_perk_unlocks(world:WKWorld) -> list[Item]:
     perks = []
@@ -449,6 +586,5 @@ def create_challenge_modes(world:WKWorld) -> list[Item]:
         ]
     else:
         return []
-
 
 

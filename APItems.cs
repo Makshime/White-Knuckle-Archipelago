@@ -68,6 +68,47 @@ public class APItems
             ["UPG_Wine_T1"] = false,
             ["UPG_ATM"] = false,
             ["UPG_Vendor_T2_01"] = false,
+        },
+        ["ENDLESS_SILOS"] = new ()
+        {
+            ["UPG_Recycler"] = false,
+            ["UPG_ATM"] = false,
+            ["UPG_ItemLocker_01"] = false,
+            ["UPG_Install_Vendor_T2"] = false,
+        },
+        ["ENDLESS_PIPEWORKS"] = new ()
+        {
+            ["UPG_Recycler"] = false,
+            ["UPG_ATM"] = false,
+            ["UPG_ItemLocker_01"] = false,
+            ["UPG_Ration_T1"] = false,
+            ["UPG_Ration_T2"] = false,
+            ["UPG_Install_Vendor_T2"] = false
+        }
+        ["ENDLESS_HABITATION"] = new ()
+        {
+            ["UPG_Recycler"] = false,
+            ["UPG_ATM"] = false,
+            ["UPG_ItemLocker_01"] = false,
+            ["UPG_Ration_T1"] = false,
+            ["UPG_Ration_T2"] = false,
+            ["UPG_Install_Vendor_T2"] = false
+        },
+        ["ENDLESS_ABYSS"] = new ()
+        {
+            ["UPG_Recycler"] = false,
+            ["UPG_ATM"] = false,
+            ["UPG_Install_Vendor_T2"] = false
+        },
+        ["ENDLESS_NEST"] = new ()
+        {
+            ["UPG_Recycler"] = false,
+            ["UPG_ATM"] = false,
+            ["UPG_Vendor_T2_01"] = false,
+            ["UPG_Ration_T1"] = false,
+            ["UPG_Ration_T2"] = false,
+            ["UPG_Wine_T1"] = false,
+            ["UPG_ItemLocker_01"] = false,
         }
     };
 
@@ -236,7 +277,38 @@ public class APItems
         [0xAA14004] = "CAMPAIGN_INTERLUDE_04 UPG_Ration_T2",
         [0xAA14005] = "CAMPAIGN_INTERLUDE_04 UPG_Wine_T1",
         [0xAA14006] = "CAMPAIGN_INTERLUDE_04 UPG_ATM",
-        [0xAA14007] = "CAMPAIGN_INTERLUDE_04 UPG_Vendor_T2_01"
+        [0xAA14007] = "CAMPAIGN_INTERLUDE_04 UPG_Vendor_T2_01",
+
+        [0xAA20000] = "ENDLESS_SILOS UPG_Recycler",
+        [0xAA20001] = "ENDLESS_SILOS UPG_ATM",
+        [0xAA20002] = "ENDLESS_SILOS UPG_ItemLocker_01",
+        [0xAA20003] = "ENDLESS_SILOS UPG_Install_Vendor_T2",
+
+        [0xAA21000] = "ENDLESS_PIPEWORKS UPG_Recycler",
+        [0xAA21001] = "ENDLESS_PIPEWORKS UPG_ATM",
+        [0xAA21002] = "ENDLESS_PIPEWORKS UPG_ItemLocker_01",
+        [0xAA21003] = "ENDLESS_PIPEWORKS UPG_Ration_T1",
+        [0xAA21004] = "ENDLESS_PIPEWORKS UPG_Ration_T2",
+        [0xAA21005] = "ENDLESS_PIPEWORKS UPG_Install_Vendor_T2",
+
+        [0xAA22000] = "ENDLESS_HABITATION UPG_Recycler",
+        [0xAA22001] = "ENDLESS_HABITATION UPG_ATM",
+        [0xAA22002] = "ENDLESS_HABITATION UPG_ItemLocker_01",
+        [0xAA22003] = "ENDLESS_HABITATION UPG_Ration_T1",
+        [0xAA22004] = "ENDLESS_HABITATION UPG_Ration_T2",
+        [0xAA22005] = "ENDLESS_HABITATION UPG_Install_Vendor_T2",
+
+        [0xAA23000] = "ENDLESS_ABYSS UPG_Recycler",
+        [0xAA23001] = "ENDLESS_ABYSS UPG_ATM",
+        [0xAA23002] = "ENDLESS_ABYSS UPG_Install_Vendor_T2",
+
+        [0xAA24000] = "ENDLESS_NEST UPG_Recycler",
+        [0xAA24001] = "ENDLESS_NEST UPG_ATM",
+        [0xAA24002] = "ENDLESS_NEST UPG_Vendor_T2_01",
+        [0xAA24003] = "ENDLESS_NEST UPG_Ration_T1",
+        [0xAA24004] = "ENDLESS_NEST UPG_Ration_T2",
+        [0xAA24005] = "ENDLESS_NEST UPG_Wine_T1",
+        [0xAA24006] = "ENDLESS_NEST UPG_ItemLocker_01"
     };
     
     public static Dictionary<string, long> FullFacilityUpgradetoAP = new Dictionary<string, long>()
@@ -284,7 +356,38 @@ public class APItems
         ["CAMPAIGN_INTERLUDE_04 UPG_Ration_T2"] = 0xAA14004,
         ["CAMPAIGN_INTERLUDE_04 UPG_Wine_T1"] = 0xAA14005,
         ["CAMPAIGN_INTERLUDE_04 UPG_ATM"] = 0xAA14006,
-        ["CAMPAIGN_INTERLUDE_04 UPG_Vendor_T2_01"] = 0xAA14007
+        ["CAMPAIGN_INTERLUDE_04 UPG_Vendor_T2_01"] = 0xAA14007,
+
+        ["ENDLESS_SILOS UPG_Recycler"] = 0xAA20000,
+        ["ENDLESS_SILOS UPG_ATM"] = 0xAA20001,
+        ["ENDLESS_SILOS UPG_ItemLocker_01"] = 0xAA20002,
+        ["ENDLESS_SILOS UPG_Install_Vendor_T2"] = 0xAA20003,
+
+        ["ENDLESS_PIPEWORKS UPG_Recycler"] = 0xAA21000,
+        ["ENDLESS_PIPEWORKS UPG_ATM"] = 0xAA21001,
+        ["ENDLESS_PIPEWORKS UPG_ItemLocker_01"] = 0xAA21002,
+        ["ENDLESS_PIPEWORKS UPG_Ration_T1"] = 0xAA21003,
+        ["ENDLESS_PIPEWORKS UPG_Ration_T2"] = 0xAA21004,
+        ["ENDLESS_PIPEWORKS UPG_Install_Vendor_T2"] = 0xAA21005,
+
+        ["ENDLESS_HABITATION UPG_Recycler"] = 0xAA22000,
+        ["ENDLESS_HABITATION UPG_ATM"] = 0xAA22001,
+        ["ENDLESS_HABITATION UPG_ItemLocker_01"] = 0xAA22002,
+        ["ENDLESS_HABITATION UPG_Ration_T1"] = 0xAA22003,
+        ["ENDLESS_HABITATION UPG_Ration_T2"] = 0xAA22004,
+        ["ENDLESS_HABITATION UPG_Install_Vendor_T2"] = 0xAA22005,
+
+        ["ENDLESS_ABYSS UPG_Recycler"] = 0xAA23000,
+        ["ENDLESS_ABYSS UPG_ATM"] = 0xAA23001,
+        ["ENDLESS_ABYSS UPG_Install_Vendor_T2"] = 0xAA23002,
+
+        ["ENDLESS_NEST UPG_Recycler"] = 0xAA24000,
+        ["ENDLESS_NEST UPG_ATM"] = 0xAA24001,
+        ["ENDLESS_NEST UPG_Vendor_T2_01"] = 0xAA24002,
+        ["ENDLESS_NEST UPG_Ration_T1"] = 0xAA24003,
+        ["ENDLESS_NEST UPG_Ration_T2"] = 0xAA24004,
+        ["ENDLESS_NEST UPG_Wine_T1"] = 0xAA24005,
+        ["ENDLESS_NEST UPG_ItemLocker_01"] = 0xAA24006
     };
 
     public static Dictionary<string, long> RoomNameToAP = new Dictionary<string, long>()

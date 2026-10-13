@@ -113,6 +113,18 @@ class IncludeChallengeModes(Choice):
     option_Locked = 2
     default = option_Locked
 
+class IncludeEndlessFacilities(Choice):
+    """
+    Makes the Endless Mode Facility Upgrades checks to be completed
+    Off: Endless Mode Facilities do not count as checks
+    On: Endless Mode Facilities can be purchased as checks
+    """
+
+    display_name = "Include Endless Facilities"
+    option_Off = 0
+    option_On = 1
+    default = option_Off
+
 class HiddenClampTotalBuffs(Toggle):
     """
     Hidden option specifically for large sync/async creators to prevent gen errors
@@ -136,6 +148,7 @@ class WKOptions(PerGameCommonOptions):
     Goal_Region: GoalRegion
     Include_Training_Sector: IncludeTrainingSector
     Include_Challenge_Modes: IncludeChallengeModes
+    Include_Endless_Facilities: IncludeEndlessFacilities
 
     Clamp: HiddenClampTotalBuffs
 
@@ -169,7 +182,7 @@ class WKWebWorld(WebWorld):
     option_groups = [
         OptionGroup(
             "Difficulty",
-            [StartingDebuffs, TotalBuffs, GoalRegion, IncludeChallengeModes, IncludeTrainingSector, StartingTrinketSlots, TotalTrinketSlots]
+            [StartingDebuffs, TotalBuffs, GoalRegion, IncludeChallengeModes, IncludeEndlessFacilities, IncludeTrainingSector, StartingTrinketSlots, TotalTrinketSlots]
         ),
         OptionGroup(
             "Client Side",

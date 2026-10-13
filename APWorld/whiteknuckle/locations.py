@@ -51,7 +51,38 @@ LOCATION_NAME_TO_ID = {
     "I4: Wine Vendor": 0xAA14005,
     "I4: ATM Install": 0xAA14006,
     "I4: Vendor Upgrade": 0xAA14007,
-    
+
+    "Endless Silos: Recycler Upgrade": 0xAA20000,
+    "Endless Silos: ATM Install": 0xAA20001,
+    "Endless Silos: Locker 1": 0xAA20002,
+    "Endless Silos: Vendor Install": 0xAA20003,
+
+    "Endless Pipeworks: Recycler Upgrade": 0xAA21000,
+    "Endless Pipeworks: ATM Install": 0xAA21001,
+    "Endless Pipeworks: Locker 1": 0xAA21002,
+    "Endless Pipeworks: Ration Vendor 1": 0xAA21003,
+    "Endless Pipeworks: Ration Vendor 2": 0xAA21004,
+    "Endless Pipeworks: Install Vendor T2": 0xAA21005,
+
+    "Endless Habitation: Recycler Upgrade": 0xAA22000,
+    "Endless Habitation: ATM Install": 0xAA22001,
+    "Endless Habitation: Locker 1": 0xAA22002,
+    "Endless Habitation: Ration Vendor 1": 0xAA22003,
+    "Endless Habitation: Ration Vendor 2": 0xAA22004,
+    "Endless Habitation: Install Vendor T2": 0xAA22005,
+
+    "Endless Abyss: Recycler Upgrade": 0xAA23000,
+    "Endless Abyss: ATM Install": 0xAA23001,
+    "Endless Abyss: Install Vendor T2": 0xAA23002,
+
+    "Endless Nest: Recycler Upgrade": 0xAA24000,
+    "Endless Nest: ATM Install": 0xAA24001,
+    "Endless Nest: Vendor T2 Upgrade": 0xAA24002,
+    "Endless Nest: Ration Vendor 1": 0xAA24003,
+    "Endless Nest: Ration Vendor 2": 0xAA24004,
+    "Endless Nest: Wine Vendor": 0xAA24005,
+    "Endless Nest: Locker 1": 0xAA24006,
+
     #Room Checks
     "Silos: Deep Storage 01": 0xAB10000,
     "Silos: Deep Storage 03": 0xAB10001,
@@ -303,6 +334,12 @@ def create_regular_locations(world: WKWorld) -> None:
     interlude_3 = world.get_region("Interlude 3")
     interlude_4 = world.get_region("Interlude 4")
 
+    endless_silos = world.get_region("Endless Silos")
+    endless_pipeworks = world.get_region("Endless Pipeworks")
+    endless_habitation = world.get_region("Endless Habitation")
+    endless_abyss = world.get_region("Endless Abyss")
+    endless_nest = world.get_region("Endless Nest")
+
     global_shop.add_locations(
         get_location_names_with_ids(
             ["Global: Bazaar Access",
@@ -367,6 +404,62 @@ def create_regular_locations(world: WKWorld) -> None:
              "I4: Vendor Upgrade"]
         ), WKLocation
     )
+
+    if world.options.Include_Endless_Facilities > 0:
+        endless_silos.add_locations(
+            get_location_names_with_ids(
+                ["Endless Silos: Recycler Upgrade",
+                 "Endless Silos: ATM Install",
+                 "Endless Silos: Locker 1",
+                 "Endless Silos: Vendor Install"]
+            ), WKLocation
+        )
+
+    if (world.options.Goal_Region > 1) & (world.options.Include_Endless_Facilities > 0):
+        endless_pipeworks.add_locations(
+            get_location_names_with_ids(
+                ["Endless Pipeworks: Recycler Upgrade",
+                 "Endless Pipeworks: ATM Install",
+                 "Endless Pipeworks: Locker 1",
+                 "Endless Pipeworks: Ration Vendor 1",
+                 "Endless Pipeworks: Ration Vendor 2",
+                 "Endless Pipeworks: Install Vendor T2"]
+            ), WKLocation
+        )
+
+    if (world.options.Goal_Region > 2) & (world.options.Include_Endless_Facilities > 0):
+        endless_pipeworks.add_locations(
+            get_location_names_with_ids(
+                ["Endless Habitation: Recycler Upgrade",
+                 "Endless Habitation: ATM Install",
+                 "Endless Habitation: Locker 1",
+                 "Endless Habitation: Ration Vendor 1",
+                 "Endless Habitation: Ration Vendor 2",
+                 "Endless Habitation: Install Vendor T2"]
+            ), WKLocation
+        )
+
+    if (world.options.Goal_Region > 3) & (world.options.Include_Endless_Facilities > 0):
+        endless_pipeworks.add_locations(
+            get_location_names_with_ids(
+                ["Endless Abyss: Recycler Upgrade",
+                 "Endless Abyss: ATM Install",
+                 "Endless Abyss: Install Vendor T2"]
+            ), WKLocation
+        )
+
+    if (world.options.Goal_Region > 4) & (world.options.Include_Endless_Facilities > 0):
+        endless_pipeworks.add_locations(
+            get_location_names_with_ids(
+                ["Endless Nest: Recycler Upgrade",
+                 "Endless Nest: ATM Install",
+                 "Endless Nest: Vendor T2 Upgrade",
+                 "Endless Nest: Ration Vendor 1",
+                 "Endless Nest: Ration Vendor 2",
+                 "Endless Nest: Wine Vendor",
+                 "Endless Nest: Locker 1"]
+            ), WKLocation
+        )
 
     if world.options.Include_Challenge_Modes > 0:
 

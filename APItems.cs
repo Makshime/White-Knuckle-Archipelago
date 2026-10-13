@@ -84,7 +84,7 @@ public class APItems
             ["UPG_Ration_T1"] = false,
             ["UPG_Ration_T2"] = false,
             ["UPG_Install_Vendor_T2"] = false
-        }
+        },
         ["ENDLESS_HABITATION"] = new ()
         {
             ["UPG_Recycler"] = false,

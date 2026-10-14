@@ -59,7 +59,7 @@ def create_all_regions(world: WKWorld) -> None:
     nest_3 = Region("Nest 3", world.player, world.multiworld)
     core_1 = Region("Core 1", world.player, world.multiworld)
 
-    regions = [challenge_modes, chal_1, chal_2, chal_3, chal_4, chal_5, chal_6, training_sector, sink, chute, global_shop, silos_1, silos_2, silos_3, interlude_1, pipeworks_1, pipeworks_2, pipeworks_3, interlude_2, hab_1, hab_2, hab_3, interlude_3, abyss_1, abyss_2, abyss_3, interlude_4, nest_1, nest_2, nest_3, core_1]
+    regions = [challenge_modes, chal_1, chal_2, chal_3, chal_4, chal_5, chal_6, training_sector, sink, chute, global_shop, endless_silos, endless_pipeworks, endless_habitation, endless_abyss, endless_nest, silos_1, silos_2, silos_3, interlude_1, pipeworks_1, pipeworks_2, pipeworks_3, interlude_2, hab_1, hab_2, hab_3, interlude_3, abyss_1, abyss_2, abyss_3, interlude_4, nest_1, nest_2, nest_3, core_1]
 
     world.multiworld.regions += regions
 

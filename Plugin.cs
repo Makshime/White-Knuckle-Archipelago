@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.ExceptionServices;
@@ -17,6 +19,7 @@ using HarmonyLib.Tools;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.UIElements;
 using UnityEngine.Yoga;
 using Color = UnityEngine.Color;
 using Logger = UnityEngine.Logger;
@@ -134,7 +137,43 @@ public class Plugin : BaseUnityPlugin
                 __instance.AddPerk(CL_AssetManager.GetPerkAsset("archipelago_amnesty"), DeathLinkHandler.DeathLinksSentSinceLast);
             }
         }
+
         
+
+        
+    }
+    
+    [HarmonyPatch(typeof(ENT_Player), "InteractCheck")]
+    class PlayerView
+    {
+        //Calls CheckViewed whenever the player is looking at anything that would produce a debug text and sphere
+        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            byte s = 32;
+            return new CodeMatcher(instructions).MatchForward(false,
+                    new CodeMatch(OpCodes.Blt),
+                    new CodeMatch(OpCodes.Ldsfld, AccessTools.Field(typeof(CL_UIManager), nameof(CL_UIManager.debug))))
+                .ThrowIfInvalid($"Could not find the call to CL_UIManager::debug in ENT_Player.InteractCheck: {AccessTools.Field(typeof(CL_UIManager), nameof(CL_UIManager.debug))}")
+                .Advance(1).Insert(
+                    new CodeInstruction(OpCodes.Ldloc_S, s),
+                    CodeInstruction.Call(typeof(PlayerView), nameof(CheckViewed))
+                ).InstructionEnumeration();
+
+
+        }
+
+        private static string _previous;
+        //Checks for what object the player is viewing, is currently used to send checks for Hadal Diver segments
+        static void CheckViewed(InteractHit interactHit)
+        {
+            string name = interactHit.collider.name;
+            if (_previous == "" || _previous != name)
+            {
+                Logger.LogInfo("Viewing: " + name);
+                _previous = name;
+                
+            }
+        }
     }
 
 
@@ -296,9 +335,9 @@ public class Plugin : BaseUnityPlugin
         private static void TestPopup(string[] args)
         {
             string text = "Test message";
-            if (args.Length >= 1)
+            if (args.Length > 0)
             {
-                text = args[0];
+                text = args.Join();
             }
             CL_ProgressionManager.ShowUnlockPopup(APItems.SpriteFromPath("WKRando/Assets/Archipelago_Icon.png"), "Test Popup", text, new Color(0f, 1f, 0f));
 
@@ -385,6 +424,40 @@ public class Plugin : BaseUnityPlugin
             ENT_Player.playerObject.Kill("deathlink");
         }
 
+        private static void SetProgressionUnlockFlag(string[] args)
+        {
+            try
+            {
+                APItems.ProgressionUnlocks[args[0]] = Convert.ToBoolean(args[1]);
+                CommandConsole.Log($"Set {args[0]} to {args[1]} successfully.");
+            }
+            catch
+            {
+                CommandConsole.Log("Invalid command arguments");
+            }
+        }
+
+        private static void SetPopupSizeCommand(string[] args)
+        {
+            if (args.Length >= 1 && float.TryParse(args[0], out float size))
+            {
+                PopupSizeFactor = size;
+                while (false && CL_ProgressionManager.instance.popupAsset.showingAnimation)
+                {
+                    CommandConsole.Log("Currently showing a popup!");
+                    return;
+                }
+                CL_ProgressionManager.instance.popupAsset.Awake();
+                CommandConsole.Log($"Set size to {args[0]} successfully.");
+            }
+            else
+            {
+                CommandConsole.Log("Invalid command arguments");
+            }
+
+        }
+        
+
         static void Postfix()
         {
             CommandConsole.BuildCommand("setdebuff", SetDebuffs).NotCheat().Description(
@@ -429,6 +502,26 @@ public class Plugin : BaseUnityPlugin
                     }
                 });
             CommandConsole.BuildCommand("TestArchipelagoDeath", TestArchipelagoDeath).Description("Kills the player with the specified death message");
+            CommandConsole.BuildCommand("SetUnlockFlag", SetProgressionUnlockFlag).Description("Debug")
+                .AutocompleteCustom(autocomplete =>
+                {
+                    if (autocomplete.activeArg < 0 || autocomplete.activeArg > 1)
+                    {
+                        autocomplete.Reject();
+                    }
+                    else if (autocomplete.activeArg == 0)
+                    {
+                        autocomplete.FromArray(APItems.ProgressionUnlocks.Keys.ToList());
+                    }
+                    else if (autocomplete.activeArg == 0)
+                    {
+                        autocomplete.FromArray([
+                            APItems.ProgressionUnlocks[autocomplete.ArgumentAt(1)].ToString(),
+                            (!APItems.ProgressionUnlocks[autocomplete.ArgumentAt(1)]).ToString()
+                        ]);
+                    }
+                });
+            CommandConsole.BuildCommand("SetPopupSizeFactor", SetPopupSizeCommand).Description("Sets the size factor of the various popups. Minimum of 0.5, maximum of 3");
             
             Logger.LogInfo("Successfully Injected Commands");
         }
@@ -521,7 +614,7 @@ public class Plugin : BaseUnityPlugin
         {
             if (__instance == null)
                 return;
-            Logger.LogInfo(__instance.upgrade.name);
+            Logger.LogInfo("Facility menu upgrade: " + __instance.upgrade.name);
             if (!ArchipelagoClient.Connected)
             {
                 __instance.tooltip.tip = $"<color=red>DISCONNECTED\n</color>Connect to the archipelago server to purchase facility upgrades";
@@ -650,6 +743,7 @@ public class Plugin : BaseUnityPlugin
         [HarmonyPatch(typeof(ProgressionUnlock), "CheckUnlock")]
         static bool Prefix(ProgressionUnlock __instance, ref bool __result)
         {
+            Logger.LogInfo(__instance.name);
             bool state = APItems.ProgressionUnlocks[__instance.id];
             __instance.state = state;
             if (CL_GameManager.gMan != null)
@@ -659,9 +753,10 @@ public class Plugin : BaseUnityPlugin
         }
 
         [HarmonyPatch(typeof(CL_ProgressionManager), "HasProgressionUnlock")]
-        [HarmonyPrefix]
+        [HarmonyPrefix] 
         static bool Prefix(CL_ProgressionManager __instance, ref bool __result, object[] __args)
         {
+            Logger.LogInfo("HasProgressionUnlock: " + (string) __args[0]);
             __result = CL_ProgressionManager.progressionDict != null && CL_ProgressionManager.progressionDict.ContainsKey((string) __args[0]) && CL_ProgressionManager.progressionDict[(string) __args[0]].CheckUnlock();
             return false;
         }
@@ -790,7 +885,7 @@ public class Plugin : BaseUnityPlugin
     {
         static void Prefix(CL_GameManager __instance)
         {
-            Logger.LogInfo(__instance.name);
+            //Logger.LogInfo("Door: " + __instance.name);
             //return WorldLoader.instance.GetCurrentLevel().GetLevel().levelName != "Campaign_Interlude_Diver_To_Nest_SafeArea_01";
         }
     }
@@ -803,7 +898,7 @@ public class Plugin : BaseUnityPlugin
 
         static bool Prefix(CL_Button __instance)
         {
-            Logger.LogInfo(__instance.name); ;
+            Logger.LogInfo("Button: " + __instance.name); ;
             string currLvl = WorldLoader.instance.GetCurrentLevel().GetLevel().levelName;
             int reg = APItems.ProgressiveRegions;
             Logger.LogInfo("Current Progressive Region Count: " + reg);
@@ -872,6 +967,19 @@ public class Plugin : BaseUnityPlugin
             if (ArchipelagoClient.Connected && CL_GameManager.gameType == "campaign")
             {
                 ArchipelagoClient.Goal();
+            }
+        }
+    }
+
+    [HarmonyPatch(typeof(App_FrequencyUnlocker), "Update")]
+    class PatchHadalUnlock
+    {
+        static void Prefix(App_FrequencyUnlocker __instance)
+        {
+            if (APItems.ProgressionUnlocks["r_shortcut_hadaldiver"])
+            {
+                __instance.currentFrequency = __instance.targetFrequency;
+                __instance.currentAmplitude = __instance.targetPhase;
             }
         }
     }
@@ -1102,14 +1210,39 @@ public class Plugin : BaseUnityPlugin
         }
     }
     
-    //Prevents any scores from being uploaded to steam
-    [HarmonyPatch(typeof(SteamManager), "UploadGamemodeResults")]
-    class PatchSteamUpload
+    
+    public static float PopupSizeFactor = 2f;
+    [HarmonyPatch(typeof(UI_ProgressionPopup), "Awake")]
+    class PatchPopupSize
     {
-        static bool Prefix()
+        private static Vector2 _base_anchoredPosition = new Vector2();
+        
+        static bool Prefix(UI_ProgressionPopup __instance)
         {
+            __instance.rectTransform = __instance.GetComponent<RectTransform>();
+            if (_base_anchoredPosition == new Vector2())
+                _base_anchoredPosition = __instance.rectTransform.anchoredPosition;
+            __instance.rectTransform.anchoredPosition = _base_anchoredPosition + new Vector2(
+                __instance.rectTransform.sizeDelta.x * (PopupSizeFactor - 1f) / 2f,
+                -__instance.rectTransform.sizeDelta.y * (PopupSizeFactor - 1f) / 2f
+            );
+            __instance.rootPositon = __instance.rectTransform.anchoredPosition;
+            __instance.rectTransform.localScale = new Vector2(PopupSizeFactor, PopupSizeFactor); 
+            __instance.hidePositionOffset += new Vector2(0, 64f*(PopupSizeFactor-1f));
+            
+            if (!__instance.animateOnPopup)
+                return false;
+            
+            __instance.rectTransform.anchoredPosition = __instance.rootPositon + __instance.hidePositionOffset;
             return false;
         }
+    }
+    
+    //Prevents any scores from being uploaded to steam
+    [HarmonyPatch(typeof(SteamManager))]
+    class PatchSteamUpload
+    {
+        
     }
 
     [HarmonyPatch(typeof(M_Level), "GetSpawnChance")]
@@ -1126,7 +1259,16 @@ public class Plugin : BaseUnityPlugin
             
         }
     }
-    
+
+    [HarmonyPatch(typeof(SpawnTable.SpawnSettings), "GetEffectiveSpawnChance")]
+    class TestSpawnChance
+    {
+        static void Prefix(SpawnTable.SpawnSettings __instance)
+        {
+            if(__instance.useFlags)
+                Logger.LogInfo($"Spawntable name:{__instance.unlockName} Checks blacklist: {__instance.flagBlacklist.Join()} Checks Whitelist: {__instance.flagWhitelist.Join()}");
+        }
+    }
     
     
 

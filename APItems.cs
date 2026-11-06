@@ -360,6 +360,13 @@ public class APItems
         ["M2_Pipeworks_Organ_06"] = 0xAB20202,
         ["M2_Pipeworks_Organ_07"] = 0xAB20203,
         
+        ["M2_Pipeworks_Organism_01"] = 0xAB20300,
+        ["M2_Pipeworks_Organism_02"] = 0xAB20301,
+        ["M2_Pipeworks_Organism_03"] = 0xAB20302,
+        ["M2_Pipeworks_Organism_04"] = 0xAB20303,
+        ["M2_Pipeworks_Organism_05"] = 0xAB20304,
+        ["M2_Pipeworks_Organism_06"] = 0xAB20305,
+        
         
         //Pipeworks Tier 1 Unlocks
         ["M2_Pipeworks_Drainage_03"] = 0xAB21000,
@@ -565,8 +572,8 @@ public class APItems
         ["r_pipeworks_t1"] = false,
         ["r_pipeworks_t2"] = false,
         ["r_pipeworks_t3"] = false,
-        ["r_shortcut_hadaldiver"] = false,
-        ["r_shortcut_rottenduct"] = false,
+        ["r_shortcut_hadaldiver"] = true,
+        ["r_shortcut_rottenduct"] = true,
         ["r_shortcut_expulsionchute"] = false,
         ["r_shortcut_tangledsink"] = false,
         ["r_silos_t1"] = false,

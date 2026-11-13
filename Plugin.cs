@@ -1330,6 +1330,8 @@ public class Plugin : BaseUnityPlugin
         public string User = "";
         public string Password = "";
         public float UnsentRoomWeightMultiplier = 1f;
+        public int totalRoachesReceived = 0;
+        public int totalCreditsReceived = 0;
 
 
         public void EnableDeathlink()
@@ -1346,7 +1348,26 @@ public class Plugin : BaseUnityPlugin
         {
             Deathlink = false;
             ArchipelagoClient.Deathlinkservice.DisableDeathLink();
-        }        
+        }
+
+        public void AddTotalRoaches(int amount, bool credits = false)
+        {
+            if (!credits)
+            {
+                APItems.TotalRoachesReceived += amount;
+                if (APItems.TotalRoachesReceived <= totalRoachesReceived) return;
+                LoanAmount += amount;
+                CL_GameManager.runRoaches += amount;
+                totalRoachesReceived = APItems.TotalRoachesReceived;
+            }
+            else
+            {
+                APItems.TotalCreditsReceived += amount;
+                if (APItems.TotalCreditsReceived <= totalCreditsReceived) return;
+                CL_GameManager.globalRoaches += amount;
+                totalCreditsReceived = APItems.TotalCreditsReceived;
+            }
+        }
 
         public void SaveOptions()
         {

@@ -138,13 +138,10 @@ public class APItems
         switch (id)
         {
             case 0xA900001:
-                Plugin.LoanAmount += 1;
-                CL_GameManager.runRoaches += 1;
-                TotalRoachesReceived += 1;
+                Plugin.ClientOptions.AddTotalRoaches(1);
                 break;
             case 0xA900002:
-                CL_GameManager.globalRoaches += 10;
-                TotalCreditsReceived += 10;
+                Plugin.ClientOptions.AddTotalRoaches(10);
                 break;
             case 0xA900010:
                 ProgressiveRegions += 1;
